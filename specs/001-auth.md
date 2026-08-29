@@ -44,6 +44,29 @@ users/{uid}
   createdAt: timestamp
 ```
 
+## Verification plan
+
+Test infrastructure set up as part of this spec (and reused by all later
+specs): Jest + `jest-expo` + React Native Testing Library for unit tests,
+Firebase Emulator Suite + `@firebase/rules-unit-testing` for security rules
+tests, Maestro on an Android emulator for E2E flows.
+
+The real Google account picker (Google's native UI) is impractical to
+automate; E2E runs point the app at the **Firebase Auth emulator**, which
+substitutes a fake sign-in screen. The genuine Google flow is covered by a
+short manual checklist on a real device.
+
+| Criterion | Layer | How |
+|-----------|-------|-----|
+| 1 — sign-in creates profile, lands on main | E2E (Auth emulator) + manual | Maestro: welcome → sign-in → main screen, assert `users/{uid}` exists. Manual: real Google flow once per release. |
+| 2 — session persists across restart | E2E (Auth emulator) | Maestro: sign in, kill app, relaunch, assert main screen (no login). |
+| 3 — sign-out returns to welcome, data unreadable | Unit + E2E | Unit: wrapper clears state; rules test: signed-out context loses read access. Maestro: tap sign-out → welcome screen. |
+| 4 — cancel leaves clean state | Unit + manual | Unit: wrapper's cancel path creates no profile doc, no error state. Manual: cancel the real Google dialog. |
+| 5 — rules reject unauthenticated access | Rules tests (fully automated) | `rules-unit-testing`: unauthenticated read/write of `users/*` denied; authed user can read/write only own doc. |
+
+CI runs unit + rules + E2E layers on every push. Manual checklist items are
+ticked in the PR/release notes before the spec is marked `verified`.
+
 ## Out of scope
 
 - Sign in with Apple (required before iOS launch — tracked in 000).
