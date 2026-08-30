@@ -1,10 +1,21 @@
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useAuthStore } from './src/store/authStore';
+import { WelcomeScreen } from './src/screens/WelcomeScreen';
+import { MainScreen } from './src/screens/MainScreen';
 
 export default function App() {
+  const { user, isInitializing } = useAuthStore();
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+      {isInitializing ? (
+        <ActivityIndicator testID="app-init-spinner" />
+      ) : user ? (
+        <MainScreen />
+      ) : (
+        <WelcomeScreen />
+      )}
       <StatusBar style="auto" />
     </View>
   );
@@ -14,7 +25,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

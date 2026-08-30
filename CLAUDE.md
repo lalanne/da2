@@ -26,6 +26,38 @@ spec.** The process, defined in `specs/README.md`:
 Read `specs/000-overview.md` first — it holds the product vision, v1
 scope/out-of-scope table, and cross-cutting constraints.
 
+## Commands
+
+- `npm start` / `npm run android` / `npm run ios` — Expo dev server. Note:
+  the app imports `@react-native-firebase/*` and
+  `@react-native-google-signin/google-signin`, which are native modules —
+  it cannot run in Expo Go; a custom dev client (`eas build --profile
+  development`) is required once those are wired up end-to-end.
+- `npm run typecheck` — `tsc --noEmit` over app source (test files are
+  excluded from this check; see below).
+- `npm test` — Jest unit/component tests (`jest-expo` preset). Run a single
+  file: `npm test -- src/store/__tests__/authStore.test.ts`.
+- `npm run test:rules` — Firestore security rules tests. Spins up the
+  Firebase emulator (`firebase emulators:exec`) against a `demo-da2` project
+  id and runs `firebase/tests/**` with `jest.rules.config.js`. No login or
+  real Firebase project needed — emulator-only, `demo-`-prefixed project ids
+  never touch real infrastructure.
+
+## Test layout
+
+- `src/**/__tests__/` — unit and component tests (mocked Firebase/Google
+  modules), run by the default `jest.config.js`.
+- `firebase/tests/` — Firestore/Storage security rules tests, run by
+  `jest.rules.config.js` against the local emulator, never against a real
+  project. Kept in a separate Jest project (different `testEnvironment` and
+  `tsconfig`) because they use the `firebase` web SDK against the emulator,
+  not the React Native app code.
+- `__mocks__/@react-native-firebase/*`, `__mocks__/@react-native-google-signin/*`
+  — root-level manual mocks Jest auto-applies to any test importing these
+  native packages, since their real native modules don't exist under Jest.
+  Override per-test with `jest.mock(...)` when a test needs specific
+  request/response behavior (see `googleAuthProvider.test.ts`).
+
 ## Locked-in stack decisions (rationale in specs/000-overview.md)
 
 - **Expo (React Native) + TypeScript** — Android first; iOS and web later from

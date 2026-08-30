@@ -39,3 +39,14 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase credentials (per-environment, provisioned via `eas env:create`)
+google-services.json
+GoogleService-Info.plist
+.env
+
+# Firebase emulator local state
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

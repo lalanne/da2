@@ -1,6 +1,6 @@
 # 001 — Authentication (Google Sign-In)
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 000
 
 ## User stories
