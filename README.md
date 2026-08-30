@@ -45,7 +45,7 @@ See [specs/README.md](specs/README.md) for the spec index and process rules.
 
 ## Status
 
-Pre-implementation — specs 000–006 drafted, awaiting approval before
-scaffolding begins. Every verified feature is deployed to a two-phone pilot
+In development — spec 001 (auth) approved and under implementation on a
+fresh Expo SDK 57 + TypeScript scaffold; specs 002–006 drafted. Every verified feature is deployed to a two-phone pilot
 (one Android, one iPhone) running a real household — see
 [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
