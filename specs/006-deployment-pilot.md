@@ -56,9 +56,21 @@ eas submit --platform ios          # → TestFlight (beta review ~1 day)
 
 ### Choosing the path
 
-`runtimeVersion` uses Expo's `fingerprint` policy so EAS refuses to deliver
-an OTA update to an incompatible binary — a mismatch fails loudly instead of
-half-updating one phone. When in doubt, ship binaries.
+`runtimeVersion` uses the `appVersion` policy — every OTA update targets
+phones on a matching `expo.version`, so a native change requires bumping
+`version` (Path B) rather than silently half-updating one phone. When in
+doubt, ship binaries.
+
+(We first tried the `fingerprint` policy, which computes a hash of native
+dependencies instead of relying on a manually bumped version. It sounds
+more precise, but in practice EAS Build computes that hash once locally and
+once on the remote worker and requires them to match exactly — and they
+didn't, because `google-services.json`/`GoogleService-Info.plist` reach the
+build differently in each place (local file vs. a materialized EAS secret).
+Every `pilot` build failed at the "Configure expo-updates" phase with
+"Runtime version calculated on local machine not equal to runtime version
+calculated during build." `appVersion` has no such local/remote comparison,
+so it doesn't hit this.)
 
 ## Standard per-change flow
 
@@ -98,8 +110,9 @@ half-updating one phone. When in doubt, ship binaries.
 2. **Given** a native change, **when** Path B completes, **then** the
    Android phone installs from the EAS link and the iPhone updates via
    TestFlight, both on the same runtime version.
-3. **Given** an OTA update targeted at an incompatible runtime, **then**
-   neither phone receives it (fingerprint mismatch blocks delivery).
+3. **Given** an OTA update targeted at an incompatible runtime (a phone on
+   an older `expo.version` than the update's), **then** it doesn't receive
+   the update (runtime version mismatch blocks delivery).
 4. **Given** the pilot household (2 parents, 3 children) on both phones,
    **then** a change made on one phone is visible on the other within
    seconds (end-to-end smoke test, repeated after every deployment).
