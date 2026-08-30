@@ -1,0 +1,33 @@
+{
+  "cli": {
+    "version": ">= 23.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "pilot": {
+      "distribution": "internal",
+      "channel": "pilot",
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "store"
+      }
+    },
+    "production": {
+      "channel": "production",
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "pilot": {},
+    "production": {}
+  }
+}

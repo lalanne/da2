@@ -29,6 +29,12 @@
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
       "@react-native-google-signin/google-signin"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2561ab04-b36b-4f5d-86cb-fc5be7396674"
+      }
+    },
+    "owner": "orcla"
   }
 }
