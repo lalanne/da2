@@ -25,7 +25,7 @@ receipts in real time.
 
 | Layer | Choice |
 |-------|--------|
-| App | Expo (React Native) + TypeScript — Android first, iOS and web later from the same codebase |
+| App | Expo (React Native) + TypeScript — pilot on Android + iOS (TestFlight); public launch Android first, then iOS and web, same codebase |
 | Auth | Firebase Auth (Google Sign-In; Sign in with Apple before iOS launch) |
 | Data | Cloud Firestore (real-time sync between parents) |
 | Files | Firebase Storage (receipt images/PDFs) |
@@ -45,5 +45,7 @@ See [specs/README.md](specs/README.md) for the spec index and process rules.
 
 ## Status
 
-Pre-implementation — specs 000–005 drafted, awaiting approval before
-scaffolding begins.
+Pre-implementation — specs 000–006 drafted, awaiting approval before
+scaffolding begins. Every verified feature is deployed to a two-phone pilot
+(one Android, one iPhone) running a real household — see
+[specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).

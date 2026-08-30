@@ -46,6 +46,13 @@ MMKV). Use it as a working reference for Expo/Firebase wiring and version
 choices. Per its AGENTS.md: Expo has changed significantly — consult the
 versioned docs at https://docs.expo.dev/versions/ before writing Expo code.
 
+## README maintenance rule
+
+Whenever a change alters something the README states — scope, stack,
+platform strategy, process, project status — update `README.md` in the same
+commit. If it's unclear whether the README should change, ask the user
+instead of guessing.
+
 ## Git
 
 - Push via the `github-lalanne` SSH alias (already set as `origin`:

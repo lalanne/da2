@@ -17,5 +17,6 @@ This project is built spec-first. Rules:
 | 003 | [Receipts & invoices](003-receipts.md) | draft |
 | 004 | [Custody calendar](004-custody-calendar.md) | draft |
 | 005 | [Kid events](005-events.md) | draft |
+| 006 | [Pilot deployment pipeline](006-deployment-pilot.md) | draft |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.

@@ -17,10 +17,13 @@ linked into one shared household via invite code.
 
 ## Platform strategy
 
-- **v1: Android** (Google Play).
-- **Later: iOS and web** from the same codebase.
-- Framework: **Expo (React Native) + TypeScript** — one codebase for all three
-  targets; EAS Build/Submit for store delivery.
+- **Pilot (now): Android + iOS.** The pilot runs on two real phones — the
+  mother's Android phone and the father's iPhone (TestFlight) — with one real
+  household of 3 children. See spec 006 for the deployment pipeline.
+- **Public launch: Android first** (Google Play), then iOS App Store, then
+  web — all from the same codebase.
+- Framework: **Expo (React Native) + TypeScript**; EAS Build/Submit/Update
+  for delivery.
 
 ## Backend stack (decision)
 
