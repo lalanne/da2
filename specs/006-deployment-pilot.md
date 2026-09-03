@@ -118,3 +118,54 @@ so it doesn't hit this.)
    seconds (end-to-end smoke test, repeated after every deployment).
 5. Automated tests never touch the pilot Firebase project (verified by
    emulator-only test configuration).
+
+## iOS pilot onboarding (one-time runbook)
+
+The Android phone is live. This brings the father's iPhone onto the pilot.
+Steps marked **(interactive)** need an Apple ID login and can't be scripted.
+
+### Pre-checks (done)
+
+- `eas.json` `pilot` profile sets `ios.distribution: "store"` (required for
+  TestFlight) and resolves to the `preview` EAS environment, where
+  `GOOGLE_SERVICE_INFO_PLIST` (file secret) and
+  `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` are configured.
+- `app.json` sets `ios.bundleIdentifier` = `com.lalanne.da2` and
+  `ios.googleServicesFile`. The bare `@react-native-google-signin/google-signin`
+  plugin runs `IOSConfig.Google.withGoogle`, which reads
+  `GoogleService-Info.plist` and appends its `REVERSED_CLIENT_ID` as the iOS
+  URL scheme automatically — no extra plugin config needed.
+- `GoogleService-Info.plist` is valid: `BUNDLE_ID` matches, `IS_SIGNIN_ENABLED`
+  is true, `REVERSED_CLIENT_ID` present.
+- `runtimeVersion` policy is `appVersion`; `expo.version` = `1.0.0`.
+- Local gates green: `npm test` (13), `npm run typecheck`, `npm run test:rules`.
+
+### Steps
+
+1. **(interactive)** `eas build --profile pilot --platform ios`
+   - Log in with the Apple ID (Apple Developer Program account).
+   - When prompted, let EAS register the bundle identifier on the Apple
+     Developer portal and manage the distribution certificate + provisioning
+     profile.
+2. **(interactive)** `eas submit --platform ios --profile pilot --latest`
+   - Creates/links the App Store Connect app record for `com.lalanne.da2`
+     and uploads the build to TestFlight.
+   - Apple beta review: ~1 day for the first binary.
+   - Once known, record `appleId` / `ascAppId` / `appleTeamId` in
+     `eas.json` `submit.pilot.ios` so later submits are non-interactive.
+3. In App Store Connect → TestFlight, add the father as a tester (internal if
+   he has an Apple ID on the team, otherwise external — external adds a
+   short extra review) or share the public TestFlight link.
+4. Father: install TestFlight → accept invite → install `da2`.
+5. Father runs spec 001 criteria 1–4 on the iPhone (Parent B role); tick them
+   in `specs/001-auth.md`. Spec 001 is fully `verified` once they pass on
+   both phones.
+
+### Notes
+
+- `ios.buildNumber` is unset, so it defaults to `1` for this first build.
+  Later iOS binaries need it bumped (or add `autoIncrement` to the `pilot`
+  profile) or TestFlight rejects the upload as a duplicate.
+- If Apple's beta review flags the Google-only sign-in (Guideline 4.8), pull
+  Sign in with Apple forward — the auth wrapper in spec 001 already isolates
+  the change to `src/auth/`.

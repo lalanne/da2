@@ -1,6 +1,6 @@
 # 001 — Authentication (Google Sign-In)
 
-**Status:** verified
+**Status:** implemented (verified on Android; iOS pending TestFlight onboarding — see 006)
 **Depends on:** 000
 
 ## User stories
@@ -69,11 +69,16 @@ ticked in the PR/release notes before the spec is marked `verified`.
 
 ## Verification results
 
-Verified 2026-09-03 on the pilot Android phone (Parent A) plus the automated
-suites. The Maestro/Auth-emulator E2E layer was not built for this spec —
-criteria 1, 2 and 4 were checked manually on the real device instead, and
-criteria 3 and 5 by the unit + rules suites. A Maestro E2E harness remains
-planned for later specs.
+Checked 2026-09-03 on the pilot **Android** phone (Parent A) plus the
+automated suites. The Maestro/Auth-emulator E2E layer was not built for this
+spec — criteria 1, 2 and 4 were checked manually on the real device instead,
+and criteria 3 and 5 by the unit + rules suites. A Maestro E2E harness
+remains planned for later specs.
+
+Per spec 006 the manual checklist must pass on **both** pilot phones before
+the spec is `verified`. The father's iPhone is not yet onboarded (runbook in
+006); criteria 1–4 still need to pass there. Status stays `implemented` until
+then.
 
 | Criterion | Result | Evidence |
 |-----------|--------|----------|

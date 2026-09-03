@@ -12,7 +12,7 @@ This project is built spec-first. Rules:
 | # | Spec | Status |
 |---|------|--------|
 | 000 | [Product overview & stack](000-overview.md) | draft |
-| 001 | [Authentication (Google Sign-In)](001-auth.md) | verified |
+| 001 | [Authentication (Google Sign-In)](001-auth.md) | implemented (verified on Android; iOS pending) |
 | 002 | [Household linking (invite code)](002-household.md) | draft |
 | 003 | [Receipts & invoices](003-receipts.md) | draft |
 | 004 | [Custody calendar](004-custody-calendar.md) | draft |
