@@ -1,6 +1,6 @@
 # 001 — Authentication (Google Sign-In)
 
-**Status:** implemented
+**Status:** verified
 **Depends on:** 000
 
 ## User stories
@@ -66,6 +66,22 @@ short manual checklist on a real device.
 
 CI runs unit + rules + E2E layers on every push. Manual checklist items are
 ticked in the PR/release notes before the spec is marked `verified`.
+
+## Verification results
+
+Verified 2026-09-03 on the pilot Android phone (Parent A) plus the automated
+suites. The Maestro/Auth-emulator E2E layer was not built for this spec —
+criteria 1, 2 and 4 were checked manually on the real device instead, and
+criteria 3 and 5 by the unit + rules suites. A Maestro E2E harness remains
+planned for later specs.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1 — sign-in creates profile, lands on main | ✅ | Real Google sign-in on pilot Android phone; "Hi, Javiera Moreno Cruz" main screen shown; `users/{uid}` created via first-sign-in path. |
+| 2 — session persists across restart | ✅ | Force-closed and reopened on the pilot phone — still signed in, no login screen. |
+| 3 — sign-out returns to welcome, data unreadable | ✅ | Unit: wrapper clears auth state on sign-out. Rules test: signed-out context denied reads of `users/*`. |
+| 4 — cancel leaves clean state | ✅ | Sign-out → sign-in → cancel the Google dialog on the pilot phone: returned to welcome, no crash, no partial profile. Unit test covers the cancel path. |
+| 5 — rules reject unauthenticated access | ✅ | `firebase/tests/**` rules suite: unauthenticated read/write of `users/*` denied; authed user limited to own doc. |
 
 ## Out of scope
 
