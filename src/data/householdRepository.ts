@@ -40,6 +40,19 @@ function db() {
   return getFirestore();
 }
 
+async function withRetry<T>(op: () => Promise<T>, attempts = 2): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await op();
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 400));
+    }
+  }
+  throw lastError;
+}
+
 function toMillis(value: unknown): number {
   if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
     return (value as { toMillis: () => number }).toMillis();
@@ -136,7 +149,11 @@ export const householdRepository: HouseholdRepository = {
 
     // Separate write: the users/{uid} rule checks the household exists with
     // this user as parentIds[0], which is only true after the batch commits.
-    await updateDoc(doc(db(), 'users', user.uid), { householdId: householdRef.id });
+    // Retry once — a failure here leaves an unlinked household that the next
+    // create attempt would duplicate.
+    await withRetry(() =>
+      updateDoc(doc(db(), 'users', user.uid), { householdId: householdRef.id }),
+    );
   },
 
   async claimInviteCode(uid, code) {
