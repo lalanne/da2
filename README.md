@@ -45,12 +45,11 @@ See [specs/README.md](specs/README.md) for the spec index and process rules.
 
 ## Status
 
-In development — spec 001 (auth) implemented: Google Sign-In wired through a
+In development — spec 001 (auth) verified: Google Sign-In wired through a
 provider-agnostic auth layer, Firestore user profiles, security rules, and a
 full test harness (Jest unit/component tests + Firestore rules tests against
-the emulator). All five acceptance criteria pass on the pilot Android phone
-against the live Firebase project; the iOS pilot phone is not yet onboarded
-(TestFlight runbook in spec 006), so 001 stays `implemented` until it's
-verified on both phones. Specs 002–006 drafted. Every verified feature is
+the emulator). All five acceptance criteria pass against the live Firebase
+project on both pilot phones — the Android phone and the iPhone (via
+TestFlight). Specs 002–006 drafted. Every verified feature is
 deployed to a two-phone pilot (one Android, one iPhone) running a real
 household — see [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
