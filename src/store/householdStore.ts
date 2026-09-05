@@ -11,7 +11,12 @@ import { HouseholdError } from '../data/HouseholdError';
 import { isValidInviteCode, normalizeInviteCode } from '../data/inviteCode';
 import { strings } from '../i18n/strings';
 
-export type HouseholdStatus = 'idle' | 'loading' | 'noHousehold' | 'active';
+export type HouseholdStatus =
+  | 'idle'
+  | 'loading'
+  | 'noHousehold'
+  | 'activating' // create/join succeeded; holding a spinner until the household is live
+  | 'active';
 
 export interface HouseholdMember {
   uid: string;
@@ -120,9 +125,11 @@ export function createHouseholdStore(repo: HouseholdRepository) {
 
       if (profile.householdId) {
         watchHousehold(profile.householdId);
-      } else if (belongToCurrentHousehold()) {
-        // profile has no householdId but we're already showing a household
-        // this user is a member of — a stale/pending snapshot; keep it.
+      } else if (belongToCurrentHousehold() || get().status === 'activating') {
+        // Either a stale snapshot for a household we're already in, or a
+        // create/join whose users/{uid} write hasn't propagated yet. Don't
+        // drop back to the onboarding form — that lets a re-tap create a
+        // duplicate household.
       } else {
         householdUnsub?.();
         householdUnsub = null;
@@ -169,10 +176,14 @@ export function createHouseholdStore(repo: HouseholdRepository) {
 
       createHousehold: async (input) => {
         if (!user || get().isSubmitting) return false;
-        if (get().profile?.householdId) return false; // already in a household
+        if (get().status === 'activating' || get().status === 'active') return false;
+        if (get().profile?.householdId || get().household) return false;
         set({ isSubmitting: true, actionError: null });
         try {
           await repo.createHousehold(user, input);
+          // Hold a spinner until the household listener goes active — the
+          // onboarding form must not reappear (a re-tap would duplicate it).
+          set({ status: 'activating' });
           return true;
         } catch (error) {
           set({ actionError: messageFor(error, 'createFailed') });
@@ -184,6 +195,7 @@ export function createHouseholdStore(repo: HouseholdRepository) {
 
       joinHousehold: async (rawCode) => {
         if (!user || get().isSubmitting) return false;
+        if (get().status === 'activating' || get().status === 'active') return false;
         const code = normalizeInviteCode(rawCode);
         if (!isValidInviteCode(code)) {
           set({ actionError: strings.household.join.errors.badFormat });
@@ -200,6 +212,7 @@ export function createHouseholdStore(repo: HouseholdRepository) {
             await repo.claimInviteCode(user.uid, code);
           }
           await repo.linkJoin(user.uid, code, existing.householdId);
+          set({ status: 'activating' });
           return true;
         } catch (error) {
           set({ actionError: messageFor(error, 'joinFailed') });

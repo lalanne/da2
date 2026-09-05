@@ -174,6 +174,35 @@ describe('householdStore', () => {
     expect(useStore.getState().household?.id).toBe('h1');
   });
 
+  it('holds an activating spinner after create and never falls back to onboarding', async () => {
+    const { repo, emitProfile } = makeRepo();
+    const useStore = createHouseholdStore(repo);
+    useStore.getState().start(me);
+    emitProfile(profile()); // no household yet -> noHousehold
+    await flush();
+    expect(useStore.getState().status).toBe('noHousehold');
+
+    const input = { name: 'Los García', children: [{ name: 'Sofía', birthdate: null }] };
+    expect(await useStore.getState().createHousehold(input)).toBe(true);
+    expect(useStore.getState().status).toBe('activating');
+
+    // Firestore round-trips lag: a stale "no household" snapshot arrives.
+    emitProfile(profile({ householdId: null }));
+    await flush();
+    expect(useStore.getState().status).toBe('activating');
+
+    // A second create attempt in this window must be refused.
+    expect(await useStore.getState().createHousehold(input)).toBe(false);
+    expect(repo.createHousehold).toHaveBeenCalledTimes(1);
+
+    // Then the real profile + household snapshots land.
+    emitProfile(profile({ householdId: 'h1' }));
+    await flush();
+    (repo.subscribeToHousehold as jest.Mock).mock.calls.at(-1)?.[1](household());
+    await flush();
+    expect(useStore.getState().status).toBe('active');
+  });
+
   it('createHousehold forwards to the repository and reports success', async () => {
     const { repo } = makeRepo();
     const useStore = createHouseholdStore(repo);
