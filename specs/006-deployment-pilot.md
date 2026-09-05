@@ -210,12 +210,16 @@ docs call CocoaPods mode with static linkage, and it's supported.
 2. **(interactive)** `eas submit --platform ios --profile pilot --latest`
    - Creates/links the App Store Connect app record for `com.lalanne.da2`
      and uploads the build to TestFlight.
-   - Apple beta review: ~1 day for the first binary.
-   - Once known, record `appleId` / `ascAppId` / `appleTeamId` in
-     `eas.json` `submit.pilot.ios` so later submits are non-interactive.
-3. In App Store Connect → TestFlight, add the father as a tester (internal if
-   he has an Apple ID on the team, otherwise external — external adds a
-   short extra review) or share the public TestFlight link.
+   - Prompts to generate an App Store Connect API Key (say yes, role ADMIN —
+     the first run also creates the app record). The key is stored on EAS and
+     reused, so later submits are non-interactive.
+   - Apple processes the binary (~5–10 min, email on completion).
+3. In App Store Connect → TestFlight, add the father as a tester:
+   - **Internal** (fastest): add his Apple ID as a user on the team with the
+     Developer or App Manager role, then add him to an internal testing
+     group. No beta review; build is available as soon as processing ends.
+   - **External**: create an external group, add his email; the first build
+     needs Apple beta review (~1 day) plus a "what to test" note.
 4. Father: install TestFlight → accept invite → install `da2`.
 5. Father runs spec 001 criteria 1–4 on the iPhone (Parent B role); tick them
    in `specs/001-auth.md`. Spec 001 is fully `verified` once they pass on
@@ -223,9 +227,14 @@ docs call CocoaPods mode with static linkage, and it's supported.
 
 ### Notes
 
+- Export compliance: `app.json` sets `ios.config.usesNonExemptEncryption` to
+  `false` (the app only uses standard HTTPS/TLS via Firebase). This writes
+  `ITSAppUsesNonExemptEncryption = NO` so TestFlight doesn't ask on every
+  build. Revisit if custom cryptography is ever added.
 - `ios.buildNumber` is unset, so it defaults to `1` for this first build.
   Later iOS binaries need it bumped (or add `autoIncrement` to the `pilot`
   profile) or TestFlight rejects the upload as a duplicate.
+- App Store Connect app id: `6808989703`.
 - If Apple's beta review flags the Google-only sign-in (Guideline 4.8), pull
   Sign in with Apple forward — the auth wrapper in spec 001 already isolates
   the change to `src/auth/`.
