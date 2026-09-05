@@ -8,7 +8,6 @@ import {
   View,
 } from 'react-native';
 import { useHouseholdStore } from '../store/householdStore';
-import { INVITE_CODE_LENGTH, normalizeInviteCode } from '../data/inviteCode';
 import { strings } from '../i18n/strings';
 
 export function JoinHouseholdScreen({ onBack }: { onBack: () => void }) {
@@ -19,7 +18,10 @@ export function JoinHouseholdScreen({ onBack }: { onBack: () => void }) {
 
   const onChange = (text: string) => {
     if (actionError) clearActionError();
-    setCode(normalizeInviteCode(text).slice(0, INVITE_CODE_LENGTH));
+    // Keep the raw text in state — no per-keystroke transform (that plus
+    // maxLength on a controlled TextInput crashes iOS). The store normalizes
+    // and validates on submit.
+    setCode(text);
   };
 
   const onSubmit = async () => {
@@ -38,7 +40,7 @@ export function JoinHouseholdScreen({ onBack }: { onBack: () => void }) {
         placeholder={s.codePlaceholder}
         autoCapitalize="characters"
         autoCorrect={false}
-        maxLength={INVITE_CODE_LENGTH}
+        autoComplete="off"
         testID="invite-code-input"
       />
 
@@ -67,10 +69,8 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 12,
     fontSize: 20,
-    letterSpacing: 4,
-    textAlign: 'center',
   },
   error: { color: '#c0392b', textAlign: 'center' },
 });
