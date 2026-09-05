@@ -1,6 +1,6 @@
 # 002 — Household Linking (Invite Code)
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 001
 
 ## User stories

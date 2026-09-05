@@ -1,10 +1,11 @@
 import { AuthError } from '../AuthError';
+import { strings } from '../../i18n/strings';
 
 describe('AuthError', () => {
   it('uses the default message for its kind when none is given', () => {
     const error = new AuthError('signInCancelled');
     expect(error.kind).toBe('signInCancelled');
-    expect(error.message).toMatch(/cancelled/i);
+    expect(error.message).toBe(strings.auth.errors.signInCancelled);
   });
 
   it('preserves a custom message when provided', () => {

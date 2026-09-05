@@ -3,9 +3,158 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // spec 001 — a user reads/writes only their own profile.
-    match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    function signedIn() {
+      return request.auth != null;
+    }
+    function uid() {
+      return request.auth.uid;
+    }
+    function inviteCode(code) {
+      return get(/databases/$(database)/documents/inviteCodes/$(code)).data;
+    }
+    function household(id) {
+      return get(/databases/$(database)/documents/households/$(id)).data;
+    }
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(uid())).data;
+    }
+    function inHousehold() {
+      return exists(/databases/$(database)/documents/users/$(uid()))
+        && 'householdId' in myProfile()
+        && myProfile().householdId != null;
+    }
+
+    // ---- users/{userId} — spec 001 (own profile) + spec 002 (household link) ----
+    // App always writes householdId and joinedVia (null when unset), so the
+    // rules read the fields directly rather than defaulting absent keys.
+    match /users/{userId} {
+      allow get: if signedIn() && (
+        userId == uid() ||
+        (
+          'householdId' in resource.data
+          && resource.data.householdId != null
+          && inHousehold()
+          && resource.data.householdId == myProfile().householdId
+        )
+      );
+      allow list: if false;
+
+      // spec 001 — create your own profile; household fields start null.
+      allow create: if signedIn()
+        && userId == uid()
+        && request.resource.data.householdId == null
+        && request.resource.data.joinedVia == null;
+
+      // spec 002 — only householdId / joinedVia may change, only on your own
+      // doc, only in the shapes the Claim / Link steps produce.
+      allow update: if signedIn()
+        && userId == uid()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['householdId', 'joinedVia'])
+        && identityUnchanged()
+        && validProfileTransition();
+
+      allow delete: if false;
+
+      function identityUnchanged() {
+        return request.resource.data.displayName == resource.data.displayName
+          && request.resource.data.email == resource.data.email
+          && request.resource.data.photoUrl == resource.data.photoUrl;
+      }
+
+      function validProfileTransition() {
+        let before = resource.data;
+        let after = request.resource.data;
+        return
+          // Claim step 2: record the code I just redeemed; household stays null.
+          (
+            after.householdId == null
+            && after.joinedVia != null
+            && before.joinedVia == null
+            && inviteCode(after.joinedVia).redeemedBy == uid()
+          )
+          ||
+          // Link / launch-repair: point householdId at the household my
+          // redeemed code belongs to.
+          (
+            after.joinedVia != null
+            && after.householdId != null
+            && inviteCode(after.joinedVia).redeemedBy == uid()
+            && after.householdId == inviteCode(after.joinedVia).householdId
+          )
+          ||
+          // Creator linking the household they just created.
+          (
+            before.householdId == null
+            && after.householdId != null
+            && after.joinedVia == null
+            && household(after.householdId).parentIds.size() == 1
+            && household(after.householdId).parentIds[0] == uid()
+          );
+      }
+    }
+
+    // ---- households/{householdId} — spec 002 ----
+    match /households/{householdId} {
+      allow get: if signedIn() && uid() in resource.data.parentIds;
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.parentIds.size() == 1
+        && request.resource.data.parentIds[0] == uid()
+        && request.resource.data.children is list
+        && request.resource.data.children.size() >= 1
+        && request.resource.data.pendingInviteCode is string
+        && !inHousehold();
+
+      allow update: if signedIn() && (regenerateCode() || secondParentJoins());
+
+      allow delete: if false;
+
+      function regenerateCode() {
+        return resource.data.parentIds.size() == 1
+          && resource.data.parentIds[0] == uid()
+          && request.resource.data.parentIds == resource.data.parentIds
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingInviteCode'])
+          && request.resource.data.pendingInviteCode is string;
+      }
+
+      function secondParentJoins() {
+        return resource.data.parentIds.size() == 1
+          && request.resource.data.parentIds.size() == 2
+          && request.resource.data.parentIds[0] == resource.data.parentIds[0]
+          && request.resource.data.parentIds[1] == uid()
+          && request.resource.data.pendingInviteCode == null
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentIds', 'pendingInviteCode'])
+          && resource.data.pendingInviteCode != null
+          && inviteCode(resource.data.pendingInviteCode).redeemedBy == uid();
+      }
+    }
+
+    // ---- inviteCodes/{code} — spec 002 (code is the document id) ----
+    match /inviteCodes/{code} {
+      // Any signed-in user may fetch ONE code by id (needed to redeem it);
+      // listing the collection is denied so codes can't be enumerated.
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.redeemedBy == null
+        && request.resource.data.householdId is string;
+
+      // Redeem: set redeemedBy to your own uid, once, while the target
+      // household still has exactly one parent.
+      allow update: if signedIn()
+        && resource.data.redeemedBy == null
+        && request.resource.data.redeemedBy == uid()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['redeemedBy'])
+        && household(resource.data.householdId).parentIds.size() == 1;
+
+      // Deleted only during regenerate, by the household's sole parent.
+      allow delete: if signedIn()
+        && household(resource.data.householdId).parentIds.size() == 1
+        && household(resource.data.householdId).parentIds[0] == uid();
     }
 
     // Everything else is added spec-by-spec; default deny until then.

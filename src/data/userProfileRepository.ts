@@ -31,6 +31,7 @@ export async function ensureUserProfile(user: AuthUser): Promise<void> {
     email: user.email,
     photoUrl: user.photoUrl,
     householdId: null,
+    joinedVia: null,
     createdAt: serverTimestamp(),
   };
   await setDoc(usersCollectionDoc(user.uid), profile);

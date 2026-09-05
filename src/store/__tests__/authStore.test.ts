@@ -2,6 +2,7 @@ import { createAuthStore } from '../authStore';
 import { AuthError } from '../../auth/AuthError';
 import type { AuthProvider, AuthUser } from '../../auth/AuthProvider';
 import { ensureUserProfile } from '../../data/userProfileRepository';
+import { strings } from '../../i18n/strings';
 
 jest.mock('../../data/userProfileRepository', () => ({
   ensureUserProfile: jest.fn(),
@@ -70,7 +71,7 @@ describe('authStore', () => {
 
     expect(mockedEnsureUserProfile).not.toHaveBeenCalled();
     expect(useStore.getState().user).toBeNull();
-    expect(useStore.getState().error).toMatch(/network/i);
+    expect(useStore.getState().error).toBe(strings.auth.errors.networkError);
   });
 
   it('clears the user on sign-out', async () => {

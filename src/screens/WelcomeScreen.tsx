@@ -1,17 +1,22 @@
 import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native';
 import { useAuthStore } from '../store/authStore';
+import { strings } from '../i18n/strings';
 
 export function WelcomeScreen() {
   const { signIn, isSigningIn, error } = useAuthStore();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.subtitle}>Shared scheduling for co-parenting.</Text>
+      <Text style={styles.title}>{strings.auth.welcomeTitle}</Text>
+      <Text style={styles.subtitle}>{strings.auth.welcomeSubtitle}</Text>
       {isSigningIn ? (
         <ActivityIndicator testID="sign-in-spinner" />
       ) : (
-        <Button title="Continue with Google" onPress={signIn} testID="google-sign-in-button" />
+        <Button
+          title={strings.auth.continueWithGoogle}
+          onPress={signIn}
+          testID="google-sign-in-button"
+        />
       )}
       {error ? (
         <Text style={styles.error} testID="sign-in-error">

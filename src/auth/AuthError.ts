@@ -1,3 +1,5 @@
+import { strings } from '../i18n/strings';
+
 export type AuthErrorKind =
   | 'signInCancelled'
   | 'networkError'
@@ -5,10 +7,10 @@ export type AuthErrorKind =
   | 'unknown';
 
 const AUTH_ERROR_MESSAGES: Record<AuthErrorKind, string> = {
-  signInCancelled: 'Sign-in was cancelled.',
-  networkError: 'Network error. Please try again.',
-  playServicesUnavailable: 'Google Play Services is required to sign in.',
-  unknown: 'Something went wrong. Please try again.',
+  signInCancelled: strings.auth.errors.signInCancelled,
+  networkError: strings.auth.errors.networkError,
+  playServicesUnavailable: strings.auth.errors.playServicesUnavailable,
+  unknown: strings.auth.errors.unknown,
 };
 
 export class AuthError extends Error {
