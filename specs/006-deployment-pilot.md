@@ -139,8 +139,9 @@ Steps marked **(interactive)** need an Apple ID login and can't be scripted.
   is true, `REVERSED_CLIENT_ID` present.
 - `runtimeVersion` policy is `appVersion`; `expo.version` = `1.0.0`.
 - Local gates green: `npm test` (13), `npm run typecheck`, `npm run test:rules`.
-- `@react-native-firebase/app` plugin is configured with `ios.disableSPM: true`
-  (see "iOS pod install: SPM vs static linkage" below).
+- iOS Firebase pods: `@react-native-firebase/app` plugin has
+  `ios.disableSPM: true` and `expo-build-properties` sets
+  `ios.useFrameworks: "static"` (see "iOS pod install" below for why).
 
 ### iOS pod install: SPM vs static linkage
 
@@ -151,25 +152,53 @@ The first `eas build --profile pilot --platform ios` failed in the
 [!] [react-native-firebase] SPM + static linkage is not supported (target(s): Pods-da2).
 ```
 
-react-native-firebase 26 resolves the Firebase iOS SDK via Swift Package
-Manager by default (the reference project `chilaminas_android` is on RNFB 25,
-which still used CocoaPods, so it never hit this). SPM's Firebase products are
-automatic libraries, so with `use_frameworks! :linkage => :static` in the
-Expo-generated Podfile — which `@react-native-google-signin/google-signin`
-pulls in — each RNFB pod embeds its own copy of Firebase and they collide as
-duplicate symbols at link time.
+It took three tries to get `pod install` to pass. The reference project
+`chilaminas_android` is on RNFB 25 (CocoaPods) and is Android-only, so it was
+no help here. Final working iOS config, built up one failure at a time:
 
-Fix: opt RNFB out of SPM back to CocoaPods resolution (which supports static
-linkage). The RNFB config plugin does this by injecting
-`$RNFirebaseDisableSPM = true` into the Podfile before the target block:
+**Try 1 — default config.** RNFB 26 resolves the Firebase iOS SDK via Swift
+Package Manager by default. `pod install` failed:
+
+```
+[!] [react-native-firebase] SPM + static linkage is not supported (target(s): Pods-da2).
+```
+
+SPM's Firebase products are automatic libraries; under static pod linkage
+each RNFB pod embeds its own copy of Firebase and they collide as duplicate
+symbols. Fix: opt RNFB out of SPM back to CocoaPods resolution via the
+config plugin, which injects `$RNFirebaseDisableSPM = true` into the Podfile:
 
 ```json
 ["@react-native-firebase/app", { "ios": { "disableSPM": true } }]
 ```
 
-The alternative — `use_frameworks! :linkage => :dynamic` — was not chosen: it
-changes linkage for every pod and Google Sign-In has historically been
-happier with static frameworks.
+(`use_frameworks! :linkage => :dynamic` is the other way out, but it changes
+linkage for every pod and Google Sign-In prefers static frameworks.)
+
+**Try 2 — SPM disabled, no `use_frameworks!`.** Now `pod install` got further
+("SPM disabled … using CocoaPods for Firebase dependencies") then failed:
+
+```
+[!] The following Swift pods cannot yet be integrated as static libraries:
+The Swift pod `FirebaseAuth` depends upon `FirebaseAuthInterop` and
+`FirebaseAppCheckInterop`, which do not define modules.
+The Swift pod `FirebaseFirestore` depends upon `FirebaseFirestoreInternal`,
+which does not define modules.
+```
+
+The Firebase Swift pods need Swift module maps to be importable, and the
+default "static library" build doesn't generate them for the interop pods.
+Fix: build pods as **static frameworks** (which always carry module maps) via
+`expo-build-properties`:
+
+```json
+["expo-build-properties", { "ios": { "useFrameworks": "static" } }]
+```
+
+This is the linkage RNFB's "SPM + static linkage is not supported" message was
+about — but that check only fires when SPM is on, and Try 1 already turned it
+off. `disableSPM: true` + `useFrameworks: "static"` is the combination RNFB's
+docs call CocoaPods mode with static linkage, and it's supported.
 
 ### Steps
 
