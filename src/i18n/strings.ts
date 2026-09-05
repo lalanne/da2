@@ -81,6 +81,7 @@ export const strings = {
       waitingForCoParent: `Esperando a que se una ${CO_PARENT}.`,
       inviteCodeHeading: 'Código de invitación',
       inviteCodeHelp: `Compártelo con ${CO_PARENT}. Sirve una sola vez.`,
+      inviteCodeCopyHint: 'Mantén presionado el código para copiarlo.',
       share: 'Compartir código',
       shareMessage: (code: string, householdName: string) =>
         `Únete a "${householdName}" en da2 con este código: ${code}`,

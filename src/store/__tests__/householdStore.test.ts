@@ -123,6 +123,57 @@ describe('householdStore', () => {
     ]);
   });
 
+  it('ignores a second createHousehold while one is in flight', async () => {
+    const { repo } = makeRepo();
+    let resolveCreate: () => void = () => {};
+    (repo.createHousehold as jest.Mock).mockImplementation(
+      () => new Promise<void>((r) => { resolveCreate = () => r(); }),
+    );
+    const useStore = createHouseholdStore(repo);
+    useStore.getState().start(me);
+
+    const input = { name: 'Los García', children: [{ name: 'Sofía', birthdate: null }] };
+    const first = useStore.getState().createHousehold(input);
+    const second = await useStore.getState().createHousehold(input);
+    resolveCreate();
+    await first;
+
+    expect(second).toBe(false);
+    expect(repo.createHousehold).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses to create a household when the profile already has one', async () => {
+    const { repo, emitProfile } = makeRepo();
+    const useStore = createHouseholdStore(repo);
+    useStore.getState().start(me);
+    emitProfile(profile({ householdId: 'h1' }));
+    await flush();
+
+    expect(await useStore.getState().createHousehold({ name: 'X', children: [{ name: 'S', birthdate: null }] })).toBe(false);
+    expect(repo.createHousehold).not.toHaveBeenCalled();
+  });
+
+  it('keeps the active household through a transient empty/stale snapshot', async () => {
+    const { repo, emitProfile, emitHousehold } = makeRepo();
+    const useStore = createHouseholdStore(repo);
+    useStore.getState().start(me);
+    emitProfile(profile({ householdId: 'h1' }));
+    await flush();
+    emitHousehold(household());
+    await flush();
+    expect(useStore.getState().status).toBe('active');
+
+    emitProfile(null);
+    await flush();
+    expect(useStore.getState().status).toBe('active');
+    expect(useStore.getState().household?.id).toBe('h1');
+
+    emitProfile(profile({ householdId: null }));
+    await flush();
+    expect(useStore.getState().status).toBe('active');
+    expect(useStore.getState().household?.id).toBe('h1');
+  });
+
   it('createHousehold forwards to the repository and reports success', async () => {
     const { repo } = makeRepo();
     const useStore = createHouseholdStore(repo);

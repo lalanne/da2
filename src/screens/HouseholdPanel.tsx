@@ -52,10 +52,11 @@ export function HouseholdPanel() {
       {soleParent && code ? (
         <View style={styles.inviteBox} testID="invite-code-box">
           <Text style={styles.heading}>{s.inviteCodeHeading}</Text>
-          <Text style={styles.code} testID="invite-code-value">
+          <Text style={styles.code} selectable testID="invite-code-value">
             {code}
           </Text>
           <Text style={styles.help}>{s.inviteCodeHelp}</Text>
+          <Text style={styles.help}>{s.inviteCodeCopyHint}</Text>
           <Text style={styles.waiting}>{s.waitingForCoParent}</Text>
           {sharing ? (
             <ActivityIndicator testID="share-spinner" />

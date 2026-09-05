@@ -86,11 +86,18 @@ export function createHouseholdStore(repo: HouseholdRepository) {
       }
     }
 
+    function belongToCurrentHousehold(): boolean {
+      const current = get().household;
+      return !!current && !!user && current.parentIds.includes(user.uid);
+    }
+
     async function reconcile(profile: UserProfile | null): Promise<void> {
       if (!user) return;
 
       if (!profile) {
-        set({ profile: null, status: 'loading' });
+        // A transient empty snapshot must not knock us out of an active
+        // household (it would flash the onboarding/loading screen).
+        if (get().status !== 'active') set({ profile: null, status: 'loading' });
         return;
       }
       set({ profile });
@@ -113,6 +120,9 @@ export function createHouseholdStore(repo: HouseholdRepository) {
 
       if (profile.householdId) {
         watchHousehold(profile.householdId);
+      } else if (belongToCurrentHousehold()) {
+        // profile has no householdId but we're already showing a household
+        // this user is a member of — a stale/pending snapshot; keep it.
       } else {
         householdUnsub?.();
         householdUnsub = null;
@@ -158,7 +168,8 @@ export function createHouseholdStore(repo: HouseholdRepository) {
       },
 
       createHousehold: async (input) => {
-        if (!user) return false;
+        if (!user || get().isSubmitting) return false;
+        if (get().profile?.householdId) return false; // already in a household
         set({ isSubmitting: true, actionError: null });
         try {
           await repo.createHousehold(user, input);
@@ -172,7 +183,7 @@ export function createHouseholdStore(repo: HouseholdRepository) {
       },
 
       joinHousehold: async (rawCode) => {
-        if (!user) return false;
+        if (!user || get().isSubmitting) return false;
         const code = normalizeInviteCode(rawCode);
         if (!isValidInviteCode(code)) {
           set({ actionError: strings.household.join.errors.badFormat });
@@ -199,8 +210,8 @@ export function createHouseholdStore(repo: HouseholdRepository) {
       },
 
       regenerateInviteCode: async () => {
-        const { household, profile } = get();
-        if (!user || !household || !profile) return;
+        const { household, profile, isSubmitting } = get();
+        if (!user || !household || !profile || isSubmitting) return;
         if (household.parentIds.length !== 1 || !household.pendingInviteCode) return;
         set({ isSubmitting: true, actionError: null });
         try {
