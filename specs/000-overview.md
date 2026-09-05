@@ -62,3 +62,9 @@ Postgres. Revisit only if expense reporting outgrows it.
   added without rework (App Store Guideline 4.8 requires it once Google
   Sign-In is offered on iOS).
 - **Privacy:** receipts are private to the uploader until explicitly shared.
+- **Language:** the UI is **Spanish (Latin American neutral)** — `tú` form,
+  no Spain-only vocabulary (`celular` not `móvil`, `ustedes` not `vosotros`).
+  v1 is Spanish-only: all user-facing copy goes through one strings module
+  (`src/i18n/`), no language picker and no i18n library yet, so English or
+  other locales can be added later without reworking call sites. System
+  strings that surface to users (dates, errors) are localized too.

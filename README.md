@@ -21,6 +21,10 @@ a household and adds the kids; the second parent joins with a single-use
 invite code. From then on, both see the same calendar, events, and shared
 receipts in real time.
 
+The app's interface is in **Spanish (Latin American neutral)**. v1 is
+Spanish-only, with all copy routed through one strings module so other
+languages can be added later.
+
 ## Platform & stack
 
 | Layer | Choice |
@@ -50,6 +54,7 @@ provider-agnostic auth layer, Firestore user profiles, security rules, and a
 full test harness (Jest unit/component tests + Firestore rules tests against
 the emulator). All five acceptance criteria pass against the live Firebase
 project on both pilot phones — the Android phone and the iPhone (via
-TestFlight). Specs 002–006 drafted. Every verified feature is
-deployed to a two-phone pilot (one Android, one iPhone) running a real
-household — see [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
+TestFlight). Spec 002 (household linking) approved and in implementation;
+specs 003–006 drafted. Every verified feature is deployed to a two-phone
+pilot (one Android, one iPhone) running a real household — see
+[specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
