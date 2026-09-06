@@ -64,16 +64,36 @@ export function createHouseholdStore(repo: HouseholdRepository) {
       set({ members });
     }
 
+    let householdRetry: ReturnType<typeof setTimeout> | null = null;
+
     function watchHousehold(householdId: string): void {
       if (subscribedHouseholdId === householdId) return;
       householdUnsub?.();
+      if (householdRetry) clearTimeout(householdRetry);
       subscribedHouseholdId = householdId;
-      householdUnsub = repo.subscribeToHousehold(householdId, (household) => {
-        if (!household) return;
-        set({ household, status: 'active' });
-        void resolveMembers(household);
-        void repairMembership(household);
-      });
+      householdUnsub = repo.subscribeToHousehold(
+        householdId,
+        (household) => {
+          if (!household) return;
+          set({ household, status: 'active' });
+          void resolveMembers(household);
+          void repairMembership(household);
+        },
+        () => {
+          // Listener error — most often a transient permission-denied while a
+          // just-written membership propagates. Drop the subscription and
+          // retry shortly; never let it surface as an unhandled (fatal) error.
+          householdUnsub?.();
+          householdUnsub = null;
+          subscribedHouseholdId = null;
+          if (householdRetry) clearTimeout(householdRetry);
+          householdRetry = setTimeout(() => {
+            if (user && get().profile?.householdId === householdId) {
+              watchHousehold(householdId);
+            }
+          }, 1500);
+        },
+      );
     }
 
     async function repairMembership(household: Household): Promise<void> {
@@ -151,14 +171,21 @@ export function createHouseholdStore(repo: HouseholdRepository) {
         get().stop();
         user = nextUser;
         set({ status: 'loading' });
-        profileUnsub = repo.subscribeToProfile(nextUser.uid, (profile) => {
-          void reconcile(profile);
-        });
+        profileUnsub = repo.subscribeToProfile(
+          nextUser.uid,
+          (profile) => void reconcile(profile),
+          () => {
+            // Own-profile reads are always permitted; an error here is
+            // transient. Swallow it — never let it become a fatal.
+          },
+        );
       },
 
       stop: () => {
         profileUnsub?.();
         householdUnsub?.();
+        if (householdRetry) clearTimeout(householdRetry);
+        householdRetry = null;
         profileUnsub = null;
         householdUnsub = null;
         subscribedHouseholdId = null;

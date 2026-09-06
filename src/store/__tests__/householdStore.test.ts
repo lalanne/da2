@@ -46,13 +46,16 @@ function makeRepo() {
   const profileUnsub = jest.fn();
   const householdUnsub = jest.fn();
 
+  let householdErr: ((e: unknown) => void) | undefined;
+
   const repo: HouseholdRepository = {
     subscribeToProfile: jest.fn((_uid, cb) => {
       profileCb = cb;
       return profileUnsub;
     }),
-    subscribeToHousehold: jest.fn((_id, cb) => {
+    subscribeToHousehold: jest.fn((_id, cb, onError) => {
       householdCb = cb;
+      householdErr = onError;
       return householdUnsub;
     }),
     fetchProfile: jest.fn(async () => null),
@@ -69,6 +72,7 @@ function makeRepo() {
     householdUnsub,
     emitProfile: (p: UserProfile | null) => profileCb?.(p),
     emitHousehold: (h: Household | null) => householdCb?.(h),
+    emitHouseholdError: (e: unknown) => householdErr?.(e),
   };
 }
 
@@ -94,7 +98,11 @@ describe('householdStore', () => {
     emitProfile(profile({ householdId: 'h1' }));
     await flush();
 
-    expect(repo.subscribeToHousehold).toHaveBeenCalledWith('h1', expect.any(Function));
+    expect(repo.subscribeToHousehold).toHaveBeenCalledWith(
+      'h1',
+      expect.any(Function),
+      expect.any(Function),
+    );
 
     emitHousehold(household());
     await flush();
@@ -335,6 +343,26 @@ describe('householdStore', () => {
     await flush();
     await useStore.getState().regenerateInviteCode();
     expect(repo.regenerateInviteCode).toHaveBeenCalledWith('u1', 'h1', 'ABCD2345');
+  });
+
+  it('recovers from a household listener error by re-subscribing', async () => {
+    jest.useFakeTimers();
+    try {
+      const { repo, emitProfile, emitHouseholdError } = makeRepo();
+      const useStore = createHouseholdStore(repo);
+      useStore.getState().start(me);
+      emitProfile(profile({ householdId: 'h1' }));
+      await Promise.resolve();
+      expect(repo.subscribeToHousehold).toHaveBeenCalledTimes(1);
+
+      // A transient permission-denied on the listener must not throw.
+      expect(() => emitHouseholdError(new Error('permission-denied'))).not.toThrow();
+
+      jest.advanceTimersByTime(1600);
+      expect(repo.subscribeToHousehold).toHaveBeenCalledTimes(2);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('tears down subscriptions on stop', async () => {

@@ -23,8 +23,16 @@ import { generateInviteCode } from './inviteCode';
 export type Unsubscribe = () => void;
 
 export interface HouseholdRepository {
-  subscribeToProfile(uid: string, cb: (profile: UserProfile | null) => void): Unsubscribe;
-  subscribeToHousehold(id: string, cb: (household: Household | null) => void): Unsubscribe;
+  subscribeToProfile(
+    uid: string,
+    cb: (profile: UserProfile | null) => void,
+    onError?: (error: unknown) => void,
+  ): Unsubscribe;
+  subscribeToHousehold(
+    id: string,
+    cb: (household: Household | null) => void,
+    onError?: (error: unknown) => void,
+  ): Unsubscribe;
   fetchProfile(uid: string): Promise<UserProfile | null>;
   fetchInviteCode(code: string): Promise<InviteCode | null>;
   /** Creates households/{id} + inviteCodes/{code}, then links the creator's profile. */
@@ -73,34 +81,45 @@ function mapProfile(uid: string, data: Record<string, unknown> | undefined): Use
   };
 }
 
+function asArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? (value as T[]) : [];
+}
+
 function mapHousehold(id: string, data: Record<string, unknown> | undefined): Household | null {
   if (!data) return null;
   return {
     id,
-    name: (data.name as string) ?? '',
-    parentIds: (data.parentIds as string[]) ?? [],
-    children: ((data.children as Child[]) ?? []).map((c) => ({
-      id: c.id,
-      name: c.name,
-      birthdate: c.birthdate ?? null,
+    name: typeof data.name === 'string' ? data.name : '',
+    parentIds: asArray<string>(data.parentIds).filter((v) => typeof v === 'string'),
+    children: asArray<Partial<Child>>(data.children).map((c) => ({
+      id: String(c?.id ?? ''),
+      name: String(c?.name ?? ''),
+      birthdate: typeof c?.birthdate === 'string' ? c.birthdate : null,
     })),
-    pendingInviteCode: (data.pendingInviteCode as string | null) ?? null,
-    createdBy: (data.createdBy as string) ?? '',
+    pendingInviteCode:
+      typeof data.pendingInviteCode === 'string' ? data.pendingInviteCode : null,
+    createdBy: typeof data.createdBy === 'string' ? data.createdBy : '',
     createdAt: toMillis(data.createdAt),
   };
 }
 
 export const householdRepository: HouseholdRepository = {
-  subscribeToProfile(uid, cb) {
-    return onSnapshot(doc(db(), 'users', uid), (snap) => {
-      cb(mapProfile(uid, snap.data() as Record<string, unknown> | undefined));
-    });
+  subscribeToProfile(uid, cb, onError) {
+    return onSnapshot(
+      doc(db(), 'users', uid),
+      (snap) => cb(mapProfile(uid, snap.data() as Record<string, unknown> | undefined)),
+      // An onError is mandatory: an unhandled listener error (e.g. a transient
+      // permission-denied) is fatal on the new-architecture iOS build.
+      (error: unknown) => onError?.(error),
+    );
   },
 
-  subscribeToHousehold(id, cb) {
-    return onSnapshot(doc(db(), 'households', id), (snap) => {
-      cb(mapHousehold(id, snap.data() as Record<string, unknown> | undefined));
-    });
+  subscribeToHousehold(id, cb, onError) {
+    return onSnapshot(
+      doc(db(), 'households', id),
+      (snap) => cb(mapHousehold(id, snap.data() as Record<string, unknown> | undefined)),
+      (error: unknown) => onError?.(error),
+    );
   },
 
   async fetchProfile(uid) {
