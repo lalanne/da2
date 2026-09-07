@@ -49,14 +49,12 @@ See [specs/README.md](specs/README.md) for the spec index and process rules.
 
 ## Status
 
-In development — spec 001 (auth) verified: Google Sign-In wired through a
-provider-agnostic auth layer, Firestore user profiles, security rules, and a
-full test harness (Jest unit/component tests + Firestore rules tests against
-the emulator). All five acceptance criteria pass against the live Firebase
-project on both pilot phones — the Android phone and the iPhone (via
-TestFlight). Spec 002 (household linking) implemented — create/join a
-household by invite code, Spanish UI, security rules with adversarial-case
-tests — pending manual verification on the pilot phones. Specs 003–006
-drafted. Every verified feature is deployed to a two-phone pilot (one
-Android, one iPhone) running a real household — see
+In development. **Specs 001 (auth) and 002 (household linking) are verified**
+end-to-end on both pilot phones (mother's Android, father's iPhone via
+TestFlight) against the live Firebase project: Google Sign-In through a
+provider-agnostic auth layer, one real household of 3 children linked by
+single-use invite code, Spanish UI, security rules with adversarial-case
+tests (43 unit + 26 rules tests). Spec 007 (design system) is next, then
+specs 003–005. Spec 006 (deployment pipeline) runs continuously — every
+verified feature is deployed to the two-phone pilot; see
 [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).

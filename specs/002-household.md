@@ -1,6 +1,6 @@
 # 002 — Household Linking (Invite Code)
 
-**Status:** implemented
+**Status:** verified
 **Depends on:** 001
 
 ## User stories
@@ -181,6 +181,45 @@ manual checklist passes on both phones (spec 006).
 | 6 regenerate | Unit + rules | Unit: old code doc deleted, new shown. Rules: only the sole member can regenerate. |
 | 7 interrupted join resumes | Unit | Simulate step-1-only and partial step-2 states → launch repair completes the link. |
 | 8 rules | Rules tests | Full matrix: non-member read denied, `get` vs `list` on codes, redeem constraints, `parentIds` append constraints, co-member `users` read. |
+
+## Verification results
+
+Verified 2026-09-06 on both pilot phones (mother's Android, father's iPhone
+via TestFlight) against the live Firebase project, plus 43 unit tests and 26
+Firestore rules tests.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1 create | ✅ | Mother created the real household ("Los García"-style) with the 3 children; invite code + share shown. |
+| 2 join links both | ✅ | Father joined with the code; `households/{id}.parentIds` holds both uids, `pendingInviteCode` is `null`, and each phone shows the 3 kids and the other parent's name. |
+| 3 bad code | ✅ | Rules tests (redeem of a non-null / unknown code denied) + observed live during pilot debugging (used/deleted codes → "el código no es válido"). |
+| 4 full household | ✅ | Once both parents joined, the invite-code card and "Generar un código nuevo" disappear on the mother's phone; rules deny a redeem when `parentIds.size() == 2`. |
+| 5 already in a household | ✅ | Both phones route straight to the household — the create/join screens are unreachable. Rules deny a second create and a second redeem. |
+| 6 regenerate | ✅ | Mother regenerated once during the pilot: old code stopped working, new one shown. Rules: only the sole parent may regenerate. |
+| 7 interrupted join resumes | ✅ | Unit tests for step-1-only and partial-step-3 states → launch repair completes the link. (Exercised for real: the father's crash-interrupted attempts recovered once the crash was fixed.) |
+| 8 rules | ✅ | `firebase/tests/household.rules.test.ts` + `joinFlow.rules.test.ts` — 26 tests covering member-only reads, `get` vs `list` on codes, redeem-for-other / double-redeem / full-household denials, unbacked `parentIds` append, cross-household link, spec-001-shaped profiles with no `joinedVia` key. |
+
+### Pilot notes (bugs found and fixed on real devices)
+
+The pilot surfaced several issues not caught by the emulator/unit layer, all
+fixed before verification:
+
+- **iOS hard crash + crash loop** — `onSnapshot` listeners had no `onError`;
+  a transient permission-denied during the join became an unhandled fatal
+  that `expo-updates` error recovery turned into `SIGABRT`. Fixed by adding
+  error handlers (retry the household listener, swallow profile errors).
+- **Join denied for spec-001 profiles** — rules read `joinedVia` / `householdId`
+  directly; a profile created before spec 002 has no `joinedVia` key and a
+  missing-key read raises an evaluation error. Fixed by reading optional
+  fields via `data.get('field', null)`.
+- **Duplicate households** — after a successful create the onboarding form
+  briefly reappeared (the `users/{uid}` snapshot lags the write) and a re-tap
+  created another household. Fixed with an `activating` status that holds a
+  spinner until the household goes live.
+- **Blank-screen flash on resume** — RNFB auth re-emits `null` on app resume;
+  the household store was torn down on it. Fixed with a sign-out grace delay.
+- iOS build required `disableSPM` + `useFrameworks: static` for RNFB 26;
+  export-compliance and TestFlight onboarding — all in spec 006.
 
 ## Out of scope
 
