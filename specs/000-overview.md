@@ -68,3 +68,7 @@ Postgres. Revisit only if expense reporting outgrows it.
   (`src/i18n/`), no language picker and no i18n library yet, so English or
   other locales can be added later without reworking call sites. System
   strings that surface to users (dates, errors) are localized too.
+- **Visual system:** every screen is built from the shared design-system
+  primitives and tokens defined in spec 007 (`src/theme/`, `src/components/`) —
+  no raw colours, spacing, or type values in screen code. Tone is calm and
+  neutral (neutral ground for two co-parents). Built before spec 003.

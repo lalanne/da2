@@ -18,5 +18,19 @@ This project is built spec-first. Rules:
 | 004 | [Custody calendar](004-custody-calendar.md) | draft |
 | 005 | [Kid events](005-events.md) | draft |
 | 006 | [Pilot deployment pipeline](006-deployment-pilot.md) | draft |
+| 007 | [Design system & visual language](007-design-system.md) | draft |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
+
+## Build order
+
+The number is *mostly* the build order, with two deliberate exceptions:
+
+- **006 (deployment pipeline) is continuous** — it's exercised alongside every
+  other spec, not built once and left.
+- **007 (design system) is built before 003** — specs 003–005 compose their UI
+  from its primitives. It's numbered 007 only to avoid renumbering specs that
+  are already referenced widely.
+
+So the working order is: **001 → 002 → 007 → 003 → 004 → 005**, with 006
+running throughout.

@@ -1,7 +1,7 @@
 # 005 — Kid Events
 
 **Status:** draft
-**Depends on:** 004
+**Depends on:** 004 (and thereby 007)
 
 ## User stories
 
