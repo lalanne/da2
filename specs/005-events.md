@@ -1,6 +1,6 @@
 # 005 — Kid Events
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 004 (and thereby 007)
 
 ## User stories
