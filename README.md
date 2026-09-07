@@ -49,18 +49,16 @@ See [specs/README.md](specs/README.md) for the spec index and process rules.
 
 ## Status
 
-In development. **Specs 001 (auth) and 002 (household linking) are verified**
+In development. **Specs 001 (auth), 002 (household linking), 007 (design
+system), 004 (custody calendar) and 005 (kid events) are verified**
 end-to-end on both pilot phones (mother's Android, father's iPhone via
-TestFlight) against the live Firebase project: Google Sign-In through a
-provider-agnostic auth layer, one real household of 3 children linked by
-single-use invite code, Spanish UI, security rules with adversarial-case
-tests. Spec 007 (design system — a `src/theme` token module and
-`src/components` primitives, WCAG AA) is verified on both phones. Spec 004
-(custody calendar — recurring pattern with per-day changeover, propose/approve
-for every change, computed client-side from a live query over proposals) is
-verified on both phones. Spec 005 (kid events — a third "Eventos" tab, weekly
-recurrence for training, dots on the calendar) is verified on both phones.
-Working order:
+TestFlight) against the live Firebase project — Google Sign-In, one real
+household of 3 children linked by invite code, a shared custody calendar with
+propose/approve, and kid events, all in a Spanish UI on a WCAG-AA design
+system, with security rules covering the adversarial cases. Spec 003
+(receipts & invoices — private-by-default with one-way sharing, Firebase
+Storage + Storage security rules) is implemented and pending a native build
+(`expo.version` 1.1.0) and its pilot check. Working order:
 001 → 002 → 007 → 004 → 005 → 003 → 008 (008 = OS push, deferred infra). Spec
 006 (deployment pipeline) runs continuously — every verified feature is
 deployed to the two-phone pilot; see

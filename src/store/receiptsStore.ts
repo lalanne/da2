@@ -22,6 +22,8 @@ interface ReceiptsState {
   upload: (file: PickedFile, meta: NewReceiptInput) => Promise<boolean>;
   share: (receiptId: string) => Promise<boolean>;
   remove: (receipt: Receipt) => Promise<boolean>;
+  /** Download (once, cached) via the SDK; returns a file:// uri or null on failure. */
+  fileUri: (receipt: Receipt) => Promise<string | null>;
   clearActionError: () => void;
   /** All receipts (mine + shared), deduped, newest first. */
   all: () => Receipt[];
@@ -122,6 +124,15 @@ export function createReceiptsStore(repo: ReceiptsRepository) {
         if (!householdId) return Promise.resolve(false);
         const hid = householdId;
         return run(() => repo.deleteReceipt(hid, receipt), strings.receipts.errors.deleteFailed);
+      },
+
+      fileUri: async (receipt) => {
+        try {
+          return await repo.localFileUri(receipt);
+        } catch (error) {
+          console.warn('[receipts] file download failed', error);
+          return null;
+        }
       },
 
       clearActionError: () => set({ actionError: null }),

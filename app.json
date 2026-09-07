@@ -2,7 +2,7 @@
   "expo": {
     "name": "da2",
     "slug": "da2",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -47,6 +47,15 @@
           }
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "da2 usa tus fotos para adjuntar recibos.",
+          "cameraPermission": "da2 usa la cámara para fotografiar recibos."
+        }
+      ],
+      "expo-document-picker",
+      "expo-sharing",
       "expo-updates"
     ],
     "extra": {

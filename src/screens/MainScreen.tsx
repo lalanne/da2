@@ -7,16 +7,19 @@ import { useAuthStore } from '../store/authStore';
 import { useCustodyStore } from '../store/custodyStore';
 import { useCustodySync } from '../hooks/useCustodySync';
 import { useEventsSync } from '../hooks/useEventsSync';
+import { useReceiptsSync } from '../hooks/useReceiptsSync';
 import { pendingForResponder } from '../custody';
 import { CalendarTab } from './calendar/CalendarTab';
 import { EventsTab } from './events/EventsTab';
+import { ReceiptsScreen } from './receipts/ReceiptsScreen';
 import { HouseholdTab } from './HouseholdTab';
 
-type Tab = 'calendar' | 'events' | 'household';
+type Tab = 'calendar' | 'events' | 'receipts' | 'household';
 
 export function MainScreen() {
   useCustodySync();
   useEventsSync();
+  useReceiptsSync();
   const uid = useAuthStore((s) => s.user?.uid);
   const proposals = useCustodyStore((s) => s.proposals);
   const [tab, setTab] = useState<Tab>('calendar');
@@ -26,7 +29,15 @@ export function MainScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {tab === 'calendar' ? <CalendarTab /> : tab === 'events' ? <EventsTab /> : <HouseholdTab />}
+        {tab === 'calendar' ? (
+          <CalendarTab />
+        ) : tab === 'events' ? (
+          <EventsTab />
+        ) : tab === 'receipts' ? (
+          <ReceiptsScreen />
+        ) : (
+          <HouseholdTab />
+        )}
       </View>
       <TabBar
         active={tab}
@@ -38,6 +49,7 @@ export function MainScreen() {
             badge: toRespond || undefined,
           },
           { key: 'events', label: strings.nav.events },
+          { key: 'receipts', label: strings.nav.receipts },
           { key: 'household', label: strings.nav.household },
         ]}
       />

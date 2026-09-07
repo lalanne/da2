@@ -49,10 +49,21 @@ Needed when: adding a native module, changing app config (permissions, icons,
 SDK / runtime version.
 
 ```
+# bump expo.version first (see "Choosing the path")
 eas build --profile pilot --platform all
 eas submit --platform ios          # → TestFlight (beta review ~1 day)
 # Android: send the EAS install link to the mother's phone
 ```
+
+**Native releases so far:**
+
+| `expo.version` | Build for | Added |
+|---|---|---|
+| `1.0.0` | specs 001 + 002 | Firebase auth/firestore, Google Sign-In |
+| `1.1.0` | spec 003 | `@react-native-firebase/storage`, `expo-image-picker` / `-document-picker` / `-file-system` / `-sharing`; camera + photo-library permission strings |
+
+After a native release, OTA updates target the new `expo.version` — phones on
+the old binary stop receiving OTAs until they install the new build.
 
 ### Choosing the path
 
