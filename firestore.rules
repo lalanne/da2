@@ -18,32 +18,37 @@ service cloud.firestore {
     function myProfile() {
       return get(/databases/$(database)/documents/users/$(uid())).data;
     }
+    // Optional-field readers: profiles created by spec 001 (before spec 002)
+    // have no `joinedVia` key, and `householdId` may be absent too — reading a
+    // missing key directly raises an error, so always go through these.
+    function householdIdOf(data) {
+      return data.get('householdId', null);
+    }
+    function joinedViaOf(data) {
+      return data.get('joinedVia', null);
+    }
     function inHousehold() {
       return exists(/databases/$(database)/documents/users/$(uid()))
-        && 'householdId' in myProfile()
-        && myProfile().householdId != null;
+        && householdIdOf(myProfile()) != null;
     }
 
     // ---- users/{userId} — spec 001 (own profile) + spec 002 (household link) ----
-    // App always writes householdId and joinedVia (null when unset), so the
-    // rules read the fields directly rather than defaulting absent keys.
     match /users/{userId} {
       allow get: if signedIn() && (
         userId == uid() ||
         (
-          'householdId' in resource.data
-          && resource.data.householdId != null
+          householdIdOf(resource.data) != null
           && inHousehold()
-          && resource.data.householdId == myProfile().householdId
+          && householdIdOf(resource.data) == householdIdOf(myProfile())
         )
       );
       allow list: if false;
 
-      // spec 001 — create your own profile; household fields start null.
+      // spec 001 — create your own profile; household fields start null/absent.
       allow create: if signedIn()
         && userId == uid()
-        && request.resource.data.householdId == null
-        && request.resource.data.joinedVia == null;
+        && householdIdOf(request.resource.data) == null
+        && joinedViaOf(request.resource.data) == null;
 
       // spec 002 — only householdId / joinedVia may change, only on your own
       // doc, only in the shapes the Claim / Link steps produce.
@@ -62,35 +67,36 @@ service cloud.firestore {
       }
 
       function validProfileTransition() {
-        let before = resource.data;
-        let after = request.resource.data;
+        let beforeHid = householdIdOf(resource.data);
+        let afterHid = householdIdOf(request.resource.data);
+        let afterVia = joinedViaOf(request.resource.data);
         return
           // Claim step 2: record the code I just redeemed; household stays
           // null. `joinedVia` may be re-pointed (an earlier abandoned attempt
           // could have left a stale value) as long as the new code is one
           // this user has redeemed.
           (
-            after.householdId == null
-            && after.joinedVia != null
-            && inviteCode(after.joinedVia).redeemedBy == uid()
+            afterHid == null
+            && afterVia != null
+            && inviteCode(afterVia).redeemedBy == uid()
           )
           ||
           // Link / launch-repair: point householdId at the household my
           // redeemed code belongs to.
           (
-            after.joinedVia != null
-            && after.householdId != null
-            && inviteCode(after.joinedVia).redeemedBy == uid()
-            && after.householdId == inviteCode(after.joinedVia).householdId
+            afterVia != null
+            && afterHid != null
+            && inviteCode(afterVia).redeemedBy == uid()
+            && afterHid == inviteCode(afterVia).householdId
           )
           ||
           // Creator linking the household they just created.
           (
-            before.householdId == null
-            && after.householdId != null
-            && after.joinedVia == null
-            && household(after.householdId).parentIds.size() == 1
-            && household(after.householdId).parentIds[0] == uid()
+            beforeHid == null
+            && afterHid != null
+            && afterVia == null
+            && household(afterHid).parentIds.size() == 1
+            && household(afterHid).parentIds[0] == uid()
           );
       }
     }

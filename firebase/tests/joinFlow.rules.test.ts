@@ -29,8 +29,10 @@ async function seed() {
     await setDoc(doc(db, 'users', CREATOR), {
       displayName: 'Javiera', email: 'j@x.com', photoUrl: null, householdId: HID, joinedVia: null,
     });
+    // A spec-001-era profile: householdId may be null, and there is NO
+    // joinedVia key at all (added in spec 002).
     await setDoc(doc(db, 'users', JOINER), {
-      displayName: 'Cristián', email: 'c@x.com', photoUrl: null, householdId: null, joinedVia: null,
+      displayName: 'Cristián', email: 'c@x.com', photoUrl: null, householdId: null,
     });
     await setDoc(doc(db, 'households', HID), {
       name: 'Los García', parentIds: [CREATOR],
@@ -67,6 +69,28 @@ describe('the join flow, write by write (mirrors householdRepository)', () => {
     });
     const db = testEnv.authenticatedContext(JOINER).firestore();
     await assertSucceeds(updateDoc(doc(db, 'users', JOINER), { joinedVia: CODE }));
+  });
+
+  it('step 1 also works when the household still points parentIds at the creator', async () => {
+    await seed();
+    const db = testEnv.authenticatedContext(JOINER).firestore();
+    await assertSucceeds(updateDoc(doc(db, 'inviteCodes', CODE), { redeemedBy: JOINER }));
+  });
+
+  it('creator can still link their own household (spec-001 profile, no joinedVia key)', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'users', CREATOR), {
+        displayName: 'Javiera', email: 'j@x.com', photoUrl: null, householdId: null,
+      });
+      await setDoc(doc(db, 'households', HID), {
+        name: 'Los García', parentIds: [CREATOR],
+        children: [{ id: 'c1', name: 'Sofía', birthdate: null }],
+        pendingInviteCode: CODE, createdBy: CREATOR,
+      });
+    });
+    const db = testEnv.authenticatedContext(CREATOR).firestore();
+    await assertSucceeds(updateDoc(doc(db, 'users', CREATOR), { householdId: HID }));
   });
 
   it('step 3 — batch: append to parentIds + set householdId', async () => {
