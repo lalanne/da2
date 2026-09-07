@@ -104,7 +104,81 @@ export const strings = {
   nav: {
     calendar: 'Calendario',
     events: 'Eventos',
+    receipts: 'Recibos',
     household: 'Hogar',
+  },
+
+  receipts: {
+    tabTitle: 'Recibos',
+    segments: { mine: 'Mis recibos', shared: 'Compartidos' },
+    empty: {
+      mine: 'Aún no has subido recibos.',
+      shared: 'Todavía no hay recibos compartidos.',
+    },
+    add: 'Agregar recibo',
+    private: 'Privado',
+    sharedBadge: 'Compartido',
+    categories: {
+      tuition: 'Matrícula',
+      medical: 'Médico',
+      sports: 'Deporte',
+      clothing: 'Ropa',
+      other: 'Otro',
+    },
+    filters: {
+      allCategories: 'Todas',
+      allMonths: 'Todos los meses',
+    },
+
+    upload: {
+      title: 'Agregar recibo',
+      pickSource: '¿De dónde sacamos el recibo?',
+      camera: 'Cámara',
+      library: 'Galería',
+      file: 'Archivo PDF',
+      uploading: 'Subiendo…',
+      errors: {
+        tooLarge: 'El archivo supera los 10 MB.',
+        badType: 'Solo se aceptan imágenes o PDF.',
+        cancelled: 'No se seleccionó ningún archivo.',
+        permission: 'Necesitamos permiso para usar la cámara o la galería.',
+      },
+    },
+
+    form: {
+      amountLabel: 'Monto',
+      amountPlaceholder: '12500',
+      categoryLabel: 'Categoría',
+      dateLabel: 'Fecha del gasto',
+      datePlaceholder: 'AAAA-MM-DD',
+      childLabel: '¿Para quién? (opcional)',
+      noChild: 'Sin especificar',
+      noteLabel: 'Nota (opcional)',
+      submit: 'Guardar recibo',
+      errors: {
+        badAmount: 'Ingresa un monto válido.',
+        badDate: 'Usa el formato AAAA-MM-DD.',
+      },
+    },
+
+    detail: {
+      openPdf: 'Abrir PDF',
+      share: 'Compartir con la otra persona',
+      shareConfirm:
+        'Se compartirá este recibo con la otra persona y no se puede deshacer. ¿Continuar?',
+      delete: 'Eliminar',
+      deleteConfirm: '¿Eliminar este recibo?',
+      uploadedByYou: 'Subido por ti',
+      uploadedBy: (name: string) => `Subido por ${name}`,
+      loadingFile: 'Cargando archivo…',
+      fileError: 'No se pudo cargar el archivo.',
+    },
+
+    errors: {
+      uploadFailed: 'No se pudo subir el recibo. Inténtalo de nuevo.',
+      shareFailed: 'No se pudo compartir. Inténtalo de nuevo.',
+      deleteFailed: 'No se pudo eliminar. Inténtalo de nuevo.',
+    },
   },
 
   events: {

@@ -14,7 +14,7 @@ This project is built spec-first. Rules:
 | 000 | [Product overview & stack](000-overview.md) | draft |
 | 001 | [Authentication (Google Sign-In)](001-auth.md) | verified |
 | 002 | [Household linking (invite code)](002-household.md) | verified |
-| 003 | [Receipts & invoices](003-receipts.md) | draft |
+| 003 | [Receipts & invoices](003-receipts.md) | approved |
 | 004 | [Custody calendar](004-custody-calendar.md) | verified |
 | 005 | [Kid events](005-events.md) | verified |
 | 006 | [Pilot deployment pipeline](006-deployment-pilot.md) | draft |

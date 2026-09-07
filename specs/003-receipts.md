@@ -1,6 +1,6 @@
 # 003 — Receipts & Invoices
 
-**Status:** draft
+**Status:** approved
 **Depends on:** 002, 007 (built on the design-system primitives)
 
 ## User stories

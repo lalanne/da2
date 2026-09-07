@@ -266,6 +266,41 @@ service cloud.firestore {
       allow delete: if member();
     }
 
+    // ---- households/{hid}/receipts/{receiptId} — spec 003 ----
+    // Private to the uploader by default; sharing is a one-way, one-field flip.
+    match /households/{hid}/receipts/{receiptId} {
+      function member() {
+        return signedIn() && uid() in household(hid).parentIds;
+      }
+
+      allow read: if member()
+        && (resource.data.uploaderId == uid() || resource.data.visibility == 'shared');
+
+      allow create: if member()
+        && request.resource.data.uploaderId == uid()
+        && request.resource.data.visibility == 'private'
+        && request.resource.data.sharedAt == null
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.currency is string
+        && request.resource.data.category in ['tuition', 'medical', 'sports', 'clothing', 'other']
+        && request.resource.data.expenseDate is string
+        && request.resource.data.fileType in ['image', 'pdf']
+        && request.resource.data.storagePath is string;
+
+      // The ONLY legal update: flip private → shared (criterion 7).
+      allow update: if member()
+        && resource.data.uploaderId == uid()
+        && resource.data.visibility == 'private'
+        && request.resource.data.visibility == 'shared'
+        && request.resource.data.sharedAt != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visibility', 'sharedAt']);
+
+      allow delete: if member()
+        && resource.data.uploaderId == uid()
+        && resource.data.visibility == 'private';
+    }
+
     // Everything else is added spec-by-spec; default deny until then.
     match /{document=**} {
       allow read, write: if false;

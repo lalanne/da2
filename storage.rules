@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// Spec 003 — receipt files. A file is readable only by its uploader while the
+// receipt is private, and by both household parents once it is shared. The
+// receipt's visibility lives in the Firestore document with the same id.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /households/{hid}/receipts/{uploaderId}/{fileName} {
+      function member() {
+        return request.auth != null
+          && request.auth.uid in
+             firestore.get(/databases/(default)/documents/households/$(hid)).data.parentIds;
+      }
+      // fileName is "<receiptId>.<ext>" — split() takes a regex, so escape the dot.
+      function receiptId() {
+        return fileName.split('\\.')[0];
+      }
+      function receipt() {
+        return firestore.get(
+          /databases/(default)/documents/households/$(hid)/receipts/$(receiptId())
+        ).data;
+      }
+
+      allow read: if member()
+        && (request.auth.uid == uploaderId || receipt().visibility == 'shared');
+
+      allow write: if member()
+        && request.auth.uid == uploaderId
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|application/pdf');
+
+      allow delete: if member() && request.auth.uid == uploaderId;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
