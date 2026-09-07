@@ -1,16 +1,27 @@
 import { render, screen } from '@testing-library/react-native';
 import { HouseholdPanel } from '../HouseholdPanel';
+import { HouseholdTab } from '../HouseholdTab';
 import { MainScreen } from '../MainScreen';
 import { HouseholdOnboardingScreen } from '../HouseholdOnboardingScreen';
 import { useHouseholdStore } from '../../store/householdStore';
 import { useAuthStore } from '../../store/authStore';
+import { useCustodyStore } from '../../store/custodyStore';
 import type { Household } from '../../models/Household';
 
 jest.mock('../../store/householdStore', () => ({ useHouseholdStore: jest.fn() }));
 jest.mock('../../store/authStore', () => ({ useAuthStore: jest.fn() }));
+jest.mock('../../store/custodyStore', () => ({ useCustodyStore: jest.fn() }));
+jest.mock('../../hooks/useCustodySync', () => ({ useCustodySync: jest.fn() }));
 
 const mockedHousehold = useHouseholdStore as unknown as jest.Mock;
 const mockedAuth = useAuthStore as unknown as jest.Mock;
+const mockedCustody = useCustodyStore as unknown as jest.Mock;
+
+/** Make a store mock honour both `useStore()` and `useStore(selector)`. */
+function selectable(state: Record<string, unknown>) {
+  return (selector?: (s: Record<string, unknown>) => unknown) =>
+    selector ? selector(state) : state;
+}
 
 const soleParentHousehold: Household = {
   id: 'h1',
@@ -61,7 +72,7 @@ describe('screen smoke tests', () => {
     expect(screen.getByText('Cristián')).toBeTruthy();
   });
 
-  it('MainScreen renders the greeting and sign-out', async () => {
+  it('HouseholdTab renders the greeting and sign-out', async () => {
     mockedAuth.mockReturnValue({ user: { displayName: 'Javiera' }, signOut: jest.fn() });
     mockedHousehold.mockReturnValue({
       household: soleParentHousehold,
@@ -69,10 +80,32 @@ describe('screen smoke tests', () => {
       regenerateInviteCode: jest.fn(),
       isSubmitting: false,
     });
-    await render(<MainScreen />);
+    await render(<HouseholdTab />);
 
     expect(screen.getByText('Hola, Javiera')).toBeTruthy();
     expect(screen.getByTestId('sign-out-button')).toBeTruthy();
+  });
+
+  it('MainScreen shows the calendar tab with an empty-pattern state', async () => {
+    mockedAuth.mockImplementation(selectable({ user: { uid: 'u1', displayName: 'Javiera' } }));
+    mockedHousehold.mockImplementation(
+      selectable({
+        household: { ...soleParentHousehold, parentIds: ['u1', 'u2'] },
+        members: [
+          { uid: 'u1', displayName: 'Javiera', isYou: true },
+          { uid: 'u2', displayName: 'Cristián', isYou: false },
+        ],
+      }),
+    );
+    mockedCustody.mockImplementation(
+      selectable({ proposals: [], isSubmitting: false, resolve: jest.fn(), cancel: jest.fn() }),
+    );
+
+    await render(<MainScreen />);
+
+    expect(screen.getByTestId('tab-calendar')).toBeTruthy();
+    expect(screen.getByTestId('tab-household')).toBeTruthy();
+    expect(screen.getByTestId('calendar-setup-pattern')).toBeTruthy();
   });
 
   it('HouseholdOnboardingScreen renders the two choices', async () => {

@@ -8,3 +8,4 @@ export { Banner } from './Banner';
 export { CodeChip } from './CodeChip';
 export { Emblem } from './Emblem';
 export { Avatar } from './Avatar';
+export { TabBar, type TabItem } from './TabBar';

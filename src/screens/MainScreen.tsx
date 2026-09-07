@@ -1,33 +1,45 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useAuthStore } from '../store/authStore';
 import { strings } from '../i18n/strings';
 import { theme } from '../theme';
-import { Button, Screen, Text } from '../components';
-import { HouseholdPanel } from './HouseholdPanel';
+import { TabBar } from '../components';
+import { useAuthStore } from '../store/authStore';
+import { useCustodyStore } from '../store/custodyStore';
+import { useCustodySync } from '../hooks/useCustodySync';
+import { pendingForResponder } from '../custody';
+import { CalendarTab } from './calendar/CalendarTab';
+import { HouseholdTab } from './HouseholdTab';
 
 export function MainScreen() {
-  const { user, signOut } = useAuthStore();
+  useCustodySync();
+  const uid = useAuthStore((s) => s.user?.uid);
+  const proposals = useCustodyStore((s) => s.proposals);
+  const [tab, setTab] = useState<'calendar' | 'household'>('calendar');
+
+  const toRespond = uid ? pendingForResponder(proposals, uid).length : 0;
 
   return (
-    <Screen scroll>
-      <Text variant="title" style={styles.greeting}>
-        {strings.main.greeting(user?.displayName)}
-      </Text>
-
-      <HouseholdPanel />
-
-      <View style={styles.spacer} />
-      <Button
-        title={strings.auth.signOut}
-        variant="ghost"
-        onPress={signOut}
-        testID="sign-out-button"
+    <View style={styles.container}>
+      <View style={styles.content}>
+        {tab === 'calendar' ? <CalendarTab /> : <HouseholdTab />}
+      </View>
+      <TabBar
+        active={tab}
+        onChange={(key) => setTab(key as 'calendar' | 'household')}
+        items={[
+          {
+            key: 'calendar',
+            label: strings.nav.calendar,
+            badge: toRespond || undefined,
+          },
+          { key: 'household', label: strings.nav.household },
+        ]}
       />
-    </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  greeting: { marginBottom: theme.spacing.lg },
-  spacer: { minHeight: theme.spacing.xl, flexGrow: 1 },
+  container: { flex: 1, backgroundColor: theme.colors.bg },
+  content: { flex: 1 },
 });

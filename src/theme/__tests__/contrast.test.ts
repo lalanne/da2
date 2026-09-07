@@ -42,6 +42,8 @@ describe('theme contrast (spec 007 criterion 3)', () => {
     ['success', 'successBg', c.success],
     ['warning', 'warningBg', c.warning],
     ['danger', 'surface', c.danger], // TextField error line on a card
+    ['textPrimary', 'parentASoft', c.textPrimary], // calendar day numbers
+    ['textPrimary', 'parentBSoft', c.textPrimary],
   ])('%s on %s ≥ 4.5', (_fg, bgName, fg) => {
     const bg = (c as Record<string, string>)[bgName];
     expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(4.5);

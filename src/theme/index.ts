@@ -32,9 +32,11 @@ const palette = {
   warning: '#785A24',
   warningBg: '#F6EFE2',
 
-  // Reserved for the custody calendar (spec 004 owns the semantics).
+  // Custody calendar (spec 004). Strong = markers/legend; Soft = day-cell tint.
   parentA: '#46617E',
-  parentB: '#A9764F',
+  parentASoft: '#EAF1F6',
+  parentB: '#9A6A45',
+  parentBSoft: '#F4ECE3',
 
   // Pressed-state overlay for surfaces / list rows.
   pressedOverlay: 'rgba(0,0,0,0.05)',
