@@ -21,8 +21,9 @@
 - Events are visible to both parents immediately — no propose/approve
   (unlike custody changes, an event doesn't reassign custody; the parent
   who has the kids that day decides attendance).
-- Creator or co-parent can edit/delete; every change notifies the other
-  parent (FCM).
+- Creator or co-parent can edit/delete. In-app: the other parent sees the
+  change in real time. **OS push notification is spec 008**, not this spec —
+  criteria 1, 3, 4 below drop their "push notification" clause until then.
 - Calendar integration: event dots on the month view (spec 004); tapping a
   day lists that day's events; separate upcoming-events list.
 
