@@ -110,10 +110,16 @@ Palette resolved on the canvas — carry these into `src/theme/`:
 | `surface` | `#FFFFFF` | | `accentSoft` | `#ECF1F5` |
 | `surfaceSunken` | `#F1EFEC` | | `accentPressed` | `#33485F` |
 | `border` | `#E4E0DA` | | `danger` | `#9E4430` |
-| `textFaint` | `#9C978E` | | `dangerBg` | `#F6EAE6` |
-| `textSecondary` | `#6C6960` | | `success` | `#3F6B52` |
-| `textPrimary` | `#2A2926` | | `warning` | `#97722E` |
-| `parentA` | `#46617E` | | `parentB` | `#A9764F` |
+| `borderStrong` | `#8C887F` | | `dangerBg` | `#F6EAE6` |
+| `textFaint` | `#767268` | | `success` | `#3F6B52` |
+| `textSecondary` | `#6C6960` | | `warning` | `#785A24` |
+| `textPrimary` | `#2A2926` | | `parentA` | `#46617E` |
+| | | | `parentB` | `#A9764F` |
+
+`textFaint`, `warning` and `borderStrong` differ from the first canvas draft —
+darkened so every text pair and interactive border passes WCAG AA
+(`src/theme/__tests__/contrast.test.ts`). `border` stays light: it's a
+decorative card/divider edge, never the sole indicator of a control.
 
 Type: system font, `display 30/36·600`, `title 24/30·600`,
 `heading 18/24·600`, `body 16/24·400`, `label 14/18·600`,
