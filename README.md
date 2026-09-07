@@ -55,8 +55,8 @@ TestFlight) against the live Firebase project: Google Sign-In through a
 provider-agnostic auth layer, one real household of 3 children linked by
 single-use invite code, Spanish UI, security rules with adversarial-case
 tests. Spec 007 (design system — a `src/theme` token module and `src/components`
-primitives, with the auth + household screens re-skinned onto them) is
-implemented and pending manual check on the pilot phones; specs 003–005 build
-on it. Spec 006 (deployment pipeline) runs continuously — every verified
+primitives, with the auth + household screens re-skinned onto them, all text
+and borders passing WCAG AA) is verified on both pilot phones; specs 003–005
+build on it. Spec 006 (deployment pipeline) runs continuously — every verified
 feature is deployed to the two-phone pilot; see
 [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).

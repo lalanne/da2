@@ -1,6 +1,6 @@
 # 007 — Design System & Visual Language
 
-**Status:** implemented
+**Status:** verified
 **Depends on:** 002 (needs real screens to re-skin)
 **Build order:** implemented **before** 003 — specs 003–005 build their UI from
 these primitives. (Numbered 007 only to avoid renumbering 003–006; see the
@@ -136,6 +136,24 @@ Type: system font, `display 30/36·600`, `title 24/30·600`,
 - Manual on both pilot phones: every re-skinned screen looks correct and
   legible on the mother's Android and the father's iPhone; the invite code is
   readable and copyable.
+
+## Verification results
+
+Verified 2026-09-06.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1 token discipline | ✅ | `src/theme/__tests__/tokenDiscipline.test.ts` — no raw hex outside `src/theme/`, no bare `fontSize` / pixel padding-margin outside `src/theme/` + `src/components/`. |
+| 2 screens re-skinned, green | ✅ | Welcome, onboarding, create, join, household panel, main + `App.tsx` render only through the primitives; 79 unit + 26 rules tests + typecheck green; all copy still from `src/i18n`. |
+| 3 AA contrast | ✅ | `src/theme/__tests__/contrast.test.ts` — every text pair ≥ 4.5:1, interactive borders ≥ 3:1. `textFaint`/`warning` darkened and `borderStrong` added to pass. |
+| 4 touch targets | ✅ | `Button` ≥ 48pt, `ListRow` ≥ 52pt, `TextField` ≥ 50pt; pressed states on `Button`/`ListRow` (primitives test). |
+| 5 sufficient for later screens | ✅ | The calendar reference artboard and the receipts/events layouts map onto the existing tokens + primitives without new values. |
+| 6 no native dependency | ✅ | `package.json` unchanged; shipped to the pilot via `eas update` (Path A). |
+| 7 canvas linked | ✅ | Canvas above; working files in `design/canvas/`. |
+
+Manual: the re-skinned app was checked on both pilot phones (mother's Android,
+father's iPhone) — screens are legible and consistent, the invite code is
+still long-press-copyable.
 
 ## Out of scope
 
