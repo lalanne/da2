@@ -229,6 +229,7 @@ export function createHouseholdStore(repo: HouseholdRepository) {
           return false;
         }
         set({ isSubmitting: true, actionError: null });
+        let step = 'fetch';
         try {
           const existing = await repo.fetchInviteCode(code);
           if (!existing) throw new HouseholdError('codeInvalid');
@@ -236,16 +237,18 @@ export function createHouseholdStore(repo: HouseholdRepository) {
             throw new HouseholdError('codeInvalid');
           }
           if (existing.redeemedBy !== user.uid) {
+            step = 'claim';
             await repo.claimInviteCode(user.uid, code);
           }
           // linkJoin can hit a transient permission-denied while the redeem
           // propagates to the rules engine — one retry clears it.
+          step = 'link';
           await withRetry(() => repo.linkJoin(user!.uid, code, existing.householdId));
           set({ status: 'activating' });
           return true;
         } catch (error) {
-          console.warn('[household] join failed', code, error);
-          set({ actionError: messageFor(error, 'joinFailed') });
+          console.warn('[household] join failed', code, step, error);
+          set({ actionError: joinErrorMessage(error, step) });
           return false;
         } finally {
           set({ isSubmitting: false });
@@ -291,6 +294,18 @@ async function withRetry<T>(op: () => Promise<T>, attempts = 2): Promise<T> {
 function messageFor(error: unknown, fallbackKind: 'createFailed' | 'joinFailed'): string {
   if (error instanceof HouseholdError) return error.message;
   return new HouseholdError(fallbackKind).message;
+}
+
+/**
+ * Until spec 002 is verified on the pilot phones, join failures append the
+ * step and Firestore error code so a failure can be diagnosed from the phone
+ * (release builds don't show console output).
+ */
+function joinErrorMessage(error: unknown, step: string): string {
+  if (error instanceof HouseholdError) return error.message;
+  const code = (error as { code?: string; message?: string })?.code;
+  const detail = code ?? (error as { message?: string })?.message ?? 'error';
+  return `${new HouseholdError('joinFailed').message} [${step}: ${detail}]`;
 }
 
 export const useHouseholdStore = createHouseholdStore(householdRepository);
