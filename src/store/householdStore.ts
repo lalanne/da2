@@ -238,10 +238,13 @@ export function createHouseholdStore(repo: HouseholdRepository) {
           if (existing.redeemedBy !== user.uid) {
             await repo.claimInviteCode(user.uid, code);
           }
-          await repo.linkJoin(user.uid, code, existing.householdId);
+          // linkJoin can hit a transient permission-denied while the redeem
+          // propagates to the rules engine — one retry clears it.
+          await withRetry(() => repo.linkJoin(user!.uid, code, existing.householdId));
           set({ status: 'activating' });
           return true;
         } catch (error) {
+          console.warn('[household] join failed', code, error);
           set({ actionError: messageFor(error, 'joinFailed') });
           return false;
         } finally {
@@ -270,6 +273,19 @@ export function createHouseholdStore(repo: HouseholdRepository) {
       clearActionError: () => set({ actionError: null }),
     };
   });
+}
+
+async function withRetry<T>(op: () => Promise<T>, attempts = 2): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await op();
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+  throw lastError;
 }
 
 function messageFor(error: unknown, fallbackKind: 'createFailed' | 'joinFailed'): string {

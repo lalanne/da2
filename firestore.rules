@@ -65,11 +65,13 @@ service cloud.firestore {
         let before = resource.data;
         let after = request.resource.data;
         return
-          // Claim step 2: record the code I just redeemed; household stays null.
+          // Claim step 2: record the code I just redeemed; household stays
+          // null. `joinedVia` may be re-pointed (an earlier abandoned attempt
+          // could have left a stale value) as long as the new code is one
+          // this user has redeemed.
           (
             after.householdId == null
             && after.joinedVia != null
-            && before.joinedVia == null
             && inviteCode(after.joinedVia).redeemedBy == uid()
           )
           ||
