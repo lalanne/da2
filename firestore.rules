@@ -227,6 +227,45 @@ service cloud.firestore {
       }
     }
 
+    // ---- households/{hid}/events/{eventId} — spec 005 ----
+    match /households/{hid}/events/{eventId} {
+      function member() {
+        return signedIn() && uid() in household(hid).parentIds;
+      }
+      function validType(data) {
+        return data.type in ['doctor', 'birthday', 'tournament', 'training', 'school', 'other'];
+      }
+      // Recurrence is allowed only on training events, weekly, with an end date.
+      function validRecurrence(data) {
+        return data.recurrence == null
+          || (
+            data.type == 'training'
+            && data.recurrence.freq == 'weekly'
+            && data.recurrence.until is string
+          );
+      }
+
+      allow read: if member();
+
+      allow create: if member()
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.updatedBy == uid()
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.date is string
+        && validType(request.resource.data)
+        && validRecurrence(request.resource.data);
+
+      allow update: if member()
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == uid()
+        && validType(request.resource.data)
+        && validRecurrence(request.resource.data);
+
+      allow delete: if member();
+    }
+
     // Everything else is added spec-by-spec; default deny until then.
     match /{document=**} {
       allow read, write: if false;

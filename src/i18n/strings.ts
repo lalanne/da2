@@ -103,7 +103,69 @@ export const strings = {
 
   nav: {
     calendar: 'Calendario',
+    events: 'Eventos',
     household: 'Hogar',
+  },
+
+  events: {
+    tabTitle: 'Próximos eventos',
+    empty: 'Aún no hay eventos. Agrega el primero.',
+    add: 'Agregar evento',
+    types: {
+      doctor: 'Médico',
+      birthday: 'Cumpleaños',
+      tournament: 'Torneo',
+      training: 'Entrenamiento',
+      school: 'Colegio',
+      other: 'Otro',
+    },
+    allDay: 'Todo el día',
+    forChildren: (names: string) => `Para ${names}`,
+    forHousehold: 'Para toda la casa',
+    weeklyUntil: (dateLabel: string) => `Se repite cada semana hasta el ${dateLabel}`,
+    editedBy: (name: string) => `Editado por ${name}`,
+    dayHeading: 'Eventos del día',
+
+    detail: {
+      edit: 'Editar',
+      delete: 'Eliminar',
+      deleteConfirm: '¿Eliminar este evento? También se eliminan sus repeticiones.',
+    },
+
+    form: {
+      newTitle: 'Nuevo evento',
+      editTitle: 'Editar evento',
+      titleLabel: 'Título',
+      titlePlaceholder: 'Ej: Dentista',
+      typeLabel: 'Tipo',
+      childrenLabel: '¿Para quién?',
+      allChildren: 'Toda la casa',
+      dateLabel: 'Fecha',
+      datePlaceholder: 'AAAA-MM-DD',
+      allDayToggle: 'Todo el día',
+      startLabel: 'Desde',
+      endLabel: 'Hasta',
+      timePlaceholder: 'HH:mm',
+      locationLabel: 'Lugar (opcional)',
+      notesLabel: 'Notas (opcional)',
+      repeatsToggle: 'Se repite cada semana',
+      untilLabel: 'Hasta la fecha',
+      submitNew: 'Guardar evento',
+      submitEdit: 'Guardar cambios',
+      errors: {
+        missingTitle: 'Ingresa un título.',
+        badDate: 'Usa el formato AAAA-MM-DD.',
+        badTime: 'Usa el formato HH:mm (por ejemplo 15:00).',
+        timeOrder: 'La hora de término debe ser posterior a la de inicio.',
+        recurrenceType: 'Solo los entrenamientos pueden repetirse.',
+        untilBeforeDate: 'La fecha de término debe ser posterior a la del evento.',
+      },
+    },
+
+    errors: {
+      saveFailed: 'No se pudo guardar el evento. Inténtalo de nuevo.',
+      deleteFailed: 'No se pudo eliminar el evento. Inténtalo de nuevo.',
+    },
   },
 
   custody: {

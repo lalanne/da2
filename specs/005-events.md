@@ -1,6 +1,6 @@
 # 005 — Kid Events
 
-**Status:** draft
+**Status:** approved
 **Depends on:** 004 (and thereby 007)
 
 ## User stories
