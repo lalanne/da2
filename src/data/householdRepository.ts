@@ -12,11 +12,12 @@ import {
 } from '@react-native-firebase/firestore';
 import type { AuthUser } from '../auth/AuthProvider';
 import type { UserProfile } from '../models/UserProfile';
-import type {
-  Child,
-  Household,
-  InviteCode,
-  NewHouseholdInput,
+import {
+  DEFAULT_TIMEZONE,
+  type Child,
+  type Household,
+  type InviteCode,
+  type NewHouseholdInput,
 } from '../models/Household';
 import { generateInviteCode } from './inviteCode';
 
@@ -98,6 +99,7 @@ function mapHousehold(id: string, data: Record<string, unknown> | undefined): Ho
     })),
     pendingInviteCode:
       typeof data.pendingInviteCode === 'string' ? data.pendingInviteCode : null,
+    timezone: typeof data.timezone === 'string' ? data.timezone : DEFAULT_TIMEZONE,
     createdBy: typeof data.createdBy === 'string' ? data.createdBy : '',
     createdAt: toMillis(data.createdAt),
   };
@@ -155,6 +157,7 @@ export const householdRepository: HouseholdRepository = {
       parentIds: [user.uid],
       children,
       pendingInviteCode: code,
+      timezone: DEFAULT_TIMEZONE,
       createdBy: user.uid,
       createdAt: serverTimestamp(),
     });

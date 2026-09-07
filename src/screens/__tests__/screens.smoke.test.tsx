@@ -21,6 +21,7 @@ const soleParentHousehold: Household = {
     { id: 'c2', name: 'Mateo', birthdate: '2016-04-22' },
   ],
   pendingInviteCode: '2Q8D48W4',
+  timezone: 'America/Santiago',
   createdBy: 'u1',
   createdAt: 0,
 };

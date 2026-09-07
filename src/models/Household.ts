@@ -14,9 +14,14 @@ export interface Household {
   children: Child[];
   /** The live, unredeemed invite code; null once redeemed. */
   pendingInviteCode: string | null;
+  /** IANA timezone — canonical for the custody calendar (spec 004). */
+  timezone: string;
   createdBy: string;
   createdAt: number;
 }
+
+/** Default household timezone until a settings screen lets a parent change it. */
+export const DEFAULT_TIMEZONE = 'America/Santiago';
 
 export interface InviteCode {
   /** The code string — also the Firestore document id. */

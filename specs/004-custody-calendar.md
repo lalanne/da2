@@ -1,6 +1,6 @@
 # 004 — Custody Calendar
 
-**Status:** draft
+**Status:** approved
 **Depends on:** 002, 007 (built on the design-system primitives; owns the
 `parentA` / `parentB` colour semantics whose token slots 007 reserves)
 
@@ -146,12 +146,12 @@ up; nothing else is written.
 Criterion 5 ("proposer can't approve own") is exactly the
 `resource.data.proposerId != uid()` clause in the resolve branch.
 
-**Firestore composite indexes (`firestore.indexes.json`):**
-
-- `proposals`: `(type ASC, status ASC, effectiveFrom DESC)` — active pattern
-- `proposals`: `(type ASC, status ASC, date ASC)` — approved overrides in a
-  month range
-- `proposals`: `(status ASC, createdAt DESC)` — the pending list
+**Query strategy.** v1 subscribes to the whole `proposals` subcollection for
+the household (one listener, `orderBy createdAt desc`) and does all filtering
++ computation client-side — a single-field order needs no composite index. A
+household accumulates a few proposals a week, so this stays small for years.
+Revisit with per-month `where` queries (and the composite indexes they need)
+only if a household's proposal count grows large.
 
 **One pending pattern proposal at a time** is a UI rule (a new pattern
 proposal is disabled while one is pending); multiple pending day-override

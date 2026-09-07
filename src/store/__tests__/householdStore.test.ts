@@ -34,6 +34,7 @@ function household(overrides: Partial<Household> = {}): Household {
     parentIds: ['u1'],
     children: [{ id: 'c1', name: 'Sofía', birthdate: null }],
     pendingInviteCode: 'ABCD2345',
+    timezone: 'America/Santiago',
     createdBy: 'u1',
     createdAt: 0,
     ...overrides,

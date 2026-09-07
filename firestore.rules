@@ -115,9 +115,17 @@ service cloud.firestore {
         && request.resource.data.pendingInviteCode is string
         && !inHousehold();
 
-      allow update: if signedIn() && (regenerateCode() || secondParentJoins());
+      allow update: if signedIn()
+        && (regenerateCode() || secondParentJoins() || setTimezone());
 
       allow delete: if false;
+
+      // spec 004 — a member sets the household timezone (IANA string).
+      function setTimezone() {
+        return uid() in resource.data.parentIds
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['timezone'])
+          && request.resource.data.timezone is string;
+      }
 
       function regenerateCode() {
         return resource.data.parentIds.size() == 1
@@ -163,6 +171,60 @@ service cloud.firestore {
       allow delete: if signedIn()
         && household(resource.data.householdId).parentIds.size() == 1
         && household(resource.data.householdId).parentIds[0] == uid();
+    }
+
+    // ---- households/{hid}/proposals/{proposalId} — spec 004 ----
+    // Custody pattern + day-override proposals. The approved proposal IS the
+    // record; the calendar is computed from a live query over this collection.
+    match /households/{hid}/proposals/{proposalId} {
+      function member() {
+        return signedIn() && uid() in household(hid).parentIds;
+      }
+
+      allow read: if member();
+
+      allow create: if member()
+        && request.resource.data.proposerId == uid()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.resolvedBy == null
+        && (
+          (
+            request.resource.data.type == 'pattern'
+            && request.resource.data.cycle is list
+            && (request.resource.data.cycle.size() == 7 || request.resource.data.cycle.size() == 14)
+            && request.resource.data.anchorDate is string
+            && request.resource.data.changeoverTime is string
+            && request.resource.data.effectiveFrom is string
+          )
+          ||
+          (
+            request.resource.data.type == 'day-override'
+            && request.resource.data.date is string
+            && request.resource.data.assignedTo in [0, 1]
+          )
+        );
+
+      allow update: if member() && (resolveProposal() || cancelProposal());
+      allow delete: if false;
+
+      // Only the NON-proposing parent approves / rejects (criterion 5).
+      function resolveProposal() {
+        return resource.data.proposerId != uid()
+          && resource.data.status == 'pending'
+          && request.resource.data.status in ['approved', 'rejected']
+          && request.resource.data.resolvedBy == uid()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'resolvedAt', 'resolvedBy']);
+      }
+
+      // The proposer cancels while still pending.
+      function cancelProposal() {
+        return resource.data.proposerId == uid()
+          && resource.data.status == 'pending'
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'resolvedAt']);
+      }
     }
 
     // Everything else is added spec-by-spec; default deny until then.
