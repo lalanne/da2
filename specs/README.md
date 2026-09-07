@@ -28,9 +28,12 @@ The number is *mostly* the build order, with two deliberate exceptions:
 
 - **006 (deployment pipeline) is continuous** — it's exercised alongside every
   other spec, not built once and left.
-- **007 (design system) is built before 003** — specs 003–005 compose their UI
-  from its primitives. It's numbered 007 only to avoid renumbering specs that
-  are already referenced widely.
+- **007 (design system) is built before the feature specs** — 003–005 compose
+  their UI from its primitives. It's numbered 007 only to avoid renumbering
+  specs that are already referenced widely.
+- **The custody calendar (004) and kid events (005) come before receipts
+  (003)** — they're the product's core and the pilot's priority; 003 doesn't
+  depend on them.
 
-So the working order is: **001 → 002 → 007 → 003 → 004 → 005**, with 006
+So the working order is: **001 → 002 → 007 → 004 → 005 → 003**, with 006
 running throughout.
