@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+  </style>
+</helmet>
+<div style="width: 390px; min-height: 1040px; background: #FBFAF8; display: flex; flex-direction: column; box-sizing: border-box; padding: 64px 24px 40px;">
+
+  <h1 style="margin: 0 0 28px; font-size: 24px; line-height: 30px; font-weight: 600; color: #2A2926;">Crear un hogar</h1>
+
+  <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+    <label style="font-size: 14px; font-weight: 600; color: #2A2926;">Nombre del hogar</label>
+    <div style="height: 50px; border: 1px solid #E4E0DA; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; padding: 0 14px; font-size: 16px; color: #2A2926;">Los niños de García</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+    <label style="font-size: 14px; font-weight: 600; color: #2A2926;">Hijos e hijas</label>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="height: 50px; border: 1px solid #E4E0DA; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; padding: 0 14px; font-size: 16px; color: #2A2926;">Sofía</div>
+      <div style="height: 50px; border: 1px solid #E4E0DA; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; padding: 0 14px; font-size: 16px; color: #9C978E;">Fecha de nacimiento (opcional)</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="height: 50px; border: 1px solid #E4E0DA; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-size: 16px; color: #2A2926;">
+        <span>Mateo</span>
+        <button style="border: none; background: none; font-family: inherit; font-size: 14px; font-weight: 600; color: #6C6960; cursor: pointer;">Quitar</button>
+      </div>
+      <div style="height: 50px; border: 1px solid #E4E0DA; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; padding: 0 14px; font-size: 16px; color: #2A2926;">2016-04-22</div>
+    </div>
+  </div>
+
+  <button style="align-self: flex-start; border: 1px dashed #C9C3B8; background: none; border-radius: 10px; padding: 10px 14px; font-family: inherit; font-size: 14px; font-weight: 600; color: #46617E; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 28px;">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3.5v9M3.5 8h9" stroke="#46617E" stroke-width="1.6" stroke-linecap="round"/></svg>
+    Agregar hijo/a
+  </button>
+
+  <div style="flex-grow: 1;"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    <button style="height: 52px; border: none; border-radius: 12px; background: #46617E; color: #FFFFFF; font-size: 16px; font-weight: 600; font-family: inherit; cursor: pointer;">Crear hogar</button>
+    <button style="height: 52px; border: none; background: none; font-size: 16px; font-weight: 600; font-family: inherit; color: #6C6960; cursor: pointer;">Cancelar</button>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

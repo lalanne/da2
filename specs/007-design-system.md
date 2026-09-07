@@ -94,6 +94,32 @@ primitives (no bare `View`/`Text`/`Button` for anything a primitive covers).
 7. **Given** this spec, **then** it links the approved `design` canvas
    Artifact that captures the visual direction.
 
+## Visual direction (draft)
+
+Canvas: <https://claude.ai/code/artifact/9ea080f1-395e-49a9-9a86-d28916603d30>
+(working files in `design/canvas/`). Seven artboards: the auth + household
+flow re-skinned (bienvenida, configura tu hogar, crear un hogar, unirme con
+un código, hogar/pantalla principal), a calendar reference for spec 004, and
+the token + primitive sheet.
+
+Palette resolved on the canvas — carry these into `src/theme/`:
+
+| token | value | | token | value |
+|---|---|---|---|---|
+| `bg` | `#FBFAF8` | | `accent` | `#46617E` |
+| `surface` | `#FFFFFF` | | `accentSoft` | `#ECF1F5` |
+| `surfaceSunken` | `#F1EFEC` | | `accentPressed` | `#33485F` |
+| `border` | `#E4E0DA` | | `danger` | `#9E4430` |
+| `textFaint` | `#9C978E` | | `dangerBg` | `#F6EAE6` |
+| `textSecondary` | `#6C6960` | | `success` | `#3F6B52` |
+| `textPrimary` | `#2A2926` | | `warning` | `#97722E` |
+| `parentA` | `#46617E` | | `parentB` | `#A9764F` |
+
+Type: system font, `display 30/36·600`, `title 24/30·600`,
+`heading 18/24·600`, `body 16/24·400`, `label 14/18·600`,
+`caption 13/18·400` (secondary colour). Spacing `4·8·16·24·32·48`; radius
+`8·12·20`; buttons 48 pt tall.
+
 ## Verification plan
 
 - Automated: `npm run typecheck` + `npm test` (component snapshot/interaction

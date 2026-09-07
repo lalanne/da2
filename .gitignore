@@ -50,3 +50,6 @@ GoogleService-Info.plist
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Seeded design-canvas payload (regenerated from design/canvas/*.dc.html)
+design/canvas/da2-app-design.html

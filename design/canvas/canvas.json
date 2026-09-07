@@ -1,0 +1,16 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Bienvenida" },
+    { "file": "CreateOrJoin.dc.html", "x": 500, "y": 0, "w": 390, "h": 844, "title": "Configura tu hogar" },
+    { "file": "CrearHogar.dc.html", "x": 1000, "y": 0, "w": 390, "h": 1040, "title": "Crear un hogar" },
+    { "file": "UnirmeHogar.dc.html", "x": 1500, "y": 0, "w": 390, "h": 844, "title": "Unirme con un código" },
+    { "file": "Hogar.dc.html", "x": 0, "y": 1220, "w": 390, "h": 1040, "title": "Hogar (pantalla principal)" },
+    { "file": "Calendario.dc.html", "x": 500, "y": 1220, "w": 390, "h": 900, "title": "Calendario (referencia)" },
+    { "file": "Tokens.dc.html", "x": 1000, "y": 1220, "w": 390, "h": 1520, "title": "Tokens y primitivas" }
+  ],
+  "annotations": [
+    { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
+    { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." }
+  ],
+  "launch": { "view": "canvas" }
+}
