@@ -1,6 +1,6 @@
 # 007 — Design System & Visual Language
 
-**Status:** draft
+**Status:** implemented
 **Depends on:** 002 (needs real screens to re-skin)
 **Build order:** implemented **before** 003 — specs 003–005 build their UI from
 these primitives. (Numbered 007 only to avoid renumbering 003–006; see the

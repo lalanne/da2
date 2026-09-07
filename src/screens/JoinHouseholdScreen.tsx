@@ -1,14 +1,9 @@
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useHouseholdStore } from '../store/householdStore';
 import { strings } from '../i18n/strings';
+import { theme } from '../theme';
+import { Banner, Button, Screen, Text, TextField } from '../components';
 
 export function JoinHouseholdScreen({ onBack }: { onBack: () => void }) {
   const { joinHousehold, isSubmitting, actionError, clearActionError } = useHouseholdStore();
@@ -18,9 +13,7 @@ export function JoinHouseholdScreen({ onBack }: { onBack: () => void }) {
 
   const onChange = (text: string) => {
     if (actionError) clearActionError();
-    // Keep the raw text in state — no per-keystroke transform (that plus
-    // maxLength on a controlled TextInput crashes iOS). The store normalizes
-    // and validates on submit.
+    // Keep the raw text — the store normalizes and validates on submit.
     setCode(text);
   };
 
@@ -30,47 +23,51 @@ export function JoinHouseholdScreen({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{s.title}</Text>
-      <Text style={styles.label}>{s.codeLabel}</Text>
-      <TextInput
-        style={styles.input}
+    <Screen>
+      <View style={styles.header}>
+        <Text variant="title">{s.title}</Text>
+        <Text variant="body" color="textSecondary">
+          {s.subtitle}
+        </Text>
+      </View>
+
+      <TextField
+        label={s.codeLabel}
         value={code}
         onChangeText={onChange}
         placeholder={s.codePlaceholder}
         autoCapitalize="characters"
-        autoCorrect={false}
-        autoComplete="off"
         testID="invite-code-input"
       />
 
       {actionError ? (
-        <Text style={styles.error} testID="join-household-error">
+        <Banner tone="danger" testID="join-household-error">
           {actionError}
-        </Text>
+        </Banner>
       ) : null}
 
-      {isSubmitting ? (
-        <ActivityIndicator testID="join-household-spinner" />
-      ) : (
-        <Button title={s.submit} onPress={onSubmit} testID="join-household-submit" />
-      )}
-      <Button title={strings.common.cancel} onPress={onBack} testID="join-household-back" />
-    </View>
+      <View style={styles.spacer} />
+
+      <View style={styles.actions}>
+        <Button
+          title={s.submit}
+          onPress={onSubmit}
+          loading={isSubmitting}
+          testID="join-household-submit"
+        />
+        <Button
+          title={strings.common.cancel}
+          variant="ghost"
+          onPress={onBack}
+          testID="join-household-back"
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 24, fontWeight: '600', textAlign: 'center' },
-  label: { fontSize: 15, fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 20,
-  },
-  error: { color: '#c0392b', textAlign: 'center' },
+  header: { gap: theme.spacing.md, marginBottom: theme.spacing.lg },
+  spacer: { flex: 1 },
+  actions: { gap: theme.spacing.sm },
 });

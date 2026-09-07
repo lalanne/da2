@@ -19,13 +19,12 @@ describe('WelcomeScreen', () => {
     expect(signIn).toHaveBeenCalled();
   });
 
-  it('shows a spinner instead of the button while signing in', async () => {
+  it('shows the button in a loading state while signing in', async () => {
     mockedUseAuthStore.mockReturnValue({ signIn: jest.fn(), isSigningIn: true, error: null });
 
     await render(<WelcomeScreen />);
 
-    expect(screen.getByTestId('sign-in-spinner')).toBeTruthy();
-    expect(screen.queryByTestId('google-sign-in-button')).toBeNull();
+    expect(screen.getByTestId('google-sign-in-button-loading')).toBeTruthy();
   });
 
   it('renders an error message when sign-in fails', async () => {

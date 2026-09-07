@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './src/store/authStore';
 import { useHouseholdStore } from './src/store/householdStore';
+import { theme } from './src/theme';
 import { WelcomeScreen } from './src/screens/WelcomeScreen';
 import { MainScreen } from './src/screens/MainScreen';
 import { HouseholdOnboardingScreen } from './src/screens/HouseholdOnboardingScreen';
@@ -68,7 +69,7 @@ export default function App() {
 function Loading({ testID }: { testID: string }) {
   return (
     <View style={styles.loading}>
-      <ActivityIndicator testID={testID} size="large" />
+      <ActivityIndicator testID={testID} size="large" color={theme.colors.accent} />
     </View>
   );
 }
@@ -76,7 +77,7 @@ function Loading({ testID }: { testID: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.bg,
   },
   loading: {
     flex: 1,

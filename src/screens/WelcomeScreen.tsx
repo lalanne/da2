@@ -1,35 +1,49 @@
-import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAuthStore } from '../store/authStore';
 import { strings } from '../i18n/strings';
+import { theme } from '../theme';
+import { Banner, Button, Emblem, Screen, Text } from '../components';
 
 export function WelcomeScreen() {
   const { signIn, isSigningIn, error } = useAuthStore();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{strings.auth.welcomeTitle}</Text>
-      <Text style={styles.subtitle}>{strings.auth.welcomeSubtitle}</Text>
-      {isSigningIn ? (
-        <ActivityIndicator testID="sign-in-spinner" />
-      ) : (
+    <Screen center>
+      <View style={styles.hero}>
+        <Emblem />
+        <View style={styles.copy}>
+          <Text variant="display" align="center">
+            {strings.auth.welcomeTitle}
+          </Text>
+          <Text variant="body" color="textSecondary" align="center">
+            {strings.auth.welcomeSubtitle}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.actions}>
         <Button
           title={strings.auth.continueWithGoogle}
           onPress={signIn}
+          loading={isSigningIn}
           testID="google-sign-in-button"
         />
-      )}
-      {error ? (
-        <Text style={styles.error} testID="sign-in-error">
-          {error}
-        </Text>
-      ) : null}
-    </View>
+        {error ? (
+          <Banner tone="danger" testID="sign-in-error">
+            {error}
+          </Banner>
+        ) : (
+          <Text variant="caption" color="textFaint" align="center">
+            {strings.auth.googleHint}
+          </Text>
+        )}
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 16 },
-  title: { fontSize: 28, fontWeight: '600' },
-  subtitle: { fontSize: 16, textAlign: 'center', color: '#555' },
-  error: { color: '#c0392b', textAlign: 'center' },
+  hero: { alignItems: 'center', gap: theme.spacing.lg },
+  copy: { gap: theme.spacing.md, alignItems: 'center' },
+  actions: { alignSelf: 'stretch', gap: theme.spacing.md, marginTop: theme.spacing.xxl },
 });

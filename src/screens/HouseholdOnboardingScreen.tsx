@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { strings } from '../i18n/strings';
+import { theme } from '../theme';
+import { Card, ListRow, Screen, Text } from '../components';
 import { CreateHouseholdScreen } from './CreateHouseholdScreen';
 import { JoinHouseholdScreen } from './JoinHouseholdScreen';
 
@@ -16,26 +18,46 @@ export function HouseholdOnboardingScreen() {
   if (step === 'create') return <CreateHouseholdScreen onBack={() => setStep('choose')} />;
   if (step === 'join') return <JoinHouseholdScreen onBack={() => setStep('choose')} />;
 
+  const s = strings.household;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{strings.household.onboardingTitle}</Text>
-      <Text style={styles.subtitle}>{strings.household.onboardingSubtitle}</Text>
-      <Button
-        title={strings.household.createCta}
-        onPress={() => setStep('create')}
-        testID="onboarding-create-button"
-      />
-      <Button
-        title={strings.household.joinCta}
-        onPress={() => setStep('join')}
-        testID="onboarding-join-button"
-      />
-    </View>
+    <Screen>
+      <View style={styles.header}>
+        <Text variant="title">{s.onboardingTitle}</Text>
+        <Text variant="body" color="textSecondary">
+          {s.onboardingSubtitle}
+        </Text>
+      </View>
+
+      <View style={styles.options}>
+        <Card flush>
+          <ListRow
+            title={s.createCta}
+            subtitle={s.createHint}
+            onPress={() => setStep('create')}
+            testID="onboarding-create-button"
+          />
+        </Card>
+        <Card flush>
+          <ListRow
+            title={s.joinCta}
+            subtitle={s.joinHint}
+            onPress={() => setStep('join')}
+            testID="onboarding-join-button"
+          />
+        </Card>
+      </View>
+
+      <View style={styles.spacer} />
+      <Text variant="caption" color="textFaint" align="center">
+        {s.oneHouseholdNote}
+      </Text>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, gap: 16 },
-  title: { fontSize: 26, fontWeight: '600', textAlign: 'center' },
-  subtitle: { fontSize: 15, textAlign: 'center', color: '#555' },
+  header: { gap: theme.spacing.md, marginBottom: theme.spacing.xl },
+  options: { gap: theme.spacing.md },
+  spacer: { flex: 1 },
 });

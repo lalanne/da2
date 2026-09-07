@@ -38,11 +38,10 @@ describe('JoinHouseholdScreen', () => {
     );
   });
 
-  it('shows a spinner instead of the submit button while joining', async () => {
+  it('shows the submit button in a loading state while joining', async () => {
     mockStore({ isSubmitting: true });
     await render(<JoinHouseholdScreen onBack={jest.fn()} />);
 
-    expect(screen.getByTestId('join-household-spinner')).toBeTruthy();
-    expect(screen.queryByTestId('join-household-submit')).toBeNull();
+    expect(screen.getByTestId('join-household-submit-loading')).toBeTruthy();
   });
 });

@@ -1,15 +1,9 @@
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useHouseholdStore } from '../store/householdStore';
 import { strings } from '../i18n/strings';
+import { theme } from '../theme';
+import { Banner, Button, Card, Screen, Text, TextField } from '../components';
 import { validateNewHousehold, type ChildRow } from './createHouseholdForm';
 
 export function CreateHouseholdScreen({ onBack }: { onBack: () => void }) {
@@ -36,79 +30,91 @@ export function CreateHouseholdScreen({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>{s.title}</Text>
+    <Screen scroll>
+      <Text variant="title" style={styles.title}>
+        {s.title}
+      </Text>
 
-      <Text style={styles.label}>{s.nameLabel}</Text>
-      <TextInput
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-        placeholder={s.namePlaceholder}
-        testID="household-name-input"
-      />
+      <View style={styles.form}>
+        <TextField
+          label={s.nameLabel}
+          value={name}
+          onChangeText={setName}
+          placeholder={s.namePlaceholder}
+          testID="household-name-input"
+        />
 
-      <Text style={styles.label}>{s.childrenLabel}</Text>
-      {children.map((child, index) => (
-        <View key={index} style={styles.childRow}>
-          <TextInput
-            style={styles.input}
-            value={child.name}
-            onChangeText={(text) => updateChild(index, { name: text })}
-            placeholder={s.childNamePlaceholder}
-            testID={`child-name-input-${index}`}
+        <View style={styles.childrenBlock}>
+          <Text variant="label">{s.childrenLabel}</Text>
+          {children.map((child, index) => (
+            <Card key={index}>
+              <View style={styles.childRow}>
+                <TextField
+                  value={child.name}
+                  onChangeText={(text) => updateChild(index, { name: text })}
+                  placeholder={s.childNamePlaceholder}
+                  testID={`child-name-input-${index}`}
+                />
+                <TextField
+                  value={child.birthdate}
+                  onChangeText={(text) => updateChild(index, { birthdate: text })}
+                  placeholder={s.childBirthdatePlaceholder}
+                  autoCapitalize="none"
+                  keyboardType="numbers-and-punctuation"
+                  testID={`child-birthdate-input-${index}`}
+                />
+                {children.length > 1 ? (
+                  <Button
+                    title={s.removeChild}
+                    variant="ghost"
+                    fullWidth={false}
+                    onPress={() => setChildren((rows) => rows.filter((_, i) => i !== index))}
+                    testID={`remove-child-${index}`}
+                  />
+                ) : null}
+              </View>
+            </Card>
+          ))}
+          <Button
+            title={s.addChild}
+            variant="secondary"
+            onPress={() => setChildren((rows) => [...rows, { name: '', birthdate: '' }])}
+            testID="add-child-button"
           />
-          <TextInput
-            style={styles.input}
-            value={child.birthdate}
-            onChangeText={(text) => updateChild(index, { birthdate: text })}
-            placeholder={s.childBirthdatePlaceholder}
-            autoCapitalize="none"
-            testID={`child-birthdate-input-${index}`}
-          />
-          {children.length > 1 ? (
-            <Button
-              title={s.removeChild}
-              onPress={() => setChildren((rows) => rows.filter((_, i) => i !== index))}
-              testID={`remove-child-${index}`}
-            />
-          ) : null}
         </View>
-      ))}
-      <Button
-        title={s.addChild}
-        onPress={() => setChildren((rows) => [...rows, { name: '', birthdate: '' }])}
-        testID="add-child-button"
-      />
 
-      {error ? (
-        <Text style={styles.error} testID="create-household-error">
-          {error}
-        </Text>
-      ) : null}
+        {error ? (
+          <Banner tone="danger" testID="create-household-error">
+            {error}
+          </Banner>
+        ) : null}
+      </View>
 
-      {isSubmitting ? (
-        <ActivityIndicator testID="create-household-spinner" />
-      ) : (
-        <Button title={s.submit} onPress={onSubmit} testID="create-household-submit" />
-      )}
-      <Button title={strings.common.cancel} onPress={onBack} testID="create-household-back" />
-    </ScrollView>
+      <View style={styles.spacer} />
+
+      <View style={styles.actions}>
+        <Button
+          title={s.submit}
+          onPress={onSubmit}
+          loading={isSubmitting}
+          testID="create-household-submit"
+        />
+        <Button
+          title={strings.common.cancel}
+          variant="ghost"
+          onPress={onBack}
+          testID="create-household-back"
+        />
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 24, fontWeight: '600', textAlign: 'center' },
-  label: { fontSize: 15, fontWeight: '600', marginTop: 8 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  childRow: { gap: 8, marginBottom: 8 },
-  error: { color: '#c0392b', textAlign: 'center' },
+  title: { marginBottom: theme.spacing.lg },
+  form: { gap: theme.spacing.lg },
+  childrenBlock: { gap: theme.spacing.sm },
+  childRow: { gap: theme.spacing.sm },
+  spacer: { minHeight: theme.spacing.xl, flexGrow: 1 },
+  actions: { gap: theme.spacing.sm },
 });

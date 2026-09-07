@@ -18,11 +18,10 @@ describe('CreateHouseholdScreen', () => {
     expect(screen.getByTestId('create-household-submit')).toBeTruthy();
   });
 
-  it('shows a spinner instead of the submit button while creating', async () => {
+  it('shows the submit button in a loading state while creating', async () => {
     mockedStore.mockReturnValue({ createHousehold: jest.fn(async () => true), isSubmitting: true });
     await render(<CreateHouseholdScreen onBack={jest.fn()} />);
 
-    expect(screen.getByTestId('create-household-spinner')).toBeTruthy();
-    expect(screen.queryByTestId('create-household-submit')).toBeNull();
+    expect(screen.getByTestId('create-household-submit-loading')).toBeTruthy();
   });
 });

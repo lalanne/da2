@@ -18,7 +18,7 @@ This project is built spec-first. Rules:
 | 004 | [Custody calendar](004-custody-calendar.md) | draft |
 | 005 | [Kid events](005-events.md) | draft |
 | 006 | [Pilot deployment pipeline](006-deployment-pilot.md) | draft |
-| 007 | [Design system & visual language](007-design-system.md) | draft |
+| 007 | [Design system & visual language](007-design-system.md) | implemented |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 

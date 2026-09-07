@@ -23,6 +23,7 @@ export const strings = {
     welcomeTitle: 'Te damos la bienvenida',
     welcomeSubtitle: 'Organización compartida para la crianza entre dos hogares.',
     continueWithGoogle: 'Continuar con Google',
+    googleHint: 'Usa tu cuenta de Google. No creamos otra contraseña.',
     signOut: 'Cerrar sesión',
     errors: {
       signInCancelled: 'Se canceló el inicio de sesión.',
@@ -42,7 +43,10 @@ export const strings = {
       'Crea un hogar y agrega a tus hijos e hijas, o únete al hogar que ya creó ' +
       'la otra persona con un código de invitación.',
     createCta: 'Crear un hogar',
+    createHint: 'Serás la primera persona en el hogar',
     joinCta: 'Unirme con un código',
+    joinHint: 'Ya recibiste un código de 8 caracteres',
+    oneHouseholdNote: 'Cada persona tiene un solo hogar.',
 
     create: {
       title: 'Crear un hogar',
@@ -63,6 +67,7 @@ export const strings = {
 
     join: {
       title: 'Unirme a un hogar',
+      subtitle: 'Ingresa el código que te compartió la otra persona.',
       codeLabel: 'Código de invitación',
       codePlaceholder: 'ABCD2345',
       submit: 'Unirme',
@@ -78,6 +83,7 @@ export const strings = {
     settings: {
       title: 'Integrantes del hogar',
       you: 'Tú',
+      emptySlot: 'Lugar libre',
       waitingForCoParent: `Esperando a que se una ${CO_PARENT}.`,
       inviteCodeHeading: 'Código de invitación',
       inviteCodeHelp: `Compártelo con ${CO_PARENT}. Sirve una sola vez.`,

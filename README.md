@@ -54,7 +54,9 @@ end-to-end on both pilot phones (mother's Android, father's iPhone via
 TestFlight) against the live Firebase project: Google Sign-In through a
 provider-agnostic auth layer, one real household of 3 children linked by
 single-use invite code, Spanish UI, security rules with adversarial-case
-tests (43 unit + 26 rules tests). Spec 007 (design system) is next, then
-specs 003–005. Spec 006 (deployment pipeline) runs continuously — every
-verified feature is deployed to the two-phone pilot; see
+tests. Spec 007 (design system — a `src/theme` token module and `src/components`
+primitives, with the auth + household screens re-skinned onto them) is
+implemented and pending manual check on the pilot phones; specs 003–005 build
+on it. Spec 006 (deployment pipeline) runs continuously — every verified
+feature is deployed to the two-phone pilot; see
 [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
