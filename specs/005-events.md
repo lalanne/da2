@@ -1,6 +1,6 @@
 # 005 — Kid Events
 
-**Status:** implemented
+**Status:** verified
 **Depends on:** 004 (and thereby 007)
 
 ## User stories
@@ -137,6 +137,23 @@ uid)` / `stop`, `events`, `create`, `update`, `remove`, `isSubmitting`,
 - **Manual on both pilot phones**: the mother adds a real appointment and a
   weekly training; the father sees both (calendar dots + Eventos list); the
   father edits the time, deletes one — the mother sees each change live.
+
+## Verification results
+
+Verified 2026-09-07 on both pilot phones against the live Firebase project,
+plus 29 unit tests (expansion + form validation + screens) and 6 Firestore
+rules tests.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1 add appointment, seen live in calendar + list | ✅ | Mother added a real appointment; father saw the dot and the list entry without refreshing. |
+| 2 weekly training through `until` only | ✅ | Every week shows the training through the end date, none after. Unit: `occurrencesInRange` clamps to `until` and to the requested range. |
+| 3 edit time, both see it live | ✅ | Editing the time updates both phones (day detail + Eventos list) in real time. |
+| 4 delete removes it for both | ✅ | Deleting removes the event everywhere it showed. |
+| 5 day with custody colour + events | ✅ | Month cell shows the tint plus the event dots; the day detail lists every event including a recurring occurrence. |
+| 6 non-member reads/writes nothing | ✅ | `events.rules.test.ts`: non-member and unauthenticated denied. |
+| 7 immutable `createdBy` / `createdAt` on edit | ✅ | Rules reject an update that changes `createdBy`/`createdAt` or sets `updatedBy` to anyone but the editor. |
+| 8 recurrence only on training | ✅ | The form hides the recurrence toggle for non-training; the rules reject a `recurrence` value on a non-training event. |
 
 ## Out of scope
 

@@ -59,8 +59,8 @@ tests. Spec 007 (design system — a `src/theme` token module and
 (custody calendar — recurring pattern with per-day changeover, propose/approve
 for every change, computed client-side from a live query over proposals) is
 verified on both phones. Spec 005 (kid events — a third "Eventos" tab, weekly
-recurrence for training, dots on the calendar) is implemented and pending its
-pilot check. Working order:
+recurrence for training, dots on the calendar) is verified on both phones.
+Working order:
 001 → 002 → 007 → 004 → 005 → 003 → 008 (008 = OS push, deferred infra). Spec
 006 (deployment pipeline) runs continuously — every verified feature is
 deployed to the two-phone pilot; see
