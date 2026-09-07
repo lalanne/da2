@@ -6,8 +6,10 @@ import { strings } from '../../i18n/strings';
 import { useAuthStore } from '../../store/authStore';
 import { useHouseholdStore } from '../../store/householdStore';
 import { useCustodyStore } from '../../store/custodyStore';
+import { useEventsStore } from '../../store/eventsStore';
 import {
   addMonths,
+  addDays,
   approvedOverrides,
   approvedPatterns,
   hasPendingPattern,
@@ -16,11 +18,15 @@ import {
   startOfMonth,
   todayInTimezone,
 } from '../../custody';
+import { eventCountsByDate, eventsForDay } from '../../events';
+import type { KidEvent } from '../../models/Event';
 import { MonthGrid } from './MonthGrid';
 import { DayDetail } from './DayDetail';
 import { ProposeOverride } from './ProposeOverride';
 import { PatternSetup } from './PatternSetup';
 import { ProposalsList } from './ProposalsList';
+import { EventDetail } from '../events/EventDetail';
+import { EventForm } from '../events/EventForm';
 import { monthLabel } from './labels';
 import { parentName, parentStrong } from './parents';
 
@@ -29,13 +35,17 @@ type CalView =
   | { name: 'day'; date: string }
   | { name: 'propose'; date: string }
   | { name: 'pattern-setup' }
-  | { name: 'proposals' };
+  | { name: 'proposals' }
+  | { name: 'event'; event: KidEvent; from: string }
+  | { name: 'event-edit'; event: KidEvent; from: string };
 
 export function CalendarTab() {
   const uid = useAuthStore((s) => s.user?.uid);
   const { household, members } = useHouseholdStore();
   const custody = useCustodyStore();
   const proposals = custody.proposals;
+  const events = useEventsStore((s) => s.events);
+  const eventsSubmitting = useEventsStore((s) => s.isSubmitting);
 
   const [view, setView] = useState<CalView>({ name: 'calendar' });
   const tz = household?.timezone ?? 'America/Santiago';
@@ -45,6 +55,10 @@ export function CalendarTab() {
   const patterns = useMemo(() => approvedPatterns(proposals), [proposals]);
   const overrides = useMemo(() => approvedOverrides(proposals), [proposals]);
   const pendingDatesSet = useMemo(() => pendingDates(proposals), [proposals]);
+  const eventCounts = useMemo(
+    () => eventCountsByDate(events, startOfMonth(month), addDays(startOfMonth(addMonths(month, 1)), -1)),
+    [events, month],
+  );
   const toRespond = useMemo(
     () => (uid ? pendingForResponder(proposals, uid) : []),
     [proposals, uid],
@@ -88,6 +102,38 @@ export function CalendarTab() {
     );
   }
 
+  if (view.name === 'event' || view.name === 'event-edit') {
+    const live = events.find((e) => e.id === view.event.id) ?? view.event;
+    if (view.name === 'event-edit') {
+      return (
+        <EventForm
+          household={household}
+          initial={live}
+          isSubmitting={eventsSubmitting}
+          onSubmit={async (input) => {
+            const ok = await useEventsStore.getState().update(live.id, input);
+            if (ok) setView({ name: 'event', event: { ...live, ...input }, from: view.from });
+            return ok;
+          }}
+          onBack={() => setView({ name: 'event', event: live, from: view.from })}
+        />
+      );
+    }
+    return (
+      <EventDetail
+        event={live}
+        household={household}
+        members={members}
+        onEdit={() => setView({ name: 'event-edit', event: live, from: view.from })}
+        onDelete={async () => {
+          const ok = await useEventsStore.getState().remove(live.id);
+          if (ok) setView({ name: 'day', date: view.from });
+        }}
+        onBack={() => setView({ name: 'day', date: view.from })}
+      />
+    );
+  }
+
   if (view.name === 'day') {
     return (
       <DayDetail
@@ -97,9 +143,11 @@ export function CalendarTab() {
         pendingForDate={proposals.filter(
           (p) => p.status === 'pending' && p.type === 'day-override' && p.date === view.date,
         )}
+        events={eventsForDay(events, view.date)}
         household={household}
         members={members}
         onPropose={() => setView({ name: 'propose', date: view.date })}
+        onSelectEvent={(event) => setView({ name: 'event', event, from: view.date })}
         onBack={() => setView({ name: 'calendar' })}
       />
     );
@@ -193,6 +241,7 @@ export function CalendarTab() {
         overrides={overrides}
         today={today}
         pendingDates={pendingDatesSet}
+        eventCounts={eventCounts}
         onSelectDay={(date) => setView({ name: 'day', date })}
       />
 

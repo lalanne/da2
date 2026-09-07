@@ -63,9 +63,11 @@ describe('DayDetail', () => {
         patterns={[pattern]}
         overrides={[]}
         pendingForDate={[]}
+        events={[]}
         household={household}
         members={members}
         onPropose={jest.fn()}
+        onSelectEvent={jest.fn()}
         onBack={jest.fn()}
       />,
     );

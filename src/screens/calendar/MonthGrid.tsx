@@ -19,10 +19,20 @@ interface Props {
   overrides: DayOverrideProposal[];
   today: string;
   pendingDates: Set<string>;
+  /** yyyy-mm-dd → number of events that day (spec 005). */
+  eventCounts?: Map<string, number>;
   onSelectDay: (date: string) => void;
 }
 
-export function MonthGrid({ month, patterns, overrides, today, pendingDates, onSelectDay }: Props) {
+export function MonthGrid({
+  month,
+  patterns,
+  overrides,
+  today,
+  pendingDates,
+  eventCounts,
+  onSelectDay,
+}: Props) {
   const first = startOfMonth(month);
   const lead = weekdayMonday0(first);
   const cells: (string | null)[] = [
@@ -54,6 +64,7 @@ export function MonthGrid({ month, patterns, overrides, today, pendingDates, onS
               segments={date ? segmentsForCalendarDay(date, patterns, overrides) : []}
               isToday={date === today}
               hasPending={date != null && pendingDates.has(date)}
+              eventCount={date != null ? (eventCounts?.get(date) ?? 0) : 0}
               onPress={onSelectDay}
             />
           ))}
@@ -68,17 +79,20 @@ function DayCell({
   segments,
   isToday,
   hasPending,
+  eventCount,
   onPress,
 }: {
   date: string | null;
   segments: Segment[];
   isToday: boolean;
   hasPending: boolean;
+  eventCount: number;
   onPress: (date: string) => void;
 }) {
   if (!date) return <View style={styles.cell} />;
 
   const dayNum = Number(date.slice(8, 10));
+  const dots = Math.min(eventCount, 3);
 
   return (
     <Pressable
@@ -106,7 +120,12 @@ function DayCell({
         <Text variant="caption" style={styles.dayNum}>
           {dayNum}
         </Text>
-        {hasPending ? <View style={styles.pendingDot} /> : null}
+        <View style={styles.markers}>
+          {hasPending ? <View style={styles.pendingDot} /> : null}
+          {Array.from({ length: dots }).map((_, i) => (
+            <View key={i} style={styles.eventDot} />
+          ))}
+        </View>
       </View>
     </Pressable>
   );
@@ -128,12 +147,22 @@ const styles = StyleSheet.create({
   fill: { flex: 1, flexDirection: 'row' },
   today: { borderWidth: 2, borderColor: theme.colors.accent },
   dayNum: { fontWeight: '600' },
-  pendingDot: {
+  markers: {
     position: 'absolute',
     bottom: 3,
+    flexDirection: 'row',
+    gap: 2,
+  },
+  pendingDot: {
     width: 5,
     height: 5,
     borderRadius: theme.radius.pill,
     backgroundColor: theme.colors.accent,
+  },
+  eventDot: {
+    width: 4,
+    height: 4,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.textPrimary,
   },
 });

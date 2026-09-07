@@ -1,22 +1,26 @@
 import { StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Banner, Button, Card, Screen, Text } from '../../components';
+import { Banner, Button, Card, ListRow, Screen, Text } from '../../components';
 import { strings } from '../../i18n/strings';
 import { formatMinutes, segmentsForCalendarDay } from '../../custody';
 import type { DayOverrideProposal, PatternProposal, Proposal } from '../../models/Custody';
+import type { KidEvent } from '../../models/Event';
 import type { Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
 import { parentName, parentStrong } from './parents';
 import { describeProposal, weekdayDayLabel } from './labels';
+import { eventTimeLabel, eventTypeLabel } from '../events/labels';
 
 interface Props {
   date: string;
   patterns: PatternProposal[];
   overrides: DayOverrideProposal[];
   pendingForDate: Proposal[];
+  events: KidEvent[];
   household: Household;
   members: HouseholdMember[];
   onPropose: () => void;
+  onSelectEvent: (event: KidEvent) => void;
   onBack: () => void;
 }
 
@@ -25,9 +29,11 @@ export function DayDetail({
   patterns,
   overrides,
   pendingForDate,
+  events,
   household,
   members,
   onPropose,
+  onSelectEvent,
   onBack,
 }: Props) {
   const segments = segmentsForCalendarDay(date, patterns, overrides);
@@ -78,6 +84,25 @@ export function DayDetail({
         </Card>
       )}
 
+      {events.length > 0 ? (
+        <View style={styles.events}>
+          <Text variant="heading">{strings.events.dayHeading}</Text>
+          <Card flush>
+            {events.map((event, i) => (
+              <View key={event.id}>
+                {i > 0 ? <View style={styles.divider} /> : null}
+                <ListRow
+                  title={event.title}
+                  subtitle={`${eventTypeLabel(event.type)} · ${eventTimeLabel(event)}`}
+                  onPress={() => onSelectEvent(event)}
+                  testID={`day-event-${event.id}`}
+                />
+              </View>
+            ))}
+          </Card>
+        </View>
+      ) : null}
+
       <View style={styles.spacer} />
       <Button title={s.day.propose} onPress={onPropose} testID="day-propose-button" />
       <Button title={strings.common.back} variant="ghost" onPress={onBack} />
@@ -91,5 +116,7 @@ const styles = StyleSheet.create({
   segRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md },
   swatch: { width: 14, height: 14, borderRadius: theme.radius.sm },
   segText: { gap: theme.spacing.xs },
+  events: { gap: theme.spacing.sm, marginTop: theme.spacing.lg },
+  divider: { height: 1, backgroundColor: theme.colors.hairline },
   spacer: { minHeight: theme.spacing.lg, flexGrow: 1 },
 });
