@@ -1,6 +1,6 @@
 # 004 — Custody Calendar
 
-**Status:** implemented
+**Status:** verified
 **Depends on:** 002, 007 (built on the design-system primitives; owns the
 `parentA` / `parentB` colour semantics whose token slots 007 reserves)
 
@@ -206,6 +206,24 @@ pending pattern proposals exist.
 - **Manual on both pilot phones**: the mother and father set up their real
   custody pattern, propose a real day swap, approve it; both see the same
   colours and the split changeover day; "today" is correct.
+
+## Verification results
+
+Verified 2026-09-07 on both pilot phones against the live Firebase project,
+plus 71 unit tests (computation + selectors + form builders + calendar
+screens) and 12 Firestore rules tests.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1 initial pattern + a-year-ahead correctness | ✅ | Mother configured a preset, father approved; both calendars alternate correctly across months. Unit: `custodyDayParent` / `segmentsForCalendarDay` across cycle lengths and offsets. |
+| 2 day-override proposal, old assignment until acted on | ✅ | Proposed day shows a pending dot and the pattern colour until resolved. |
+| 3 approve → live re-colour for both, proposer notified | ✅ | Approving flips the day for both phones in real time; the pending banner clears. |
+| 4 reject → calendar unchanged | ✅ | Rejected proposal leaves the calendar as-is. |
+| 5 proposer can't approve own | ✅ | The proposer sees only "Cancelar"; rules deny an approve/reject where `proposerId == uid` (`custody.rules.test.ts`). |
+| 6 pattern-timeline switch | ✅ | Unit: `patternForDate` + `segmentsForCalendarDay` render the old pattern before `effectiveFrom` and the new one after. |
+| 7 non-member reads/writes nothing | ✅ | Rules tests: non-member and unauthenticated denied on the proposals subcollection. |
+| 8 in-app pending banner | ✅ | "cambio pendiente" banner + badge appear for the non-proposer on open; clear on resolve/cancel. |
+| 9 household-timezone "today" | ✅ | `todayInTimezone(household.timezone)`; unit test with a zone that differs from the device. Pilot household defaults to `America/Santiago`. |
 
 ## Out of scope
 
