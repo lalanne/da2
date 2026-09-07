@@ -1,6 +1,6 @@
 # 004 — Custody Calendar
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 002, 007 (built on the design-system primitives; owns the
 `parentA` / `parentB` colour semantics whose token slots 007 reserves)
 

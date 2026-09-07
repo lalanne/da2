@@ -54,9 +54,12 @@ end-to-end on both pilot phones (mother's Android, father's iPhone via
 TestFlight) against the live Firebase project: Google Sign-In through a
 provider-agnostic auth layer, one real household of 3 children linked by
 single-use invite code, Spanish UI, security rules with adversarial-case
-tests. Spec 007 (design system — a `src/theme` token module and `src/components`
-primitives, with the auth + household screens re-skinned onto them, all text
-and borders passing WCAG AA) is verified on both pilot phones; specs 003–005
-build on it. Spec 006 (deployment pipeline) runs continuously — every verified
-feature is deployed to the two-phone pilot; see
+tests. Spec 007 (design system — a `src/theme` token module and
+`src/components` primitives, WCAG AA) is verified on both phones. Spec 004
+(custody calendar — recurring pattern with per-day changeover, propose/approve
+for every change, computed client-side from a live query over proposals) is
+implemented and pending its pilot check. Working order:
+001 → 002 → 007 → 004 → 005 → 003 → 008 (008 = OS push, deferred infra). Spec
+006 (deployment pipeline) runs continuously — every verified feature is
+deployed to the two-phone pilot; see
 [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
