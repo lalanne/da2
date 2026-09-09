@@ -57,8 +57,9 @@ household of 3 children linked by invite code, a shared custody calendar with
 propose/approve, and kid events, all in a Spanish UI on a WCAG-AA design
 system, with security rules covering the adversarial cases. Spec 003
 (receipts & invoices — private-by-default with one-way sharing, Firebase
-Storage + Storage security rules) is implemented and pending a native build
-(`expo.version` 1.1.0) and its pilot check. Working order:
+Storage + Storage security rules) is implemented and shipped to the pilot
+(`expo.version` 1.1.0); the `1.2.0` build adds a multi-select tag filter and
+the app icon, pending its pilot check. Working order:
 001 → 002 → 007 → 004 → 005 → 003 → 008 (008 = OS push, deferred infra). Spec
 006 (deployment pipeline) runs continuously — every verified feature is
 deployed to the two-phone pilot; see

@@ -61,6 +61,7 @@ eas submit --platform ios          # → TestFlight (beta review ~1 day)
 |---|---|---|
 | `1.0.0` | specs 001 + 002 | Firebase auth/firestore, Google Sign-In |
 | `1.1.0` | spec 003 | `@react-native-firebase/storage`, `expo-image-picker` / `-document-picker` / `-file-system` / `-sharing`; camera + photo-library permission strings |
+| `1.2.0` | spec 003 tag rework | New app icon (interlocking rings) + `adaptiveIcon` background; no new native module — the tag/`Chip` changes are JS and could have gone OTA, but ride this build since the icon needs it |
 
 After a native release, OTA updates target the new `expo.version` — phones on
 the old binary stop receiving OTAs until they install the new build.

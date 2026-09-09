@@ -17,10 +17,11 @@
 
 - **Revision (2026-09-08): `category` → `tags`.** The single-category field
   became a multi-select tag set with no default and an explicit "Sin
-  categoría". This revision is **JS + Firestore-rules only** — no native
-  change — so it ships over-the-air (`eas update` + `firebase deploy --only
-  firestore:rules`) on top of the 1.1.0 build. No data migration: the pilot
-  had no receipts yet when it landed.
+  categoría". JS + Firestore-rules only (OTA-capable), but it ships in the
+  **`1.2.0` native build** alongside the new app icon rather than as a
+  separate OTA. `firebase deploy --only firestore:rules` still runs
+  server-side with the release. No data migration: the pilot had no receipts
+  yet when it landed.
 - **This spec needs a native build.** It adds `expo-image-picker`,
   `expo-document-picker`, `expo-file-system`, `expo-sharing` and
   `@react-native-firebase/storage` — none OTA-deployable. Ships via spec
