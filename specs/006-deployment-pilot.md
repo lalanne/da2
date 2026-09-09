@@ -49,7 +49,8 @@ Needed when: adding a native module, changing app config (permissions, icons,
 SDK / runtime version.
 
 ```
-# bump expo.version first (see "Choosing the path")
+# bump expo.version AND ios.buildNumber + android.versionCode first
+# (see "Choosing the path" and Notes — same versionCode = phones ignore the update)
 eas build --profile pilot --platform all
 eas submit --platform ios          # → TestFlight (beta review ~1 day)
 # Android: send the EAS install link to the mother's phone
@@ -61,7 +62,7 @@ eas submit --platform ios          # → TestFlight (beta review ~1 day)
 |---|---|---|
 | `1.0.0` | specs 001 + 002 | Firebase auth/firestore, Google Sign-In |
 | `1.1.0` | spec 003 | `@react-native-firebase/storage`, `expo-image-picker` / `-document-picker` / `-file-system` / `-sharing`; camera + photo-library permission strings |
-| `1.2.0` | spec 003 tag rework | New app icon (interlocking rings) + `adaptiveIcon` background; no new native module — the tag/`Chip` changes are JS and could have gone OTA, but ride this build since the icon needs it |
+| `1.2.0` | spec 003 tag rework | New app icon (interlocking rings) + `adaptiveIcon` background; no new native module — the tag/`Chip` changes are JS and could have gone OTA, but ride this build since the icon needs it. First build (commit `0c5ba2d`) shipped with `versionCode`/`buildNumber` still `1` → phones ignored it; rebuilt with both = `2`. |
 
 After a native release, OTA updates target the new `expo.version` — phones on
 the old binary stop receiving OTAs until they install the new build.
@@ -243,9 +244,14 @@ docs call CocoaPods mode with static linkage, and it's supported.
   `false` (the app only uses standard HTTPS/TLS via Firebase). This writes
   `ITSAppUsesNonExemptEncryption = NO` so TestFlight doesn't ask on every
   build. Revisit if custom cryptography is ever added.
-- `ios.buildNumber` is unset, so it defaults to `1` for this first build.
-  Later iOS binaries need it bumped (or add `autoIncrement` to the `pilot`
-  profile) or TestFlight rejects the upload as a duplicate.
+- **Per-build numbers must be bumped every native release.** `app.json`
+  carries an explicit `ios.buildNumber` and `android.versionCode` — bump
+  BOTH on every `eas build --profile pilot` (spec 006 keeps version bumps
+  deliberate rather than adding `autoIncrement`). Skipping this bit hard on
+  `1.2.0`: the Android APK kept `versionCode 1` from the `1.1.0` build, so
+  phones silently would not take it as an update (and TestFlight rejects a
+  duplicate iOS build number outright). `1.0.0`/`1.1.0` = code 1 / build 1;
+  `1.2.0` (rebuild) = code 2 / build 2.
 - App Store Connect app id: `6808989703`.
 - If Apple's beta review flags the Google-only sign-in (Guideline 4.8), pull
   Sign in with Apple forward — the auth wrapper in spec 001 already isolates
