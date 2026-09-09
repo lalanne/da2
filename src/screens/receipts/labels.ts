@@ -1,10 +1,16 @@
 import { strings } from '../../i18n/strings';
 import { formatAmount } from '../../receipts';
-import type { Receipt, ReceiptCategory } from '../../models/Receipt';
+import type { Receipt, ReceiptTag } from '../../models/Receipt';
 import type { Household } from '../../models/Household';
 
-export function categoryLabel(category: ReceiptCategory): string {
-  return strings.receipts.categories[category];
+export function tagLabel(tag: ReceiptTag): string {
+  return strings.receipts.tags[tag];
+}
+
+/** Comma-joined tag labels, or the "Sin categoría" string when there are none. */
+export function receiptTagsLabel(receipt: Receipt): string {
+  if (receipt.tags.length === 0) return strings.receipts.uncategorized;
+  return receipt.tags.map(tagLabel).join(', ');
 }
 
 export function receiptChildLabel(receipt: Receipt, household: Household): string | null {
@@ -13,10 +19,7 @@ export function receiptChildLabel(receipt: Receipt, household: Household): strin
 }
 
 export function receiptSubtitle(receipt: Receipt, household: Household): string {
-  const parts = [
-    categoryLabel(receipt.category),
-    receipt.expenseDate,
-  ];
+  const parts = [receiptTagsLabel(receipt), receipt.expenseDate];
   const child = receiptChildLabel(receipt, household);
   if (child) parts.push(child);
   return parts.join(' · ');

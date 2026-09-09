@@ -18,13 +18,14 @@ import {
   updateDoc,
   where,
 } from '@react-native-firebase/firestore';
-import type {
-  NewReceiptInput,
-  PickedFile,
-  Receipt,
-  ReceiptCategory,
-  ReceiptFileType,
-  ReceiptVisibility,
+import {
+  isReceiptTag,
+  type NewReceiptInput,
+  type PickedFile,
+  type Receipt,
+  type ReceiptFileType,
+  type ReceiptTag,
+  type ReceiptVisibility,
 } from '../models/Receipt';
 
 export type Unsubscribe = () => void;
@@ -77,7 +78,7 @@ function mapReceipt(id: string, data: Record<string, unknown>): Receipt {
     fileType: (data.fileType as ReceiptFileType) ?? 'image',
     amount: typeof data.amount === 'number' ? data.amount : 0,
     currency: String(data.currency ?? 'CLP'),
-    category: (data.category as ReceiptCategory) ?? 'other',
+    tags: Array.isArray(data.tags) ? (data.tags.filter(isReceiptTag) as ReceiptTag[]) : [],
     expenseDate: String(data.expenseDate ?? ''),
     note: (data.note as string | null) ?? null,
     childId: (data.childId as string | null) ?? null,
@@ -125,7 +126,7 @@ export const receiptsRepository: ReceiptsRepository = {
       fileType: file.fileType,
       amount: meta.amount,
       currency: meta.currency,
-      category: meta.category,
+      tags: meta.tags,
       expenseDate: meta.expenseDate,
       note: meta.note,
       childId: meta.childId,

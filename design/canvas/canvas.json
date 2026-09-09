@@ -6,11 +6,15 @@
     { "file": "UnirmeHogar.dc.html", "x": 1500, "y": 0, "w": 390, "h": 844, "title": "Unirme con un código" },
     { "file": "Hogar.dc.html", "x": 0, "y": 1220, "w": 390, "h": 1040, "title": "Hogar (pantalla principal)" },
     { "file": "Calendario.dc.html", "x": 500, "y": 1220, "w": 390, "h": 900, "title": "Calendario (referencia)" },
-    { "file": "Tokens.dc.html", "x": 1000, "y": 1220, "w": 390, "h": 1520, "title": "Tokens y primitivas" }
+    { "file": "Tokens.dc.html", "x": 1000, "y": 1220, "w": 390, "h": 1520, "title": "Tokens y primitivas" },
+    { "file": "Recibos.dc.html", "x": 0, "y": 2980, "w": 390, "h": 1000, "title": "Recibos (lista)" },
+    { "file": "RecibosSubir.dc.html", "x": 500, "y": 2980, "w": 390, "h": 1140, "title": "Agregar recibo" },
+    { "file": "RecibosDetalle.dc.html", "x": 1000, "y": 2980, "w": 390, "h": 940, "title": "Detalle del recibo" }
   ],
   "annotations": [
     { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
-    { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." }
+    { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." },
+    { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Chips = primitiva Chip nueva (spec 007): seleccionado con relleno accentSoft + borde y texto acento (igual que el control segmentado), no seleccionado con borde neutro. Reemplaza el FilterChip local que traía ReceiptsScreen." }
   ],
   "launch": { "view": "canvas" }
 }

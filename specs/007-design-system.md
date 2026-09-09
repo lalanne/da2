@@ -66,6 +66,7 @@ No raw hex, no raw pixel spacing, no bare `fontSize` anywhere else in the app.
 | `Card` | Surface container: padding, radius, hairline border | `sunken` |
 | `ListRow` | One row in a list (household members, children, later receipts/events) | `title`, `subtitle`, `trailing`, `onPress` |
 | `Banner` | Inline status / info / error block | `tone` (info\|warning\|danger\|success) |
+| `Chip` | Small pill for filter rows and multi-select (receipt tags, month filter). Interactive: unselected = `surface` + `border`, selected = `accentSoft` fill + `accent` border + `accent` text (matches the segmented control). Static (no `onPress`) display variant = `accentSoft` + `accent` text, no border. ≥ 44 pt target when interactive | `label`, `selected`, `onPress?` |
 | `CodeChip` | The invite code: large, `selectable`, monospace-ish, copy affordance | `code` |
 
 Primitives compose only tokens + other primitives. Screens compose only
@@ -154,6 +155,16 @@ Verified 2026-09-06.
 Manual: the re-skinned app was checked on both pilot phones (mother's Android,
 father's iPhone) — screens are legible and consistent, the invite code is
 still long-press-copyable.
+
+## Amendments
+
+**2026-09-08 — `Chip` primitive.** Added for spec 003's receipt tag rows
+(filter chips + the multi-select tag picker on upload), replacing the ad-hoc
+`FilterChip`/segment styling `ReceiptsScreen` had rolled locally. Tokens-only,
+no native dependency (criterion 6 still holds); ships OTA with the 003 tag
+revision. Snapshot/interaction test added alongside the other primitives.
+`Chip` gets a cell on the token + primitive artboard on the next canvas
+re-seed.
 
 ## Out of scope
 

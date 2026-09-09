@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Button, Card, ListRow, Screen, Text } from '../../components';
+import { Button, Card, Chip, ListRow, Screen, Text } from '../../components';
 import { strings } from '../../i18n/strings';
 import { useAuthStore } from '../../store/authStore';
 import { useHouseholdStore } from '../../store/householdStore';
 import { useReceiptsStore } from '../../store/receiptsStore';
-import { availableMonths, filterReceipts } from '../../receipts';
-import { RECEIPT_CATEGORIES, type Receipt, type ReceiptCategory } from '../../models/Receipt';
+import { availableMonths, filterReceipts, type TagFilter } from '../../receipts';
+import { RECEIPT_TAGS, type Receipt } from '../../models/Receipt';
 import { ReceiptUpload } from './ReceiptUpload';
 import { ReceiptDetail } from './ReceiptDetail';
-import { categoryLabel, receiptAmountLabel, receiptSubtitle } from './labels';
+import { receiptAmountLabel, receiptSubtitle, tagLabel } from './labels';
 
 type RcView = { name: 'list' } | { name: 'upload' } | { name: 'detail'; receipt: Receipt };
 
@@ -20,15 +20,14 @@ export function ReceiptsScreen() {
   const store = useReceiptsStore();
   const [view, setView] = useState<RcView>({ name: 'list' });
   const [segment, setSegment] = useState<'mine' | 'shared'>('mine');
-  const [category, setCategory] = useState<ReceiptCategory | null>(null);
+  const [tag, setTag] = useState<TagFilter>(null);
   const [month, setMonth] = useState<string | null>(null);
 
   const base = segment === 'mine' ? store.mine : store.shared;
   const months = useMemo(() => availableMonths(base), [base]);
   const receipts = useMemo(
-    () =>
-      filterReceipts(base, { category, month }).sort((a, b) => b.createdAt - a.createdAt),
-    [base, category, month],
+    () => filterReceipts(base, { tag, month }).sort((a, b) => b.createdAt - a.createdAt),
+    [base, tag, month],
   );
 
   if (!household || !uid) return null;
@@ -63,6 +62,7 @@ export function ReceiptsScreen() {
   }
 
   const emptyText = segment === 'mine' ? strings.receipts.empty.mine : strings.receipts.empty.shared;
+  const toggleTag = (next: TagFilter) => setTag((v) => (v === next ? null : next));
 
   return (
     <Screen scroll>
@@ -85,34 +85,43 @@ export function ReceiptsScreen() {
         ))}
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
-        <FilterChip
-          label={strings.receipts.filters.allCategories}
-          active={category === null}
-          onPress={() => setCategory(null)}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterRow}
+        contentContainerStyle={styles.filterRowContent}
+      >
+        <Chip
+          label={strings.receipts.filters.allTags}
+          selected={tag === null}
+          onPress={() => setTag(null)}
         />
-        {RECEIPT_CATEGORIES.map((c) => (
-          <FilterChip
-            key={c}
-            label={categoryLabel(c)}
-            active={category === c}
-            onPress={() => setCategory((v) => (v === c ? null : c))}
-          />
+        {RECEIPT_TAGS.map((t) => (
+          <Chip key={t} label={tagLabel(t)} selected={tag === t} onPress={() => toggleTag(t)} />
         ))}
+        <Chip
+          label={strings.receipts.uncategorized}
+          selected={tag === 'none'}
+          onPress={() => toggleTag('none')}
+        />
       </ScrollView>
 
       {months.length > 0 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
-          <FilterChip
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterRow}
+        >
+          <Chip
             label={strings.receipts.filters.allMonths}
-            active={month === null}
+            selected={month === null}
             onPress={() => setMonth(null)}
           />
           {months.map((m) => (
-            <FilterChip
+            <Chip
               key={m}
               label={m}
-              active={month === m}
+              selected={month === m}
               onPress={() => setMonth((v) => (v === m ? null : m))}
             />
           ))}
@@ -159,24 +168,6 @@ export function ReceiptsScreen() {
   );
 }
 
-function FilterChip({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} style={[styles.filterChip, active && styles.filterChipActive]}>
-      <Text variant="caption" color={active ? 'accent' : 'textSecondary'}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   title: { marginBottom: theme.spacing.md },
   segments: { flexDirection: 'row', gap: theme.spacing.sm, marginBottom: theme.spacing.md },
@@ -192,15 +183,7 @@ const styles = StyleSheet.create({
   },
   segmentActive: { borderColor: theme.colors.accent, backgroundColor: theme.colors.accentSoft },
   filterRow: { marginBottom: theme.spacing.sm },
-  filterChip: {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.pill,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    marginRight: theme.spacing.sm,
-  },
-  filterChipActive: { borderColor: theme.colors.accent, backgroundColor: theme.colors.accentSoft },
+  filterRowContent: { gap: theme.spacing.sm, paddingVertical: theme.spacing.xs },
   empty: { marginTop: theme.spacing.md },
   divider: { height: 1, backgroundColor: theme.colors.hairline },
   spacer: { minHeight: theme.spacing.lg, flexGrow: 1 },

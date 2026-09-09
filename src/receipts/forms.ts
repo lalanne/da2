@@ -2,9 +2,10 @@ import { strings } from '../i18n/strings';
 import { isIsoDate } from '../custody/dates';
 import {
   MAX_RECEIPT_BYTES,
+  RECEIPT_TAGS,
   type NewReceiptInput,
   type PickedFile,
-  type ReceiptCategory,
+  type ReceiptTag,
 } from '../models/Receipt';
 import { parseAmount } from './money';
 
@@ -26,10 +27,16 @@ export function validatePickedFile(file: PickedFile): Result<PickedFile> {
   return { ok: true, value: file };
 }
 
+/** Toggle a tag in/out of the selection, keeping the fixed order and no dupes. */
+export function toggleReceiptTag(tags: ReceiptTag[], tag: ReceiptTag): ReceiptTag[] {
+  const next = tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag];
+  return RECEIPT_TAGS.filter((t) => next.includes(t));
+}
+
 export interface ReceiptFormState {
   amount: string;
   currency: string;
-  category: ReceiptCategory;
+  tags: ReceiptTag[];
   expenseDate: string;
   note: string;
   childId: string | null;
@@ -45,7 +52,8 @@ export function buildReceiptInput(f: ReceiptFormState): Result<NewReceiptInput> 
     value: {
       amount,
       currency: f.currency,
-      category: f.category,
+      // Fixed order, distinct, known values only — an empty list is valid.
+      tags: RECEIPT_TAGS.filter((t) => f.tags.includes(t)),
       expenseDate: f.expenseDate,
       note: f.note.trim() || null,
       childId: f.childId,

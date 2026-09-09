@@ -283,7 +283,9 @@ service cloud.firestore {
         && request.resource.data.amount is number
         && request.resource.data.amount > 0
         && request.resource.data.currency is string
-        && request.resource.data.category in ['tuition', 'medical', 'sports', 'clothing', 'other']
+        && request.resource.data.tags is list
+        && request.resource.data.tags.hasOnly(['tuition', 'medical', 'sports', 'clothing', 'other'])
+        && request.resource.data.tags.toSet().size() == request.resource.data.tags.size()
         && request.resource.data.expenseDate is string
         && request.resource.data.fileType in ['image', 'pdf']
         && request.resource.data.storagePath is string;

@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Banner, Button, Card, Screen, Text, TextField } from '../../components';
+import { Banner, Button, Chip, Screen, Text, TextField } from '../../components';
 import { strings } from '../../i18n/strings';
 import { todayInTimezone } from '../../custody';
-import { buildReceiptInput, validatePickedFile, type ReceiptFormState } from '../../receipts';
+import {
+  buildReceiptInput,
+  toggleReceiptTag,
+  validatePickedFile,
+  type ReceiptFormState,
+} from '../../receipts';
 import {
   pickFromCamera,
   pickFromLibrary,
@@ -13,12 +18,12 @@ import {
 } from '../../data/receiptPicker';
 import {
   DEFAULT_CURRENCY,
-  RECEIPT_CATEGORIES,
+  RECEIPT_TAGS,
   type NewReceiptInput,
   type PickedFile,
 } from '../../models/Receipt';
 import type { Household } from '../../models/Household';
-import { categoryLabel } from './labels';
+import { tagLabel } from './labels';
 
 interface Props {
   household: Household;
@@ -36,7 +41,7 @@ export function ReceiptUpload({ household, isSubmitting, onSubmit, onBack }: Pro
   const [state, setState] = useState<ReceiptFormState>({
     amount: '',
     currency: DEFAULT_CURRENCY,
-    category: 'medical',
+    tags: [],
     expenseDate: todayInTimezone(household.timezone),
     note: '',
     childId: null,
@@ -123,24 +128,21 @@ export function ReceiptUpload({ household, isSubmitting, onSubmit, onBack }: Pro
         />
 
         <View style={styles.block}>
-          <Text variant="label">{f.categoryLabel}</Text>
+          <Text variant="label">{f.tagsLabel}</Text>
           <View style={styles.chips}>
-            {RECEIPT_CATEGORIES.map((c) => {
-              const active = state.category === c;
-              return (
-                <Pressable
-                  key={c}
-                  testID={`receipt-category-${c}`}
-                  onPress={() => set({ category: c })}
-                  style={[styles.chip, active && styles.chipActive]}
-                >
-                  <Text variant="caption" color={active ? 'accent' : 'textPrimary'}>
-                    {categoryLabel(c)}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {RECEIPT_TAGS.map((t) => (
+              <Chip
+                key={t}
+                testID={`receipt-tag-${t}`}
+                label={tagLabel(t)}
+                selected={state.tags.includes(t)}
+                onPress={() => set({ tags: toggleReceiptTag(state.tags, t) })}
+              />
+            ))}
           </View>
+          <Text variant="caption" color="textSecondary">
+            {f.tagsHint}
+          </Text>
         </View>
 
         <TextField
@@ -157,30 +159,21 @@ export function ReceiptUpload({ household, isSubmitting, onSubmit, onBack }: Pro
           <View style={styles.block}>
             <Text variant="label">{f.childLabel}</Text>
             <View style={styles.chips}>
-              <Pressable
+              <Chip
                 testID="receipt-child-none"
+                label={f.noChild}
+                selected={state.childId === null}
                 onPress={() => set({ childId: null })}
-                style={[styles.chip, state.childId === null && styles.chipActive]}
-              >
-                <Text variant="caption" color={state.childId === null ? 'accent' : 'textPrimary'}>
-                  {f.noChild}
-                </Text>
-              </Pressable>
-              {household.children.map((c) => {
-                const active = state.childId === c.id;
-                return (
-                  <Pressable
-                    key={c.id}
-                    testID={`receipt-child-${c.id}`}
-                    onPress={() => set({ childId: c.id })}
-                    style={[styles.chip, active && styles.chipActive]}
-                  >
-                    <Text variant="caption" color={active ? 'accent' : 'textPrimary'}>
-                      {c.name}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+              />
+              {household.children.map((c) => (
+                <Chip
+                  key={c.id}
+                  testID={`receipt-child-${c.id}`}
+                  label={c.name}
+                  selected={state.childId === c.id}
+                  onPress={() => set({ childId: c.id })}
+                />
+              ))}
             </View>
           </View>
         ) : null}
@@ -213,15 +206,5 @@ const styles = StyleSheet.create({
   form: { gap: theme.spacing.lg },
   block: { gap: theme.spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  chip: {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.pill,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    minHeight: theme.minTouch - 8,
-    justifyContent: 'center',
-  },
-  chipActive: { borderColor: theme.colors.accent, backgroundColor: theme.colors.accentSoft },
   spacer: { minHeight: theme.spacing.lg, flexGrow: 1 },
 });

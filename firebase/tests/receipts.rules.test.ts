@@ -41,7 +41,7 @@ const receiptPayload = (over: Record<string, unknown> = {}) => ({
   fileType: 'image',
   amount: 12500,
   currency: 'CLP',
-  category: 'medical',
+  tags: ['medical'],
   expenseDate: '2026-09-01',
   note: null,
   childId: null,
@@ -105,8 +105,17 @@ describe('firestore.rules — receipts metadata (spec 003)', () => {
     await assertFails(addDoc(col(A), receiptPayload({ uploaderId: B })));
     await assertFails(addDoc(col(A), receiptPayload({ visibility: 'shared' })));
     await assertFails(addDoc(col(A), receiptPayload({ amount: -1 })));
-    await assertFails(addDoc(col(A), receiptPayload({ category: 'holidays' })));
     await assertFails(addDoc(col(STRANGER), receiptPayload({ uploaderId: STRANGER })));
+  });
+
+  it('tags: a fixed-set list (dupes / unknown / non-list rejected; [] and multi ok) — criterion 9', async () => {
+    await seedHousehold();
+    const col = collection(db(A), 'households', HID, 'receipts');
+    await assertSucceeds(addDoc(col, receiptPayload({ tags: [] })));
+    await assertSucceeds(addDoc(col, receiptPayload({ tags: ['tuition', 'sports'] })));
+    await assertFails(addDoc(col, receiptPayload({ tags: ['holidays'] })));
+    await assertFails(addDoc(col, receiptPayload({ tags: ['medical', 'medical'] })));
+    await assertFails(addDoc(col, receiptPayload({ tags: 'medical' })));
   });
 
   it('the only legal update is private → shared (criterion 7)', async () => {

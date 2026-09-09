@@ -1,17 +1,21 @@
-export type ReceiptCategory =
+export type ReceiptTag =
   | 'tuition'
   | 'medical'
   | 'sports'
   | 'clothing'
   | 'other';
 
-export const RECEIPT_CATEGORIES: ReceiptCategory[] = [
+export const RECEIPT_TAGS: ReceiptTag[] = [
   'tuition',
   'medical',
   'sports',
   'clothing',
   'other',
 ];
+
+export function isReceiptTag(value: unknown): value is ReceiptTag {
+  return typeof value === 'string' && (RECEIPT_TAGS as string[]).includes(value);
+}
 
 export type ReceiptVisibility = 'private' | 'shared';
 export type ReceiptFileType = 'image' | 'pdf';
@@ -24,7 +28,8 @@ export interface Receipt {
   /** Integer in the smallest unit of `currency` (CLP → whole pesos). */
   amount: number;
   currency: string;
-  category: ReceiptCategory;
+  /** 0+ distinct tags from the fixed set; `[]` means uncategorised. */
+  tags: ReceiptTag[];
   expenseDate: string; // yyyy-mm-dd
   note: string | null;
   childId: string | null;
@@ -36,7 +41,7 @@ export interface Receipt {
 export interface NewReceiptInput {
   amount: number;
   currency: string;
-  category: ReceiptCategory;
+  tags: ReceiptTag[];
   expenseDate: string;
   note: string | null;
   childId: string | null;

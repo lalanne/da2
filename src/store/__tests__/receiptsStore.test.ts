@@ -33,7 +33,7 @@ const file: PickedFile = { uri: 'file:///tmp/r.jpg', fileType: 'image', size: 10
 const meta: NewReceiptInput = {
   amount: 12500,
   currency: 'CLP',
-  category: 'medical',
+  tags: ['medical'],
   expenseDate: '2026-09-01',
   note: null,
   childId: null,
@@ -47,7 +47,7 @@ function receipt(overrides: Partial<Receipt> = {}): Receipt {
     fileType: 'image',
     amount: 12500,
     currency: 'CLP',
-    category: 'medical',
+    tags: ['medical'],
     expenseDate: '2026-09-01',
     note: null,
     childId: null,

@@ -5,6 +5,7 @@ export { TextField } from './TextField';
 export { Card } from './Card';
 export { ListRow } from './ListRow';
 export { Banner } from './Banner';
+export { Chip } from './Chip';
 export { CodeChip } from './CodeChip';
 export { Emblem } from './Emblem';
 export { Avatar } from './Avatar';

@@ -1,4 +1,4 @@
-import type { Receipt, ReceiptCategory } from '../models/Receipt';
+import type { Receipt, ReceiptTag } from '../models/Receipt';
 
 /** Merge the "mine" and "shared" query results, dedupe by id, newest first. */
 export function mergeReceipts(mine: Receipt[], shared: Receipt[]): Receipt[] {
@@ -7,15 +7,19 @@ export function mergeReceipts(mine: Receipt[], shared: Receipt[]): Receipt[] {
   return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
 }
 
+/** `null` = all tags, `'none'` = only untagged, otherwise receipts carrying that tag. */
+export type TagFilter = ReceiptTag | 'none' | null;
+
 export interface ReceiptFilter {
-  category: ReceiptCategory | null;
+  tag: TagFilter;
   /** 'yyyy-mm' or null. */
   month: string | null;
 }
 
 export function filterReceipts(receipts: Receipt[], filter: ReceiptFilter): Receipt[] {
   return receipts.filter((r) => {
-    if (filter.category && r.category !== filter.category) return false;
+    if (filter.tag === 'none' && r.tags.length > 0) return false;
+    if (filter.tag != null && filter.tag !== 'none' && !r.tags.includes(filter.tag)) return false;
     if (filter.month && r.expenseDate.slice(0, 7) !== filter.month) return false;
     return true;
   });

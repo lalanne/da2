@@ -5,14 +5,22 @@
 
 ## User stories
 
-- As a parent, I photograph or upload a receipt/invoice (matrícula, médico,
-  deporte…) with its amount, category and date, so I have a record.
+- As a parent, I photograph or upload a receipt/invoice with its amount, date
+  and any tags (matrícula, médico, deporte…), so I have a record.
+- As a parent, I filter my receipts by tag — including an explicit "Sin
+  categoría" for the ones I haven't tagged.
 - As a parent, my receipts are private until I decide to share one with the
   other parent.
 - As a parent, I see the receipts the other parent has shared, in real time.
 
 ## Requirements
 
+- **Revision (2026-09-08): `category` → `tags`.** The single-category field
+  became a multi-select tag set with no default and an explicit "Sin
+  categoría". This revision is **JS + Firestore-rules only** — no native
+  change — so it ships over-the-air (`eas update` + `firebase deploy --only
+  firestore:rules`) on top of the 1.1.0 build. No data migration: the pilot
+  had no receipts yet when it landed.
 - **This spec needs a native build.** It adds `expo-image-picker`,
   `expo-document-picker`, `expo-file-system`, `expo-sharing` and
   `@react-native-firebase/storage` — none OTA-deployable. Ships via spec
@@ -20,9 +28,13 @@
   review → Android APK reinstall).
 - Upload sources: camera, photo library, or a PDF file. Max **10 MB**;
   `image/*` or `application/pdf` only.
-- Fields, all required except `note` and `childId`:
-  `amount` + `currency`, `category` (`tuition | medical | sports | clothing
-  | other`), `expenseDate`, `note`, `childId`.
+- Fields: `amount` + `currency` and `expenseDate` are required; `tags`,
+  `note`, `childId` are optional.
+- **Tags:** `tags` is a set (0+ **distinct**) of values from a fixed list —
+  `tuition | medical | sports | clothing | other`. A receipt may carry
+  several (a swim-class invoice is both `tuition` and `sports`). **No tag is
+  pre-selected** on upload; an empty `tags` means "uncategorised" and the
+  receipt still saves. Free-form / user-defined tags are out of scope for v1.
 - **Money:** `amount` is an integer in the currency's smallest unit. The
   pilot currency is **CLP**, which has **no minor unit**, so `amount` = whole
   pesos. A `currencyDecimals(code)` helper (CLP → 0, USD → 2, …) drives
@@ -32,7 +44,9 @@
   fields in v1 (wrong data → delete while private, re-upload).
 - Lists: **"Mis recibos"** (mine, with a visibility badge) and
   **"Compartidos"** (everything `shared` by either parent), each filterable
-  by category and by month, client-side.
+  by tag and by month, client-side. The tag filter row is
+  **Todas · ‹each tag› · Sin categoría**; picking a tag shows receipts that
+  carry it, "Sin categoría" shows receipts with no tags.
 - Files in Firebase **Storage** under the household; metadata in Firestore.
   Files are fetched for display via the **SDK download to a local cache**
   (the request carries the auth token, so Storage rules apply); images
@@ -42,9 +56,9 @@
 ## Acceptance criteria
 
 1. **Given** a parent with a photo of a receipt, **when** they upload it and
-   fill amount/category/date, **then** it appears in "Mis recibos" marked
-   *Privado*, and the other parent's `receipts` listener and Storage read
-   are both denied for it (security rules, not just UI).
+   fill amount/date (tags optional), **then** it appears in "Mis recibos"
+   marked *Privado*, and the other parent's `receipts` listener and Storage
+   read are both denied for it (security rules, not just UI).
 2. **Given** a private receipt of mine, **when** I tap "Compartir", **then**
    it appears in the other parent's "Compartidos" list without them
    refreshing.
@@ -63,6 +77,12 @@
    outside the household or unauthenticated.
 7. **Given** a shared receipt, **when** its uploader tries to un-share, edit
    a field, or delete it, **then** the security rules reject the write.
+8. **Given** receipts with assorted tags, **when** a parent picks a tag chip,
+   **then** only receipts carrying that tag show; a receipt with two tags
+   appears under both; "Sin categoría" shows only receipts with no tags;
+   "Todas" clears the filter. Tag and month filters compose (AND).
+9. **Given** a `create` whose `tags` is not a list, contains a value outside
+   the fixed set, or repeats a value, **then** the Firestore rules reject it.
 
 ## Data model
 
@@ -73,7 +93,8 @@ households/{hid}/receipts/{receiptId}
   fileType: 'image' | 'pdf'
   amount: number                 // integer, smallest unit of `currency`
   currency: string               // ISO 4217; pilot default 'CLP'
-  category: 'tuition' | 'medical' | 'sports' | 'clothing' | 'other'
+  tags: ReceiptTag[]             // 0+ distinct; [] = uncategorised
+                                 //   ReceiptTag = 'tuition'|'medical'|'sports'|'clothing'|'other'
   expenseDate: string            // yyyy-mm-dd
   note: string | null
   childId: string | null
@@ -109,8 +130,10 @@ once, cached; returns the `file://` uri. Images → `<Image>`; PDFs →
   client scopes its queries (`where uploaderId ==` / `where visibility ==
   'shared'`), so the rule is satisfiable.
 - `create`: member && `uploaderId == uid()` && `visibility == 'private'` &&
-  `sharedAt == null` && `amount` is a non-negative int && valid `category` /
-  `fileType` && `storagePath` / `currency` / `expenseDate` are strings.
+  `sharedAt == null` && `amount` is a non-negative int && valid `fileType` &&
+  `storagePath` / `currency` / `expenseDate` are strings && `tags` is a list
+  whose every element is in the fixed set and whose `.toSet().size() ==
+  .size()` (no duplicates); `[]` is valid.
 - `update`: member && `uploaderId == uid()` && `resource.visibility ==
   'private'` && `after.visibility == 'shared'` && `sharedAt != null` &&
   `diff().affectedKeys().hasOnly(['visibility','sharedAt'])` — the *only*
@@ -141,8 +164,9 @@ match /households/{hid}/receipts/{uploaderId}/{receiptId} {
 ```
 
 **Query strategy** — two scoped listeners (`where uploaderId == uid`,
-`where visibility == 'shared'`), merged and deduped by id; category/month
-filtering in memory. No composite indexes.
+`where visibility == 'shared'`), merged and deduped by id; tag/month
+filtering in memory (`tags.includes(pick)`, or `tags.length === 0` for "Sin
+categoría"). No composite indexes.
 
 **Store** (`src/store/receiptsStore.ts`) — `start(hid, uid)` / `stop`,
 `receipts`, `upload`, `share`, `remove`, plus upload progress + error state.
@@ -150,13 +174,17 @@ filtering in memory. No composite indexes.
 **UI** — a **fourth bottom tab "Recibos"** (Calendario | Eventos | Recibos |
 Hogar).
 
-- `ReceiptsScreen` — segmented "Mis recibos" / "Compartidos", category +
-  month filter chips, list, `＋ Agregar recibo`.
+- `ReceiptsScreen` — segmented "Mis recibos" / "Compartidos", tag + month
+  filter chips (`Chip` primitive, spec 007), list, `＋ Agregar recibo`.
 - `ReceiptUpload` — source picker (cámara / galería / archivo), then the
-  metadata form; validation extracted to `buildReceiptInput`.
-- `ReceiptDetail` — the file (image inline / "Abrir PDF"), metadata,
-  "Compartir con la otra persona" (while private, with a confirm), "Eliminar"
-  (while private).
+  metadata form: amount, date, an optional **multi-select tag row** (nothing
+  pre-selected), note, child; validation extracted to `buildReceiptInput`.
+- `ReceiptDetail` — the file (image inline / "Abrir PDF"), metadata (tags
+  shown as chips, or "Sin categoría"), "Compartir con la otra persona"
+  (while private, with a confirm), "Eliminar" (while private).
+
+The filter/selector chips are the shared `Chip` primitive added to spec 007
+(`selected` state, ≥ 44 pt target) — screens no longer roll their own.
 
 **Native config** — `expo-image-picker` plugin with camera/photo
 usage-description strings; `firebase.json` gains the `storage` emulator; the
@@ -165,12 +193,15 @@ usage-description strings; `firebase.json` gains the `storage` emulator; the
 ## Verification plan
 
 - **Unit** (`src/receipts/__tests__/`): `buildReceiptInput` (missing fields,
-  bad amount, oversize/wrong-type file), `currencyDecimals` + amount
-  format/parse, list merge/dedupe + category/month filter.
+  bad amount, oversize/wrong-type file, tag toggle / dedupe, empty tags ok),
+  `currencyDecimals` + amount format/parse, list merge/dedupe + tag/month
+  filter (multi-tag match, "Sin categoría" = empty, compose with month).
 - **Store**: upload happy path (file then doc), upload failure leaves no doc,
   share flip, in-flight guard.
 - **Firestore rules**: criterion 1 (co-parent denied a private receipt),
-  criterion 7 (no un-share / edit / delete-after-share), create field checks.
+  criterion 7 (no un-share / edit / delete-after-share), create field checks
+  incl. criterion 9 (`tags` not a list / unknown value / duplicate rejected;
+  `[]` accepted).
 - **Storage rules** (new emulator): uploader reads own private file;
   co-parent denied while private, allowed once shared; outsider and
   unauthenticated denied; >10 MB and non-image/PDF writes denied.

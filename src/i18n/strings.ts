@@ -118,7 +118,8 @@ export const strings = {
     add: 'Agregar recibo',
     private: 'Privado',
     sharedBadge: 'Compartido',
-    categories: {
+    uncategorized: 'Sin categoría',
+    tags: {
       tuition: 'Matrícula',
       medical: 'Médico',
       sports: 'Deporte',
@@ -126,7 +127,7 @@ export const strings = {
       other: 'Otro',
     },
     filters: {
-      allCategories: 'Todas',
+      allTags: 'Todas',
       allMonths: 'Todos los meses',
     },
 
@@ -148,7 +149,8 @@ export const strings = {
     form: {
       amountLabel: 'Monto',
       amountPlaceholder: '12500',
-      categoryLabel: 'Categoría',
+      tagsLabel: 'Etiquetas (opcional)',
+      tagsHint: 'Puedes elegir varias, o ninguna. Sin etiquetas queda como "Sin categoría".',
       dateLabel: 'Fecha del gasto',
       datePlaceholder: 'AAAA-MM-DD',
       childLabel: '¿Para quién? (opcional)',
@@ -168,6 +170,7 @@ export const strings = {
         'Se compartirá este recibo con la otra persona y no se puede deshacer. ¿Continuar?',
       delete: 'Eliminar',
       deleteConfirm: '¿Eliminar este recibo?',
+      tagsLabel: 'Etiquetas',
       uploadedByYou: 'Subido por ti',
       uploadedBy: (name: string) => `Subido por ${name}`,
       loadingFile: 'Cargando archivo…',

@@ -33,7 +33,7 @@ const receipt: Receipt = {
   fileType: 'image',
   amount: 12500,
   currency: 'CLP',
-  category: 'medical',
+  tags: ['medical'],
   expenseDate: '2026-09-01',
   note: 'boleta clínica',
   childId: 'c1',

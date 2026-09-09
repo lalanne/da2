@@ -47,7 +47,7 @@ async function seed(receipt: Record<string, unknown> = {}) {
       fileType: 'image',
       amount: 1000,
       currency: 'CLP',
-      category: 'medical',
+      tags: ['medical'],
       expenseDate: '2026-09-01',
       note: null,
       childId: null,

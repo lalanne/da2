@@ -1,4 +1,9 @@
-import { buildReceiptInput, validatePickedFile, type ReceiptFormState } from '../forms';
+import {
+  buildReceiptInput,
+  toggleReceiptTag,
+  validatePickedFile,
+  type ReceiptFormState,
+} from '../forms';
 import { strings } from '../../i18n/strings';
 import { MAX_RECEIPT_BYTES, type PickedFile } from '../../models/Receipt';
 
@@ -6,7 +11,7 @@ function form(overrides: Partial<ReceiptFormState> = {}): ReceiptFormState {
   return {
     amount: '12500',
     currency: 'CLP',
-    category: 'medical',
+    tags: ['medical'],
     expenseDate: '2026-09-01',
     note: '',
     childId: null,
@@ -37,17 +42,44 @@ describe('validatePickedFile', () => {
   });
 });
 
+describe('toggleReceiptTag', () => {
+  it('adds a tag, keeping the fixed order', () => {
+    expect(toggleReceiptTag(['sports'], 'tuition')).toEqual(['tuition', 'sports']);
+  });
+  it('removes a tag that is already selected', () => {
+    expect(toggleReceiptTag(['tuition', 'sports'], 'tuition')).toEqual(['sports']);
+  });
+  it('never produces duplicates', () => {
+    expect(toggleReceiptTag(['medical', 'medical'], 'sports')).toEqual(['medical', 'sports']);
+  });
+});
+
 describe('buildReceiptInput', () => {
-  it('parses the amount to minor units and trims the note', () => {
-    const r = buildReceiptInput(form({ amount: '12.500', note: '  boleta  ' }));
+  it('parses the amount, trims the note, and normalises tags to the fixed order', () => {
+    const r = buildReceiptInput(form({ amount: '12.500', note: '  boleta  ', tags: ['sports', 'tuition'] }));
     expect(r).toEqual({
       ok: true,
       value: {
         amount: 12500,
         currency: 'CLP',
-        category: 'medical',
+        tags: ['tuition', 'sports'],
         expenseDate: '2026-09-01',
         note: 'boleta',
+        childId: null,
+      },
+    });
+  });
+
+  it('accepts a receipt with no tags (uncategorised)', () => {
+    const r = buildReceiptInput(form({ tags: [] }));
+    expect(r).toEqual({
+      ok: true,
+      value: {
+        amount: 12500,
+        currency: 'CLP',
+        tags: [],
+        expenseDate: '2026-09-01',
+        note: null,
         childId: null,
       },
     });

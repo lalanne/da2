@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, StyleSheet, View } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { theme } from '../../theme';
-import { Banner, Button, Card, Screen, Text } from '../../components';
+import { Banner, Button, Card, Chip, Screen, Text } from '../../components';
 import { strings } from '../../i18n/strings';
 import { useReceiptsStore } from '../../store/receiptsStore';
 import type { Receipt } from '../../models/Receipt';
 import type { Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
-import { categoryLabel, receiptAmountLabel, receiptChildLabel } from './labels';
+import { receiptAmountLabel, receiptChildLabel, tagLabel } from './labels';
 
 interface Props {
   receipt: Receipt;
@@ -87,7 +87,20 @@ export function ReceiptDetail({ receipt, currentUid, household, members, onBack,
       </View>
 
       <Card style={styles.meta}>
-        <Row label={strings.receipts.form.categoryLabel} value={categoryLabel(receipt.category)} />
+        <View style={styles.row}>
+          <Text variant="caption" color="textSecondary">
+            {strings.receipts.detail.tagsLabel}
+          </Text>
+          {receipt.tags.length === 0 ? (
+            <Text variant="body">{strings.receipts.uncategorized}</Text>
+          ) : (
+            <View style={styles.tags}>
+              {receipt.tags.map((t) => (
+                <Chip key={t} label={tagLabel(t)} />
+              ))}
+            </View>
+          )}
+        </View>
         <Row label={strings.receipts.form.dateLabel} value={receipt.expenseDate} />
         {child ? <Row label={strings.receipts.form.childLabel} value={child} /> : null}
         {receipt.note ? <Text variant="body">{receipt.note}</Text> : null}
@@ -149,6 +162,7 @@ const styles = StyleSheet.create({
   },
   meta: { gap: theme.spacing.md },
   row: { gap: theme.spacing.xs },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
   badgeRow: { flexDirection: 'row' },
   spacer: { minHeight: theme.spacing.lg, flexGrow: 1 },
 });

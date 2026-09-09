@@ -11,8 +11,8 @@ shared place for:
 - **Kid events** — doctor appointments, birthdays, tournaments, training
   sessions — visible to both parents, overlaid on the custody calendar.
 - **Receipts & invoices** — upload tuition invoices, medical receipts, etc.
-  with amount/category/date. Private by default; each receipt is explicitly
-  shared with the co-parent when the uploader chooses.
+  with amount/date and optional tags. Private by default; each receipt is
+  explicitly shared with the co-parent when the uploader chooses.
 
 ## How it works
 
