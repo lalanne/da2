@@ -9,12 +9,19 @@
     { "file": "Tokens.dc.html", "x": 1000, "y": 1220, "w": 390, "h": 1520, "title": "Tokens y primitivas" },
     { "file": "Recibos.dc.html", "x": 0, "y": 2980, "w": 390, "h": 1000, "title": "Recibos (lista)" },
     { "file": "RecibosSubir.dc.html", "x": 500, "y": 2980, "w": 390, "h": 1140, "title": "Agregar recibo" },
-    { "file": "RecibosDetalle.dc.html", "x": 1000, "y": 2980, "w": 390, "h": 940, "title": "Detalle del recibo" }
+    { "file": "RecibosDetalle.dc.html", "x": 1000, "y": 2980, "w": 390, "h": 940, "title": "Detalle del recibo" },
+    { "file": "FechaPopover.dc.html", "x": 0, "y": 4360, "w": 390, "h": 640, "title": "Fecha — opción A (popover)" },
+    { "file": "FechaHoja.dc.html", "x": 500, "y": 4360, "w": 390, "h": 720, "title": "Fecha — opción B (hoja)" },
+    { "file": "HoraLista.dc.html", "x": 0, "y": 5320, "w": 390, "h": 660, "title": "Hora — opción 1 (lista)" },
+    { "file": "HoraRueda.dc.html", "x": 500, "y": 5320, "w": 390, "h": 600, "title": "Hora — opción 2 (rueda)" },
+    { "file": "HoraPasos.dc.html", "x": 1000, "y": 5320, "w": 390, "h": 560, "title": "Hora — opción 3 (pasos)" }
   ],
   "annotations": [
     { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
     { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." },
-    { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Filas de filtro = primitiva FilterTabs nueva (spec 007): pestañas con subrayado acento en la activa, sin cajas. Los chips (primitiva Chip) quedan para el multi-select al subir y para mostrar etiquetas en el detalle." }
+    { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Filas de filtro = primitiva FilterTabs nueva (spec 007): pestañas con subrayado acento en la activa, sin cajas. Los chips (primitiva Chip) quedan para el multi-select al subir y para mostrar etiquetas en el detalle." },
+    { "id": "fecha-note", "x": 0, "y": 4240, "w": 890, "text": "Spec 009 (propuesta) — selector de FECHA. Reemplaza el texto libre AAAA-MM-DD en 002 (nacimiento), 003 (gasto), 004 (fechas ancla) y 005 (evento). Cuadrícula de mes reutilizando src/custody/dates.ts y el MonthGrid que ya existe — sin dependencia nativa, se despliega OTA. A = anclado bajo el campo (compacto). B = hoja inferior (más aire, botón «Hoy» + «Listo»). El día elegido va en azul sólido; el borde marca «hoy»." },
+    { "id": "hora-note", "x": 0, "y": 5200, "w": 1390, "text": "Spec 009 — selector de HORA (hoy se escribe HH:MM a mano). 1 LISTA: pasos de 15 min, un toque; lo más simple. 2 RUEDA: columnas hora/minuto estilo iOS; familiar pero difícil de hacer bien en JS. 3 PASOS: +/− de 5 en 5 con atajos; trivial y accesible, algo lento para saltos grandes. Todas puras JS / OTA." }
   ],
   "launch": { "view": "canvas" }
 }
