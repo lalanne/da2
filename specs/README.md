@@ -21,6 +21,7 @@ This project is built spec-first. Rules:
 | 007 | [Design system & visual language](007-design-system.md) | verified |
 | 008 | [Push notifications](008-push-notifications.md) | draft |
 | 009 | [Date & time input](009-date-time-input.md) | implemented |
+| 010 | [Shared expense splitting](010-expense-splitting.md) | draft |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -42,6 +43,9 @@ The number is *mostly* the build order, with two deliberate exceptions:
 - **009 (date & time input) is cross-cutting** like 007 — it swaps the
   free-text date/time fields in 002–005 for calendar/list pickers. Pure JS,
   OTA; no data or rules change.
+- **010 (expense splitting)** builds on 003 (receipts) and reuses 004's
+  propose/approve machinery. It pulls "splitting math / balances /
+  settlement" from `000`'s v1 *out* column into scope.
 
 So the working order is: **001 → 002 → 007 → 004 → 005 → 003 → 008**, with 006
 running throughout.
