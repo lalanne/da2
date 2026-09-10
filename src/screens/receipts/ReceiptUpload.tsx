@@ -28,11 +28,13 @@ import { tagLabel } from './labels';
 interface Props {
   household: Household;
   isSubmitting: boolean;
+  /** Store-level failure from the last upload attempt (rules denial, network, …). */
+  submitError?: string | null;
   onSubmit: (file: PickedFile, meta: NewReceiptInput) => Promise<boolean>;
   onBack: () => void;
 }
 
-export function ReceiptUpload({ household, isSubmitting, onSubmit, onBack }: Props) {
+export function ReceiptUpload({ household, isSubmitting, submitError, onSubmit, onBack }: Props) {
   const u = strings.receipts.upload;
   const f = strings.receipts.form;
   const [file, setFile] = useState<PickedFile | null>(null);
@@ -185,9 +187,9 @@ export function ReceiptUpload({ household, isSubmitting, onSubmit, onBack }: Pro
           testID="receipt-note"
         />
 
-        {formError ? (
+        {formError ?? submitError ? (
           <Banner tone="danger" testID="receipt-error">
-            {formError}
+            {formError ?? submitError ?? ''}
           </Banner>
         ) : null}
       </View>

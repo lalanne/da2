@@ -116,6 +116,12 @@ export function ReceiptDetail({ receipt, currentUid, household, members, onBack,
         </View>
       </Card>
 
+      {store.actionError ? (
+        <Banner tone="danger" testID="receipt-detail-error">
+          {store.actionError}
+        </Banner>
+      ) : null}
+
       <View style={styles.spacer} />
       {mine && receipt.visibility === 'private' ? (
         <Button

@@ -37,12 +37,16 @@ export function ReceiptsScreen() {
       <ReceiptUpload
         household={household}
         isSubmitting={store.isSubmitting}
+        submitError={store.actionError}
         onSubmit={async (file, meta) => {
           const ok = await store.upload(file, meta);
           if (ok) setView({ name: 'list' });
           return ok;
         }}
-        onBack={() => setView({ name: 'list' })}
+        onBack={() => {
+          store.clearActionError();
+          setView({ name: 'list' });
+        }}
       />
     );
   }

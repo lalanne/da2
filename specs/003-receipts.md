@@ -68,7 +68,9 @@
    file is downloaded through the SDK.
 4. **Given** an upload with a missing required field, or a file > 10 MB or of
    a disallowed type, **then** submission is blocked with a specific inline
-   error before anything is uploaded.
+   error before anything is uploaded. **Given** the upload is rejected
+   server-side (rules denial, network), **then** the store's error — with
+   its code — is shown inline on the upload form (not swallowed).
 5. **Given** an upload interrupted by connectivity loss, **then** no receipt
    metadata appears in any list — the Firestore document is written only
    after the Storage upload fully succeeds (a failed doc-write leaves only an
