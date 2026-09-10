@@ -33,10 +33,17 @@ const palette = {
   warningBg: '#F6EFE2',
 
   // Custody calendar (spec 004). Strong = markers/legend; Soft = day-cell tint.
-  parentA: '#46617E',
-  parentASoft: '#EAF1F6',
-  parentB: '#9A6A45',
-  parentBSoft: '#F4ECE3',
+  // parentA = mother (soft pink), parentB = father (soft slate-blue) —
+  // pilot preference, 2026-09-10. parentB shares `accent`'s hex.
+  parentA: '#A96079',
+  parentASoft: '#F4E3E8',
+  parentB: '#46617E',
+  parentBSoft: '#E4EDF3',
+
+  // Brand emblem — the two interlocking rings. Its own tokens so the custody
+  // parent colours can change without touching the mark.
+  emblemPrimary: '#46617E',
+  emblemSecondary: '#9A6A45',
 
   // Pressed-state overlay for surfaces / list rows.
   pressedOverlay: 'rgba(0,0,0,0.05)',

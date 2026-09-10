@@ -13,13 +13,13 @@ export function Emblem({ size = 64 }: Props) {
       <View
         style={[
           styles.ring,
-          { width: size, height: size, borderColor: theme.colors.parentA },
+          { width: size, height: size, borderColor: theme.colors.emblemPrimary },
         ]}
       />
       <View
         style={[
           styles.ring,
-          { width: size, height: size, left: overlap, borderColor: theme.colors.parentB },
+          { width: size, height: size, left: overlap, borderColor: theme.colors.emblemSecondary },
         ]}
       />
     </View>

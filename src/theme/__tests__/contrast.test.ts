@@ -42,8 +42,8 @@ describe('theme contrast (spec 007 criterion 3)', () => {
     ['success', 'successBg', c.success],
     ['warning', 'warningBg', c.warning],
     ['danger', 'surface', c.danger], // TextField error line on a card
-    ['textPrimary', 'parentASoft', c.textPrimary], // calendar day numbers
-    ['textPrimary', 'parentBSoft', c.textPrimary],
+    ['textPrimary', 'parentASoft', c.textPrimary], // calendar day numbers (mother, pink)
+    ['textPrimary', 'parentBSoft', c.textPrimary], // (father, blue)
   ])('%s on %s ≥ 4.5', (_fg, bgName, fg) => {
     const bg = (c as Record<string, string>)[bgName];
     expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(4.5);
@@ -54,6 +54,8 @@ describe('theme contrast (spec 007 criterion 3)', () => {
     ['borderStrong', 'bg', c.borderStrong], // resting input outline
     ['accent', 'surface', c.accent], // focused input outline
     ['accent', 'bg', c.accent],
+    ['parentA', 'bg', c.parentA], // custody legend swatch border (mother)
+    ['parentB', 'bg', c.parentB], // (father)
   ])('%s on %s ≥ 3', (_fg, bgName, fg) => {
     const bg = (c as Record<string, string>)[bgName];
     expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(3);

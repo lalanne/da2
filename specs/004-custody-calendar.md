@@ -95,7 +95,13 @@ households/{hid}/proposals/{proposalId}
 ```
 
 Colours: `parentIds[0]` → `theme.colors.parentA`, `parentIds[1]` →
-`parentB`.
+`parentB`. In the pilot household `parentIds[0]` is the mother, so the
+palette is **soft pink for the mother (`parentA`)** and **soft slate-blue
+for the father (`parentB`)** — a deliberate, pilot-requested pairing
+(2026-09-10); the day cell uses the `*Soft` tint, the legend swatch and the
+propose-override dots use the strong value. `parentB` shares the hex of
+`accent`; the brand emblem no longer reads these tokens (it has its own
+`emblem*`).
 
 ## Implementation notes
 
@@ -224,6 +230,14 @@ screens) and 12 Firestore rules tests.
 | 7 non-member reads/writes nothing | ✅ | Rules tests: non-member and unauthenticated denied on the proposals subcollection. |
 | 8 in-app pending banner | ✅ | "cambio pendiente" banner + badge appear for the non-proposer on open; clear on resolve/cancel. |
 | 9 household-timezone "today" | ✅ | `todayInTimezone(household.timezone)`; unit test with a zone that differs from the device. Pilot household defaults to `America/Santiago`. |
+
+**Amendment 2026-09-10 — parent palette.** Day tints changed from blue/brown
+to **pink (mother) / slate-blue (father)** at the pilot's request
+(`src/theme` tokens `parentA`/`parentB` + `parentASoft`/`parentBSoft`; the
+brand emblem moved to its own `emblem*` tokens). No functional change — every
+criterion above still holds; `contrast.test.ts` extended to cover the new
+tints and the `parentA` legend border. Pending a glance on both phones with
+the next OTA.
 
 ## Out of scope
 
