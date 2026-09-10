@@ -169,6 +169,13 @@ boxy — a pilot preference). `Chip` stays for multi-select (upload) and static
 tag display (detail). Tokens-only, ships OTA. Both primitives get a cell on
 the token + primitive artboard on the next canvas re-seed.
 
+**Spec 009 — `DateField` + `TimeField` primitives.** `DateField` = a tappable
+field that expands an inline month grid (selected day filled `accent`, today
+ringed); `TimeField` = a tappable field opening a bottom-sheet 15-minute list.
+Both pure-JS (reuse `src/custody/dates.ts`), no native dependency
+(criterion 6 holds). They replace the free-text `AAAA-MM-DD` / `HH:MM` inputs
+across specs 002–005 — see `009-date-time-input.md`.
+
 ## Out of scope
 
 - Dark mode (token structure allows it; not built in v1).

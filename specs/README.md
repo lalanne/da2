@@ -20,6 +20,7 @@ This project is built spec-first. Rules:
 | 006 | [Pilot deployment pipeline](006-deployment-pilot.md) | draft |
 | 007 | [Design system & visual language](007-design-system.md) | verified |
 | 008 | [Push notifications](008-push-notifications.md) | draft |
+| 009 | [Date & time input](009-date-time-input.md) | draft |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -38,6 +39,9 @@ The number is *mostly* the build order, with two deliberate exceptions:
 - **008 (push notifications) is deferred infrastructure** — 004 and 005 ship
   with an in-app "pendiente" banner instead, and 008 (Cloud Functions + APNs +
   a native build) follows once the features are proven.
+- **009 (date & time input) is cross-cutting** like 007 — it swaps the
+  free-text date/time fields in 002–005 for calendar/list pickers. Pure JS,
+  OTA; no data or rules change.
 
 So the working order is: **001 → 002 → 007 → 004 → 005 → 003 → 008**, with 006
 running throughout.

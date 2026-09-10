@@ -60,7 +60,8 @@ system, with security rules covering the adversarial cases. Spec 003
 Storage + Storage security rules) is implemented and shipped to the pilot
 (`expo.version` 1.1.0); the `1.2.0` build adds a multi-select tag filter and
 the app icon, pending its pilot check. Working order:
-001 → 002 → 007 → 004 → 005 → 003 → 008 (008 = OS push, deferred infra). Spec
-006 (deployment pipeline) runs continuously — every verified feature is
-deployed to the two-phone pilot; see
+001 → 002 → 007 → 004 → 005 → 003 → 008 (008 = OS push, deferred infra). Specs
+006 (deployment pipeline) and 009 (calendar/list pickers replacing free-text
+date & time entry) are cross-cutting; 006 runs continuously — every verified
+feature is deployed to the two-phone pilot; see
 [specs/006-deployment-pilot.md](specs/006-deployment-pilot.md).
