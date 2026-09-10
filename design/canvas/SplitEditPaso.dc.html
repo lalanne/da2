@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; }
+    .catname { font-size: 15px; color: #2A2926; }
+    .stepper { display: flex; align-items: center; gap: 10px; }
+    .sbtn { width: 34px; height: 34px; border: 1px solid #E4E0DA; border-radius: 9px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .val { min-width: 74px; text-align: center; font-size: 14px; color: #2A2926; }
+    .mom { color: #A96079; font-weight: 700; }
+    .dad { color: #46617E; font-weight: 700; }
+    .sep { height: 1px; background: #EFECE6; }
+  </style>
+</helmet>
+<div style="width: 390px; min-height: 720px; background: #FBFAF8; box-sizing: border-box; padding: 56px 20px 32px; display: flex; flex-direction: column; gap: 16px;">
+
+  <h1 style="margin: 0; font-size: 24px; line-height: 30px; font-weight: 600; color: #2A2926;">Proponer un reparto</h1>
+  <p style="margin: 0; font-size: 13px; line-height: 19px; color: #6C6960;">Ajusta el % de Javiera (de 5 en 5); el de Christian se calcula solo. Christian tendrá que aprobar.</p>
+
+  <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; overflow: hidden;">
+    <div class="row">
+      <span class="catname" style="font-weight: 600;">Por defecto</span>
+      <div class="stepper">
+        <span class="sbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8" stroke="#46617E" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="val"><span class="mom">40</span> / <span class="dad">60</span></span>
+        <span class="sbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3v8M3 7h8" stroke="#46617E" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <span class="catname">Médico</span>
+      <div class="stepper">
+        <span class="sbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8" stroke="#46617E" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="val"><span class="mom">50</span> / <span class="dad">50</span></span>
+        <span class="sbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3v8M3 7h8" stroke="#46617E" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <span class="catname">Deporte</span>
+      <div class="stepper">
+        <span class="sbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8" stroke="#46617E" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="val"><span class="mom">70</span> / <span class="dad">30</span></span>
+        <span class="sbtn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3v8M3 7h8" stroke="#46617E" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <span class="catname" style="color: #767268;">Matrícula, Ropa, Otro</span>
+      <button style="border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 600; color: #46617E; cursor: pointer;">Añadir regla</button>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1;"></div>
+
+  <button style="height: 48px; border: none; border-radius: 12px; background: #46617E; color: #FFFFFF; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;">Enviar propuesta a Christian</button>
+
+  <p style="margin: 0; font-size: 11px; line-height: 16px; color: #9A968C;">Opción siguiente — pasos +/− de 5 en 5. Trivial en JS puro, sin dependencia nativa, fácil de testear.</p>
+
+</div>
+</x-dc>
+</body>
+</html>

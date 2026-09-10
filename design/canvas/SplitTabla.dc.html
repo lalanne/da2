@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+    .row { display: flex; flex-direction: column; gap: 7px; padding: 14px 16px; }
+    .cat { display: flex; align-items: center; justify-content: space-between; }
+    .catname { font-size: 15px; color: #2A2926; }
+    .pcts { font-size: 12px; color: #6C6960; }
+    .bar { height: 8px; border-radius: 999px; overflow: hidden; display: flex; }
+    .a { background: #D8A9B7; }
+    .b { background: #9DB4C7; }
+    .sep { height: 1px; background: #EFECE6; }
+  </style>
+</helmet>
+<div style="width: 390px; min-height: 720px; background: #FBFAF8; box-sizing: border-box; padding: 56px 20px 32px; display: flex; flex-direction: column; gap: 16px;">
+
+  <h1 style="margin: 0; font-size: 24px; line-height: 30px; font-weight: 600; color: #2A2926;">Reparto de gastos</h1>
+
+  <div style="display: flex; gap: 16px;">
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 8px; height: 8px; border-radius: 999px; background: #A96079;"></span> Javiera</span>
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 8px; height: 8px; border-radius: 999px; background: #46617E;"></span> Christian</span>
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; overflow: hidden;">
+    <div class="row">
+      <div class="cat"><span class="catname" style="font-weight: 600;">Por defecto</span><span class="pcts">40% · 60%</span></div>
+      <div class="bar"><span class="a" style="width: 40%;"></span><span class="b" style="width: 60%;"></span></div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <div class="cat"><span class="catname">Médico</span><span class="pcts">50% · 50%</span></div>
+      <div class="bar"><span class="a" style="width: 50%;"></span><span class="b" style="width: 50%;"></span></div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <div class="cat"><span class="catname">Deporte</span><span class="pcts">70% · 30%</span></div>
+      <div class="bar"><span class="a" style="width: 70%;"></span><span class="b" style="width: 30%;"></span></div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <div class="cat"><span class="catname" style="color: #767268;">Matrícula</span><span class="pcts" style="color: #9A968C;">por defecto</span></div>
+    </div>
+    <div class="sep"></div>
+    <div class="row">
+      <div class="cat"><span class="catname" style="color: #767268;">Ropa · Otro</span><span class="pcts" style="color: #9A968C;">por defecto</span></div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #767268;">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#767268" stroke-width="1.2"/><path d="M7 4.3V7l1.8 1.1" stroke="#767268" stroke-width="1.2" stroke-linecap="round"/></svg>
+    Vigente desde el 12 sep · aprobado por Christian
+  </div>
+
+  <div style="flex-grow: 1;"></div>
+
+  <button style="height: 48px; border: none; border-radius: 12px; background: #46617E; color: #FFFFFF; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;">Proponer un cambio</button>
+
+</div>
+</x-dc>
+</body>
+</html>

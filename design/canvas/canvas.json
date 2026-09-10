@@ -11,14 +11,22 @@
     { "file": "RecibosSubir.dc.html", "x": 500, "y": 2980, "w": 390, "h": 1140, "title": "Agregar recibo" },
     { "file": "RecibosDetalle.dc.html", "x": 1000, "y": 2980, "w": 390, "h": 940, "title": "Detalle del recibo" },
     { "file": "FechaPopover.dc.html", "x": 0, "y": 4360, "w": 390, "h": 640, "title": "Selector de fecha" },
-    { "file": "HoraLista.dc.html", "x": 500, "y": 4360, "w": 390, "h": 660, "title": "Selector de hora" }
+    { "file": "HoraLista.dc.html", "x": 500, "y": 4360, "w": 390, "h": 660, "title": "Selector de hora" },
+    { "file": "BalanceLinea.dc.html", "x": 0, "y": 5320, "w": 390, "h": 640, "title": "Balance — A línea" },
+    { "file": "BalanceCifra.dc.html", "x": 500, "y": 5320, "w": 390, "h": 640, "title": "Balance — B cifra" },
+    { "file": "BalanceLibro.dc.html", "x": 1000, "y": 5320, "w": 390, "h": 660, "title": "Balance — C libro" },
+    { "file": "SplitTabla.dc.html", "x": 0, "y": 6100, "w": 390, "h": 720, "title": "Reparto — tabla" },
+    { "file": "SplitEditBar.dc.html", "x": 500, "y": 6100, "w": 390, "h": 720, "title": "Reparto — editar (barra)" },
+    { "file": "SplitEditPaso.dc.html", "x": 1000, "y": 6100, "w": 390, "h": 720, "title": "Reparto — editar (pasos)" }
   ],
   "annotations": [
     { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
     { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." },
     { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Filas de filtro = primitiva FilterTabs nueva (spec 007): pestañas con subrayado acento en la activa, sin cajas. Los chips (primitiva Chip) quedan para el multi-select al subir y para mostrar etiquetas en el detalle." },
     { "id": "fecha-note", "x": 0, "y": 4240, "w": 890, "text": "Spec 009 — selectores de fecha y hora. Reemplazan el texto libre AAAA-MM-DD / HH:MM en 002 (nacimiento), 003 (gasto), 004 (fechas ancla) y 005 (evento + hora). Puras JS, reutilizan src/custody/dates.ts y el MonthGrid — sin dependencia nativa, se despliega OTA. FECHA: calendario en popover anclado al campo. HORA: hoja inferior con lista en pasos de 15 min. Ambos: un toque elige y cierra." },
-    { "id": "cal-color-note", "x": 500, "y": 1130, "w": 390, "text": "Color elegido (spec 004, 2026-09-10): rosa suave para mamá, azul suave para papá. Tokens parentA/parentB en src/theme; el emblema de marca ahora tiene sus propios tokens." }
+    { "id": "cal-color-note", "x": 500, "y": 1130, "w": 390, "text": "Color elegido (spec 004, 2026-09-10): rosa suave para mamá, azul suave para papá. Tokens parentA/parentB en src/theme; el emblema de marca ahora tiene sus propios tokens." },
+    { "id": "balance-note", "x": 0, "y": 5200, "w": 1390, "text": "Spec 010 — tarjeta de balance, arriba de «Compartidos». A LÍNEA: fila compacta con el neto, un toque abre el detalle. B CIFRA: neto grande + «Registrar pago» / «Ver detalle» a la vista. C LIBRO: muestra lo que puso cada uno y el neto abajo (más transparente). Los recibos compartidos ahora muestran quién pagó y la parte de cada uno." },
+    { "id": "split-note", "x": 0, "y": 5980, "w": 1390, "text": "Spec 010 — tabla de reparto (% por defecto + overrides por etiqueta), se acuerda con propuesta→aprobación como en custodia. TABLA = vista de solo lectura. EDITAR con BARRA (deslizador: módulo nativo o gesto propio) o con PASOS (+/− de 5 en 5: JS puro, testeable — recomendado). Javiera = rosa, Christian = azul, igual que el calendario." }
   ],
   "launch": { "view": "canvas" }
 }
