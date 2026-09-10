@@ -11,13 +11,18 @@
     { "file": "RecibosSubir.dc.html", "x": 500, "y": 2980, "w": 390, "h": 1140, "title": "Agregar recibo" },
     { "file": "RecibosDetalle.dc.html", "x": 1000, "y": 2980, "w": 390, "h": 940, "title": "Detalle del recibo" },
     { "file": "FechaPopover.dc.html", "x": 0, "y": 4360, "w": 390, "h": 640, "title": "Selector de fecha" },
-    { "file": "HoraLista.dc.html", "x": 500, "y": 4360, "w": 390, "h": 660, "title": "Selector de hora" }
+    { "file": "HoraLista.dc.html", "x": 500, "y": 4360, "w": 390, "h": 660, "title": "Selector de hora" },
+    { "file": "CalColorSuave.dc.html", "x": 0, "y": 5320, "w": 390, "h": 560, "title": "Calendario — A suave" },
+    { "file": "CalColorBarra.dc.html", "x": 500, "y": 5320, "w": 390, "h": 560, "title": "Calendario — B barra" },
+    { "file": "CalColorPunto.dc.html", "x": 1000, "y": 5320, "w": 390, "h": 560, "title": "Calendario — C punto" },
+    { "file": "CalColorBloque.dc.html", "x": 1500, "y": 5320, "w": 390, "h": 560, "title": "Calendario — D bloque" }
   ],
   "annotations": [
     { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
     { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." },
     { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Filas de filtro = primitiva FilterTabs nueva (spec 007): pestañas con subrayado acento en la activa, sin cajas. Los chips (primitiva Chip) quedan para el multi-select al subir y para mostrar etiquetas en el detalle." },
-    { "id": "fecha-note", "x": 0, "y": 4240, "w": 890, "text": "Spec 009 — selectores de fecha y hora. Reemplazan el texto libre AAAA-MM-DD / HH:MM en 002 (nacimiento), 003 (gasto), 004 (fechas ancla) y 005 (evento + hora). Puras JS, reutilizan src/custody/dates.ts y el MonthGrid — sin dependencia nativa, se despliega OTA. FECHA: calendario en popover anclado al campo. HORA: hoja inferior con lista en pasos de 15 min. Ambos: un toque elige y cierra." }
+    { "id": "fecha-note", "x": 0, "y": 4240, "w": 890, "text": "Spec 009 — selectores de fecha y hora. Reemplazan el texto libre AAAA-MM-DD / HH:MM en 002 (nacimiento), 003 (gasto), 004 (fechas ancla) y 005 (evento + hora). Puras JS, reutilizan src/custody/dates.ts y el MonthGrid — sin dependencia nativa, se despliega OTA. FECHA: calendario en popover anclado al campo. HORA: hoja inferior con lista en pasos de 15 min. Ambos: un toque elige y cierra." },
+    { "id": "calcolor-note", "x": 0, "y": 5200, "w": 1890, "text": "Color del calendario de custodia (spec 004) — a Christian no le gusta el actual (relleno azul mamá / café papá). A SUAVE: mismo relleno, el café pasa a verde salvia (azul + verde choca menos). B BARRA: casillas blancas, color en una barrita bajo el número — calendario mucho más claro. C PUNTO: sin relleno, un punto de color por día; lo más minimal. D BLOQUE: mismos tonos pero más marcados + hoy en círculo azul sólido. Cambio de token parentB (+ src/theme) y re-check visual de 004." }
   ],
   "launch": { "view": "canvas" }
 }

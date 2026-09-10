@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .d { aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 13px; color: #2A2926; position: relative; background: #FFFFFF; }
+    .out { color: #C4BEB2; }
+    .today { box-shadow: inset 0 0 0 2px #46617E; font-weight: 600; }
+    .pips { display: flex; gap: 3px; height: 5px; }
+    .pip { width: 5px; height: 5px; border-radius: 999px; }
+    .mom { background: #46617E; }
+    .dad { background: #B0864F; }
+    .mk { position: absolute; top: 4px; right: 5px; width: 4px; height: 4px; border-radius: 999px; }
+    .ev { background: #2A2926; }
+    .pend { background: #46617E; width: 5px; height: 5px; }
+  </style>
+</helmet>
+<div style="width: 390px; min-height: 560px; background: #FBFAF8; box-sizing: border-box; padding: 56px 20px 32px; display: flex; flex-direction: column; gap: 16px;">
+
+  <h1 style="margin: 0; font-size: 24px; line-height: 30px; font-weight: 600; color: #2A2926;">Calendario de custodia</h1>
+
+  <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 20px; color: #6C6960;">‹</span>
+      <div style="font-size: 15px; font-weight: 600; color: #2A2926;">Septiembre 2026</div>
+      <span style="font-size: 20px; color: #6C6960;">›</span>
+    </div>
+
+    <div class="grid" style="font-size: 11px; font-weight: 600; color: #767268; text-align: center;">
+      <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+    </div>
+
+    <div class="grid">
+      <div class="d out">1</div>
+      <div class="d">1<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">2<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">3<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">4<span class="mk ev"></span><div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">5<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">6<div class="pips"><span class="pip mom"></span></div></div>
+
+      <div class="d">7<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">8<div class="pips"><span class="pip mom"></span><span class="pip dad"></span></div></div>
+      <div class="d">9<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d today">10<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">11<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">12<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">13<div class="pips"><span class="pip dad"></span></div></div>
+
+      <div class="d">14<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">15<div class="pips"><span class="pip dad"></span><span class="pip mom"></span></div></div>
+      <div class="d">16<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">17<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">18<span class="mk pend"></span><div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">19<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">20<div class="pips"><span class="pip mom"></span></div></div>
+
+      <div class="d">21<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d">22<div class="pips"><span class="pip mom"></span><span class="pip dad"></span></div></div>
+      <div class="d">23<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">24<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">25<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">26<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">27<div class="pips"><span class="pip dad"></span></div></div>
+
+      <div class="d">28<div class="pips"><span class="pip dad"></span></div></div>
+      <div class="d">29<div class="pips"><span class="pip dad"></span><span class="pip mom"></span></div></div>
+      <div class="d">30<div class="pips"><span class="pip mom"></span></div></div>
+      <div class="d out">1</div><div class="d out">2</div><div class="d out">3</div><div class="d out">4</div>
+    </div>
+
+    <div style="display: flex; gap: 16px; padding-top: 2px;">
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 8px; height: 8px; border-radius: 999px; background: #46617E;"></span> Con mamá</div>
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 8px; height: 8px; border-radius: 999px; background: #B0864F;"></span> Con papá</div>
+    </div>
+  </div>
+
+  <p style="margin: 0; font-size: 12px; line-height: 17px; color: #767268;">Opción C — «Punto»: sin relleno, calendario todo blanco; un punto de color bajo el número marca con quién está. Día de cambio = dos puntos. Lo más minimalista.</p>
+
+</div>
+</x-dc>
+</body>
+</html>
