@@ -213,6 +213,30 @@ usage-description strings; `firebase.json` gains the `storage` emulator; the
   shares one; the father sees it in "Compartidos" and opens the file; he
   cannot see the unshared one.
 
+## Pilot notes (bugs found and fixed on real devices)
+
+- **Cross-service Storage Rules were silently off.** `storage.rules` uses
+  `firestore.get()` (the `member()` check) — a cross-service Rule. It passes
+  the emulator (`@firebase/rules-unit-testing`) but in production the Cloud
+  Storage service agent needs the **Firebase Rules Firestore Service Agent**
+  IAM role, granted by a one-time prompt on the *interactive* `firebase
+  deploy` or in the console. Our CLI deploys ran non-interactively, so the
+  grant never happened: every `putFile` and every download returned
+  `storage/unauthorized` (`member()` errors on the unavailable
+  `firestore.get`). Fixed by publishing the rules once from the Firebase
+  console → Storage → Rules and accepting the permission prompt. `firebase
+  deploy --only storage` from a non-TTY still just warns
+  ("Invalid function name: firestore.get") — grant it interactively or via
+  the console.
+- **Failed uploads/shares/deletes were silent.** `receiptsStore.actionError`
+  was set on every failure but rendered by no receipt screen — a rules
+  denial just stopped the spinner. Fixed: a danger `Banner` (with the error
+  code) on `ReceiptUpload` and `ReceiptDetail`; criterion 4 updated.
+- **Android `versionCode` not bumped** — the first `1.2.0` build kept
+  `versionCode 1` from `1.1.0`, so phones ignored the "update". `app.json`
+  now carries explicit `ios.buildNumber` / `android.versionCode`; bump both
+  every native release (spec 006 Notes).
+
 ## Out of scope
 
 - Expense splitting, balances, "me debes" math.
