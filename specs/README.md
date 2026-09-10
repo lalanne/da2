@@ -20,7 +20,7 @@ This project is built spec-first. Rules:
 | 006 | [Pilot deployment pipeline](006-deployment-pilot.md) | draft |
 | 007 | [Design system & visual language](007-design-system.md) | verified |
 | 008 | [Push notifications](008-push-notifications.md) | draft |
-| 009 | [Date & time input](009-date-time-input.md) | draft |
+| 009 | [Date & time input](009-date-time-input.md) | implemented |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 

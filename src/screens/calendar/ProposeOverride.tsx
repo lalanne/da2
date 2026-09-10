@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Banner, Button, Card, Screen, Text, TextField } from '../../components';
+import { Banner, Button, Card, Screen, Text, TimeField } from '../../components';
 import { strings } from '../../i18n/strings';
 import type { NewDayOverrideInput } from '../../models/Custody';
 import type { Household } from '../../models/Household';
@@ -80,24 +80,24 @@ export function ProposeOverride({ date, household, members, isSubmitting, onSubm
         </Pressable>
         {!allDay ? (
           <View style={styles.times}>
-            <TextField
-              label={s.fromLabel}
-              value={from}
-              onChangeText={setFrom}
-              placeholder={s.timePlaceholder}
-              autoCapitalize="none"
-              keyboardType="numbers-and-punctuation"
-              testID="propose-from"
-            />
-            <TextField
-              label={s.toLabel}
-              value={to}
-              onChangeText={setTo}
-              placeholder={s.timePlaceholder}
-              autoCapitalize="none"
-              keyboardType="numbers-and-punctuation"
-              testID="propose-to"
-            />
+            <View style={styles.timeCol}>
+              <TimeField
+                label={s.fromLabel}
+                value={from || null}
+                onChange={(v) => setFrom(v ?? '')}
+                optional
+                testID="propose-from"
+              />
+            </View>
+            <View style={styles.timeCol}>
+              <TimeField
+                label={s.toLabel}
+                value={to || null}
+                onChange={(v) => setTo(v ?? '')}
+                optional
+                testID="propose-to"
+              />
+            </View>
           </View>
         ) : null}
       </Card>
@@ -153,5 +153,6 @@ const styles = StyleSheet.create({
   },
   checkOn: { backgroundColor: theme.colors.accent, borderColor: theme.colors.accent },
   times: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.md },
+  timeCol: { flex: 1 },
   spacer: { minHeight: theme.spacing.lg, flexGrow: 1 },
 });

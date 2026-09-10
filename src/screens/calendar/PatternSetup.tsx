@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Banner, Button, Card, Screen, Text, TextField } from '../../components';
+import { Banner, Button, Card, DateField, Screen, Text, TimeField } from '../../components';
 import { strings } from '../../i18n/strings';
 import { todayInTimezone } from '../../custody';
 import type { NewPatternInput, PresetLabel } from '../../models/Custody';
@@ -97,31 +97,25 @@ export function PatternSetup({ household, members, isSubmitting, onSubmit, onBac
       </View>
 
       <Card style={styles.block}>
-        <TextField
+        <DateField
           label={s.anchorLabel}
           value={anchor}
-          onChangeText={setAnchor}
-          placeholder={s.datePlaceholder}
-          autoCapitalize="none"
-          keyboardType="numbers-and-punctuation"
+          onChange={(v) => setAnchor(v ?? anchor)}
+          timezone={household.timezone}
           testID="pattern-anchor"
         />
-        <TextField
+        <TimeField
           label={s.changeoverLabel}
           value={changeover}
-          onChangeText={setChangeover}
-          placeholder="18:00"
-          autoCapitalize="none"
-          keyboardType="numbers-and-punctuation"
+          onChange={(v) => setChangeover(v ?? changeover)}
           testID="pattern-changeover"
         />
-        <TextField
+        <DateField
           label={s.effectiveFromLabel}
           value={effectiveFrom}
-          onChangeText={setEffectiveFrom}
-          placeholder={s.datePlaceholder}
-          autoCapitalize="none"
-          keyboardType="numbers-and-punctuation"
+          onChange={(v) => setEffectiveFrom(v ?? effectiveFrom)}
+          min={anchor}
+          timezone={household.timezone}
           testID="pattern-effective-from"
         />
       </Card>

@@ -1,6 +1,6 @@
 # 009 — Date & time input
 
-**Status:** draft
+**Status:** implemented
 **Depends on:** 007 (primitives). **Touches:** 002, 003, 004, 005 — every
 screen that currently takes a date or time as free text.
 
@@ -18,11 +18,11 @@ Fields affected:
 
 | Spec | Screen | Field(s) |
 |---|---|---|
-| 002 | `CreateHouseholdScreen` | child `birthdate` (optional) |
+| 002 | `CreateHouseholdScreen` | child `birthdate` (optional, `max` = today) |
 | 003 | `ReceiptUpload` | `expenseDate` |
-| 004 | `PatternSetup` | `anchorDate`, `effectiveFrom` |
-| 004 | `ProposeOverride` | override date, `effectiveFrom` |
-| 005 | `EventForm` | `date`, `endDate` (optional), `time` |
+| 004 | `PatternSetup` | `anchorDate`; `changeoverTime`; `effectiveFrom` (`min` = anchor) |
+| 004 | `ProposeOverride` | `from` / `to` times (optional — the day itself is already chosen) |
+| 005 | `EventForm` | `date`; `startTime` / `endTime` (optional); `until` recurrence-end date (`min` = date) |
 
 ## User stories
 
@@ -79,19 +79,21 @@ Fields affected:
 | Prop | |
 |---|---|
 | `label` | field label |
-| `value` | `string` — `HH:mm`, 24-hour |
-| `onChange` | `(value: string) => void` |
+| `value` | `string \| null` — `HH:mm`, 24-hour; `null` = no time set |
+| `onChange` | `(value: string \| null) => void` |
+| `optional` | when true, the sheet offers "Sin hora" → `null`; otherwise always a time |
 | `stepMinutes` | default `15` |
 
-- Closed: a tappable row showing `HH:mm` (24-hour, matching
-  `formatMinutes`).
+- Closed: a tappable row showing `HH:mm` (24-hour, matching `formatMinutes`),
+  or a placeholder when `optional` and `value` is `null`.
 - Open: a **bottom sheet** (RN core `Modal`, dimmed backdrop, rounded top,
   drag handle) containing a scrollable list of every `HH:mm` at `stepMinutes`
-  from `00:00` to `23:45`. On open it scrolls so the **current value is
-  centred** (or the nearest step, if `value` isn't on the grid). The selected
-  row is `accentSoft` + a check.
-- Tapping a row emits `HH:mm` and closes the sheet. Backdrop tap closes
-  without changing the value.
+  from `00:00` to `23:45`, preceded by a "Sin hora" row when `optional`. On
+  open it scrolls so the **current value is centred** (nearest step if not on
+  the grid; a sensible default when `null`). The selected row is `accentSoft`
+  + a check.
+- Tapping a row emits its value (or `null` for "Sin hora") and closes the
+  sheet. Backdrop tap closes without changing the value.
 
 ## Acceptance criteria
 
@@ -111,7 +113,9 @@ Fields affected:
    disabled and do not respond to taps.
 6. **Given** a time field, **when** tapped, **then** a 15-minute list opens in
    a bottom sheet scrolled to the current value; **when** a row is tapped,
-   **then** `onChange` fired that `HH:mm` and the sheet closed.
+   **then** `onChange` fired that `HH:mm` and the sheet closed. **Given** an
+   `optional` time field, **when** "Sin hora" is tapped, **then**
+   `onChange(null)` fired.
 7. **Given** the codebase, **when** grep'd, **then** no screen passes
    `keyboardType` for a date or time input and no reachable `AAAA-MM-DD`
    placeholder remains; `isIsoDate` / `isHhMm` still guard the `buildXInput`
@@ -139,15 +143,36 @@ Fields affected:
 
 ## Adoption checklist
 
-- [ ] `DateField`, `TimeField`, `formatCivilDate` + Spanish month names in i18n
-- [ ] 002 `CreateHouseholdScreen` — birthdate → `DateField optional`
-- [ ] 003 `ReceiptUpload` — `expenseDate` → `DateField`
-- [ ] 004 `PatternSetup` — `anchorDate`, `effectiveFrom` → `DateField`
-- [ ] 004 `ProposeOverride` — date, `effectiveFrom` → `DateField`
-- [ ] 005 `EventForm` — `date`, `endDate` (optional), `time` → `DateField` /
-      `TimeField`
-- [ ] delete the now-unused `keyboardType` props and `datePlaceholder` strings
-- [ ] re-run 004 + 005 criteria; `npm test`, `npm run typecheck`, `eas update`
+- [x] `DateField`, `TimeField`; `formatCivilDate` / `formatMonthYear` in
+      `src/i18n/dates.ts`; `monthGrid` in `src/custody/dates.ts`; `dateTime`
+      block (short months, labels) in `src/i18n/strings.ts`
+- [x] 002 `CreateHouseholdScreen` — birthdate → `DateField optional`, `max` = today
+- [x] 003 `ReceiptUpload` — `expenseDate` → `DateField`
+- [x] 004 `PatternSetup` — `anchorDate` + `effectiveFrom` (`min` = anchor) →
+      `DateField`; `changeoverTime` → `TimeField`
+- [x] 004 `ProposeOverride` — `from` / `to` → `TimeField optional`
+- [x] 005 `EventForm` — `date` + `until` (`min` = date) → `DateField`;
+      `startTime` / `endTime` → `TimeField optional`
+- [x] deleted the dead `keyboardType` props + `datePlaceholder` /
+      `timePlaceholder` strings (`badDate` / `badTime` guards kept)
+
+## Verification results
+
+Implemented 2026-09-10. Ships OTA (JS + i18n only; no data, rules, or native
+change).
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1–5 date field | ✅ | `src/components/__tests__/dateTimeFields.test.tsx` — opens inline, day→ISO, month nav keeps selection, optional placeholder, `max` disables later days. `src/custody/__tests__/dates.test.ts` — `monthGrid` weeks/spill. `src/i18n/__tests__/dates.test.ts` — `formatCivilDate`. |
+| 6 time field | ✅ | same component test — sheet opens, row→`HH:mm`, "Sin hora"→`null`. |
+| 7 no free-text left | ✅ | grep: no `keyboardType` on a date/time field, no reachable `AAAA-MM-DD`; `isIsoDate`/`isHhMm` still in every `buildXInput`. |
+| 8 004/005 still green | ✅ | 187 unit + typecheck; `events.test.tsx`, `pickers.smoke.test.tsx`, `CreateHouseholdScreen.test.tsx` mount the new fields; 004/005 form-logic tests unchanged and green. |
+| 9 no native dep | ✅ | `package.json` unchanged; `TimeField` uses RN core `<Modal>` + `<ScrollView>`. |
+
+Test note: jest-expo renders RN `<Modal>` as nothing, so `jest.setup.js` mocks
+it to render children when `visible` (a general fixture, not 009-specific).
+
+Manual on both pilot phones — **pending** the next OTA relaunch.
 
 ## Design
 

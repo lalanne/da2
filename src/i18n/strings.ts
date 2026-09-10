@@ -108,6 +108,21 @@ export const strings = {
     household: 'Hogar',
   },
 
+  // Shared by the DateField / TimeField primitives (spec 009). Weekday and
+  // full-month labels come from `custody.weekdaysShort` / `custody.months`.
+  dateTime: {
+    today: 'Hoy',
+    clearDate: 'Quitar fecha',
+    chooseDate: 'Elegir fecha',
+    timeTitle: 'Hora',
+    chooseTime: 'Elegir hora',
+    noTime: 'Sin hora',
+    monthsShort: [
+      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
+      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+    ] as const,
+  },
+
   receipts: {
     tabTitle: 'Recibos',
     segments: { mine: 'Mis recibos', shared: 'Compartidos' },
@@ -152,7 +167,6 @@ export const strings = {
       tagsLabel: 'Etiquetas (opcional)',
       tagsHint: 'Puedes elegir varias, o ninguna. Sin etiquetas queda como "Sin categoría".',
       dateLabel: 'Fecha del gasto',
-      datePlaceholder: 'AAAA-MM-DD',
       childLabel: '¿Para quién? (opcional)',
       noChild: 'Sin especificar',
       noteLabel: 'Nota (opcional)',
@@ -218,11 +232,9 @@ export const strings = {
       childrenLabel: '¿Para quién?',
       allChildren: 'Toda la casa',
       dateLabel: 'Fecha',
-      datePlaceholder: 'AAAA-MM-DD',
       allDayToggle: 'Todo el día',
       startLabel: 'Desde',
       endLabel: 'Hasta',
-      timePlaceholder: 'HH:mm',
       locationLabel: 'Lugar (opcional)',
       notesLabel: 'Notas (opcional)',
       repeatsToggle: 'Se repite cada semana',
@@ -290,7 +302,6 @@ export const strings = {
       allDayToggle: 'Todo el día',
       fromLabel: 'Desde',
       toLabel: 'Hasta',
-      timePlaceholder: 'HH:mm',
       submit: 'Enviar propuesta',
       errors: {
         badTime: 'Usa el formato HH:mm (por ejemplo 18:00).',
@@ -321,7 +332,6 @@ export const strings = {
       anchorLabel: '¿Desde qué día empieza el ciclo?',
       changeoverLabel: '¿A qué hora cambian de casa?',
       effectiveFromLabel: '¿Desde cuándo aplica?',
-      datePlaceholder: 'AAAA-MM-DD',
       submit: 'Enviar para aprobación',
       errors: {
         badDate: 'Usa el formato AAAA-MM-DD.',

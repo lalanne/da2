@@ -9,6 +9,7 @@ import {
   isIsoDate,
   minutesOfDay,
   mod,
+  monthGrid,
   startOfMonth,
   toDayNumber,
   todayInTimezone,
@@ -73,6 +74,21 @@ describe('custody/dates', () => {
     expect(daysInMonth('2026-09-01')[0]).toBe('2026-09-01');
     expect(daysInMonth('2026-09-01').at(-1)).toBe('2026-09-30');
     expect(startOfMonth('2026-09-17')).toBe('2026-09-01');
+  });
+
+  it('monthGrid: whole Monday-first weeks with in/out-of-month flags', () => {
+    // September 2026 starts on a Tuesday → 1 leading day, 30 days, 5 rows.
+    const sep = monthGrid('2026-09-20');
+    expect(sep).toHaveLength(35);
+    expect(sep[0]).toEqual({ iso: '2026-08-31', inMonth: false });
+    expect(sep[1]).toEqual({ iso: '2026-09-01', inMonth: true });
+    expect(sep[30]).toEqual({ iso: '2026-09-30', inMonth: true });
+    expect(sep.at(-1)).toEqual({ iso: '2026-10-04', inMonth: false });
+    // August 2026 starts on a Saturday → 5 leading days + 31, needs 6 rows.
+    const aug = monthGrid('2026-08-10');
+    expect(aug).toHaveLength(42);
+    expect(aug[0]).toEqual({ iso: '2026-07-27', inMonth: false });
+    expect(aug[5]).toEqual({ iso: '2026-08-01', inMonth: true });
   });
 
   it('todayInTimezone formats yyyy-mm-dd and honours the zone', () => {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Banner, Button, Card, Screen, Text, TextField } from '../../components';
+import { Banner, Button, Card, DateField, Screen, Text, TextField, TimeField } from '../../components';
 import { strings } from '../../i18n/strings';
 import { todayInTimezone } from '../../custody';
 import { buildEventInput, type EventFormState } from '../../events';
@@ -131,13 +131,11 @@ export function EventForm({ household, initial, isSubmitting, onSubmit, onBack }
           </View>
         ) : null}
 
-        <TextField
+        <DateField
           label={f.dateLabel}
           value={state.date}
-          onChangeText={(date) => set({ date })}
-          placeholder={f.datePlaceholder}
-          autoCapitalize="none"
-          keyboardType="numbers-and-punctuation"
+          onChange={(date) => set({ date: date ?? state.date })}
+          timezone={household.timezone}
           testID="event-date"
         />
 
@@ -152,24 +150,24 @@ export function EventForm({ household, initial, isSubmitting, onSubmit, onBack }
           </Pressable>
           {!state.allDay ? (
             <View style={styles.times}>
-              <TextField
-                label={f.startLabel}
-                value={state.startTime}
-                onChangeText={(startTime) => set({ startTime })}
-                placeholder={f.timePlaceholder}
-                autoCapitalize="none"
-                keyboardType="numbers-and-punctuation"
-                testID="event-start"
-              />
-              <TextField
-                label={f.endLabel}
-                value={state.endTime}
-                onChangeText={(endTime) => set({ endTime })}
-                placeholder={f.timePlaceholder}
-                autoCapitalize="none"
-                keyboardType="numbers-and-punctuation"
-                testID="event-end"
-              />
+              <View style={styles.timeCol}>
+                <TimeField
+                  label={f.startLabel}
+                  value={state.startTime || null}
+                  onChange={(startTime) => set({ startTime: startTime ?? '' })}
+                  optional
+                  testID="event-start"
+                />
+              </View>
+              <View style={styles.timeCol}>
+                <TimeField
+                  label={f.endLabel}
+                  value={state.endTime || null}
+                  onChange={(endTime) => set({ endTime: endTime ?? '' })}
+                  optional
+                  testID="event-end"
+                />
+              </View>
             </View>
           ) : null}
         </Card>
@@ -198,15 +196,16 @@ export function EventForm({ household, initial, isSubmitting, onSubmit, onBack }
               <Check on={state.repeats} />
             </Pressable>
             {state.repeats ? (
-              <TextField
-                label={f.untilLabel}
-                value={state.until}
-                onChangeText={(until) => set({ until })}
-                placeholder={f.datePlaceholder}
-                autoCapitalize="none"
-                keyboardType="numbers-and-punctuation"
-                testID="event-until"
-              />
+              <View style={styles.untilBlock}>
+                <DateField
+                  label={f.untilLabel}
+                  value={state.until || null}
+                  onChange={(until) => set({ until: until ?? '' })}
+                  min={state.date}
+                  timezone={household.timezone}
+                  testID="event-until"
+                />
+              </View>
             ) : null}
           </Card>
         ) : null}
@@ -264,6 +263,8 @@ const styles = StyleSheet.create({
     minHeight: theme.minTouch,
   },
   times: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.md },
+  timeCol: { flex: 1 },
+  untilBlock: { marginTop: theme.spacing.md },
   check: {
     width: 24,
     height: 24,

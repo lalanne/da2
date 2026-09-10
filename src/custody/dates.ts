@@ -94,3 +94,20 @@ export function addMonths(iso: string, n: number): string {
   const base = new Date(Date.UTC(y, m - 1 + n, 1));
   return `${base.getUTCFullYear()}-${String(base.getUTCMonth() + 1).padStart(2, '0')}-01`;
 }
+
+/**
+ * Monday-first calendar cells covering the month of `iso` — whole weeks only,
+ * so `.length` is a multiple of 7 (5 or 6 rows). `inMonth` is false for the
+ * leading/trailing days that spill from the neighbouring months.
+ */
+export function monthGrid(iso: string): { iso: string; inMonth: boolean }[] {
+  const first = startOfMonth(iso);
+  const lead = weekdayMonday0(first);
+  const count = daysInMonth(first).length;
+  const cells = Math.ceil((lead + count) / 7) * 7;
+  const month = iso.slice(0, 7);
+  return Array.from({ length: cells }, (_, i) => {
+    const day = addDays(first, i - lead);
+    return { iso: day, inMonth: day.slice(0, 7) === month };
+  });
+}

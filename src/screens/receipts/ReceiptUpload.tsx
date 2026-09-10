@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Banner, Button, Chip, Screen, Text, TextField } from '../../components';
+import { Banner, Button, Chip, DateField, Screen, Text, TextField } from '../../components';
 import { strings } from '../../i18n/strings';
 import { todayInTimezone } from '../../custody';
 import {
@@ -147,13 +147,11 @@ export function ReceiptUpload({ household, isSubmitting, submitError, onSubmit, 
           </Text>
         </View>
 
-        <TextField
+        <DateField
           label={f.dateLabel}
           value={state.expenseDate}
-          onChangeText={(expenseDate) => set({ expenseDate })}
-          placeholder={f.datePlaceholder}
-          keyboardType="numbers-and-punctuation"
-          autoCapitalize="none"
+          onChange={(expenseDate) => set({ expenseDate: expenseDate ?? state.expenseDate })}
+          timezone={household.timezone}
           testID="receipt-date"
         />
 

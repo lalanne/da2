@@ -63,6 +63,8 @@ No raw hex, no raw pixel spacing, no bare `fontSize` anywhere else in the app.
 | `Text` | The only text component | `variant` (display…caption), `color`, `align` |
 | `Button` | Replaces RN `<Button>` | `variant` (primary\|secondary\|ghost\|danger), `loading`, `disabled`, `fullWidth`, `onPress` |
 | `TextField` | Labelled input + error line; carries the iOS-safe config (no `maxLength`/`letterSpacing`/`textAlign` traps from spec 002) | `label`, `value`, `onChangeText`, `error`, `autoCapitalize` |
+| `DateField` | Labelled field that expands an inline Monday-first month grid — no keyboard (spec 009). Selected day filled `accent`, today ringed | `label`, `value` (`yyyy-mm-dd \| null`), `onChange`, `optional`, `min`/`max`, `timezone` |
+| `TimeField` | Labelled field opening a bottom-sheet time list at `stepMinutes` — no keyboard (spec 009) | `label`, `value` (`HH:mm \| null`), `onChange`, `optional`, `stepMinutes` |
 | `Card` | Surface container: padding, radius, hairline border | `sunken` |
 | `ListRow` | One row in a list (household members, children, later receipts/events) | `title`, `subtitle`, `trailing`, `onPress` |
 | `Banner` | Inline status / info / error block | `tone` (info\|warning\|danger\|success) |

@@ -3,11 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import { useHouseholdStore } from '../store/householdStore';
 import { strings } from '../i18n/strings';
 import { theme } from '../theme';
-import { Banner, Button, Card, Screen, Text, TextField } from '../components';
+import { Banner, Button, Card, DateField, Screen, Text, TextField } from '../components';
+import { todayInTimezone } from '../custody';
 import { validateNewHousehold, type ChildRow } from './createHouseholdForm';
 
 export function CreateHouseholdScreen({ onBack }: { onBack: () => void }) {
   const { createHousehold, isSubmitting } = useHouseholdStore();
+  const todayIso = todayInTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [name, setName] = useState('');
   const [children, setChildren] = useState<ChildRow[]>([{ name: '', birthdate: '' }]);
   const [error, setError] = useState<string | null>(null);
@@ -55,12 +57,12 @@ export function CreateHouseholdScreen({ onBack }: { onBack: () => void }) {
                   placeholder={s.childNamePlaceholder}
                   testID={`child-name-input-${index}`}
                 />
-                <TextField
-                  value={child.birthdate}
-                  onChangeText={(text) => updateChild(index, { birthdate: text })}
-                  placeholder={s.childBirthdatePlaceholder}
-                  autoCapitalize="none"
-                  keyboardType="numbers-and-punctuation"
+                <DateField
+                  label={s.childBirthdatePlaceholder}
+                  value={child.birthdate || null}
+                  onChange={(birthdate) => updateChild(index, { birthdate: birthdate ?? '' })}
+                  optional
+                  max={todayIso}
                   testID={`child-birthdate-input-${index}`}
                 />
                 {children.length > 1 ? (
