@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
-import { Button, Card, Chip, ListRow, Screen, Text } from '../../components';
+import { Button, Card, FilterTabs, ListRow, Screen, Text, type FilterTabOption } from '../../components';
 import { strings } from '../../i18n/strings';
 import { useAuthStore } from '../../store/authStore';
 import { useHouseholdStore } from '../../store/householdStore';
@@ -28,6 +28,22 @@ export function ReceiptsScreen() {
   const receipts = useMemo(
     () => filterReceipts(base, { tag, month }).sort((a, b) => b.createdAt - a.createdAt),
     [base, tag, month],
+  );
+
+  const tagOptions = useMemo<FilterTabOption<TagFilter>[]>(
+    () => [
+      { value: null, label: strings.receipts.filters.allTags },
+      ...RECEIPT_TAGS.map((t) => ({ value: t, label: tagLabel(t) })),
+      { value: 'none' as const, label: strings.receipts.uncategorized },
+    ],
+    [],
+  );
+  const monthOptions = useMemo<FilterTabOption<string | null>[]>(
+    () => [
+      { value: null, label: strings.receipts.filters.allMonths },
+      ...months.map((m) => ({ value: m, label: m })),
+    ],
+    [months],
   );
 
   if (!household || !uid) return null;
@@ -66,7 +82,6 @@ export function ReceiptsScreen() {
   }
 
   const emptyText = segment === 'mine' ? strings.receipts.empty.mine : strings.receipts.empty.shared;
-  const toggleTag = (next: TagFilter) => setTag((v) => (v === next ? null : next));
 
   return (
     <Screen scroll>
@@ -89,47 +104,24 @@ export function ReceiptsScreen() {
         ))}
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterRow}
-        contentContainerStyle={styles.filterRowContent}
-      >
-        <Chip
-          label={strings.receipts.filters.allTags}
-          selected={tag === null}
-          onPress={() => setTag(null)}
+      <View style={styles.filterRow}>
+        <FilterTabs
+          options={tagOptions}
+          value={tag}
+          onChange={setTag}
+          testID="receipts-tag-filter"
         />
-        {RECEIPT_TAGS.map((t) => (
-          <Chip key={t} label={tagLabel(t)} selected={tag === t} onPress={() => toggleTag(t)} />
-        ))}
-        <Chip
-          label={strings.receipts.uncategorized}
-          selected={tag === 'none'}
-          onPress={() => toggleTag('none')}
-        />
-      </ScrollView>
+      </View>
 
       {months.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterRow}
-        >
-          <Chip
-            label={strings.receipts.filters.allMonths}
-            selected={month === null}
-            onPress={() => setMonth(null)}
+        <View style={styles.filterRow}>
+          <FilterTabs
+            options={monthOptions}
+            value={month}
+            onChange={setMonth}
+            testID="receipts-month-filter"
           />
-          {months.map((m) => (
-            <Chip
-              key={m}
-              label={m}
-              selected={month === m}
-              onPress={() => setMonth((v) => (v === m ? null : m))}
-            />
-          ))}
-        </ScrollView>
+        </View>
       ) : null}
 
       {receipts.length === 0 ? (
@@ -186,8 +178,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   segmentActive: { borderColor: theme.colors.accent, backgroundColor: theme.colors.accentSoft },
-  filterRow: { marginBottom: theme.spacing.sm },
-  filterRowContent: { gap: theme.spacing.sm, paddingVertical: theme.spacing.xs },
+  filterRow: { marginBottom: theme.spacing.md },
   empty: { marginTop: theme.spacing.md },
   divider: { height: 1, backgroundColor: theme.colors.hairline },
   spacer: { minHeight: theme.spacing.lg, flexGrow: 1 },

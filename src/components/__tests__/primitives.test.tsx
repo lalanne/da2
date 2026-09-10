@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { Banner, Button, Card, Chip, CodeChip, ListRow, Text, TextField } from '..';
+import { Banner, Button, Card, Chip, CodeChip, FilterTabs, ListRow, Text, TextField } from '..';
 import { theme } from '../../theme';
 
 describe('Text', () => {
@@ -115,6 +115,29 @@ describe('Chip', () => {
     await render(<Chip label="Deporte" testID="chip" />);
     expect(screen.getByTestId('chip').props.accessibilityRole).toBeUndefined();
     expect(screen.getByText('Deporte')).toHaveStyle({ color: theme.colors.accent });
+  });
+});
+
+describe('FilterTabs', () => {
+  const options = [
+    { value: null, label: 'Todas' },
+    { value: 'medical', label: 'Médico' },
+    { value: 'none', label: 'Sin categoría' },
+  ] as const;
+
+  it('renders every option and reports the picked value', async () => {
+    const onChange = jest.fn();
+    await render(<FilterTabs options={options} value={null} onChange={onChange} testID="f" />);
+    expect(screen.getByText('Todas')).toBeTruthy();
+    expect(screen.getByText('Sin categoría')).toBeTruthy();
+    fireEvent.press(screen.getByTestId('f-medical'));
+    expect(onChange).toHaveBeenCalledWith('medical');
+  });
+
+  it('marks the selected tab with the accent colour', async () => {
+    await render(<FilterTabs options={options} value="medical" onChange={jest.fn()} testID="f" />);
+    expect(screen.getByText('Médico')).toHaveStyle({ color: theme.colors.accent });
+    expect(screen.getByText('Todas')).toHaveStyle({ color: theme.colors.textSecondary });
   });
 });
 

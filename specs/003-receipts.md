@@ -178,7 +178,8 @@ categoría"). No composite indexes.
 Hogar).
 
 - `ReceiptsScreen` — segmented "Mis recibos" / "Compartidos", tag + month
-  filter chips (`Chip` primitive, spec 007), list, `＋ Agregar recibo`.
+  filter rows (`FilterTabs` — scrollable underline tabs, spec 007), list,
+  `＋ Agregar recibo`.
 - `ReceiptUpload` — source picker (cámara / galería / archivo), then the
   metadata form: amount, date, an optional **multi-select tag row** (nothing
   pre-selected), note, child; validation extracted to `buildReceiptInput`.
@@ -186,8 +187,8 @@ Hogar).
   shown as chips, or "Sin categoría"), "Compartir con la otra persona"
   (while private, with a confirm), "Eliminar" (while private).
 
-The filter/selector chips are the shared `Chip` primitive added to spec 007
-(`selected` state, ≥ 44 pt target) — screens no longer roll their own.
+Filter rows use `FilterTabs`; the upload/detail selectors use `Chip` — both
+spec-007 primitives, so screens no longer roll their own.
 
 **Native config** — `expo-image-picker` plugin with camera/photo
 usage-description strings; `firebase.json` gains the `storage` emulator; the

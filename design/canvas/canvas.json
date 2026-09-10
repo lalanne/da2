@@ -14,7 +14,7 @@
   "annotations": [
     { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
     { "id": "system-note", "x": 1000, "y": 1110, "w": 390, "text": "Base del sistema (spec 007): tokens en src/theme/, primitivas en src/components/. Ninguna pantalla usa color o espaciado crudo." },
-    { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Chips = primitiva Chip nueva (spec 007): seleccionado con relleno accentSoft + borde y texto acento (igual que el control segmentado), no seleccionado con borde neutro. Reemplaza el FilterChip local que traía ReceiptsScreen." }
+    { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Filas de filtro = primitiva FilterTabs nueva (spec 007): pestañas con subrayado acento en la activa, sin cajas. Los chips (primitiva Chip) quedan para el multi-select al subir y para mostrar etiquetas en el detalle." }
   ],
   "launch": { "view": "canvas" }
 }
