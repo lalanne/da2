@@ -240,7 +240,8 @@ usage-description strings; `firebase.json` gains the `storage` emulator; the
 
 ## Out of scope
 
-- Expense splitting, balances, "me debes" math.
+- Expense splitting, balances, "me debes" math → **spec 010** (built on this
+  spec; a `splitPercentA` field is added to the receipt doc there).
 - OCR / auto-extraction of the amount.
 - Un-sharing, or editing any field after upload (v1: delete while private,
   re-upload).

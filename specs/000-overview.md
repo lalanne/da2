@@ -48,10 +48,11 @@ Postgres. Revisit only if expense reporting outgrows it.
 |----|-------------|
 | Google Sign-In (per parent) | Sign in with Apple (required at iOS launch) |
 | Household via invite code, one household per parent | Multiple households per parent |
-| Receipt/invoice upload with amount, category, date; per-receipt sharing | Expense-splitting math, balances, settlement |
+| Receipt/invoice upload with amount, tags, date; per-receipt sharing | OCR of receipts |
+| Expense splitting: % table (default + per-tag) agreed propose/approve, running balance, recorded payments (spec 010) | Caps / exclusions / pre-approval thresholds in the split |
 | Custody calendar: recurring pattern + day overrides, propose/approve flow | In-app messaging |
 | Kid events (appointments, birthdays, tournaments, training) | External calendar sync (Google/Apple Calendar) |
-| Push notifications for proposals | OCR of receipts |
+| Push notifications for proposals | Statement / PDF export of the expense ledger |
 
 ## Cross-cutting constraints
 

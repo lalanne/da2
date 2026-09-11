@@ -21,7 +21,7 @@ This project is built spec-first. Rules:
 | 007 | [Design system & visual language](007-design-system.md) | verified |
 | 008 | [Push notifications](008-push-notifications.md) | draft |
 | 009 | [Date & time input](009-date-time-input.md) | implemented |
-| 010 | [Shared expense splitting](010-expense-splitting.md) | draft |
+| 010 | [Shared expense splitting](010-expense-splitting.md) | approved |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 

@@ -1,6 +1,6 @@
 # 010 — Shared expense splitting
 
-**Status:** draft
+**Status:** approved
 **Depends on:** 003 (receipts — the amounts and the share flow), 004 (the
 propose/approve machinery this mirrors), 007, 009 (money/date input reuse).
 Built on top of 003 while 003's own pilot sign-off is still pending; nothing
@@ -128,16 +128,22 @@ households/{hid}/receipts/{receiptId}         // spec 003 doc — one field adde
   `isSubmitting` / `actionError` guards every other store uses.
 - **`receiptsStore.share`** gains a `splitPercentA` argument and writes it in
   the same `updateDoc` as `visibility`/`sharedAt`.
-- **UI** (Recibos tab — no new tab, view-state within it):
-  - `CompartidosView` gets a **balance card** on top: the running line + a
-    `Registrar pago` button + a link to the split table.
+- **UI** (Recibos tab — no new tab, view-state within it). Chosen designs
+  (canvas, 2026-09-10): balance card = **"cifra"**, split editor = **"pasos"**.
+  - The **"Compartidos"** segment gets a **balance card** on top — the net
+    figure large ("Javiera te debe $30.000" / "Están a mano"), with
+    `Registrar pago` and `Ver detalle` buttons. Parent colours: `parentA`
+    for `parentIds[0]`, `parentB` for `parentIds[1]`.
   - `BalanceDetail` — one row per shared receipt (amount · who paid · each
     share), the settlements list with pending/confirm affordances, and
-    `Registrar pago` (amount via `TextField` + `parseAmount`, direction,
-    note).
-  - `SplitTableView` — the active table; `Proponer cambio` → an editable
-    form (default % stepper + a row per tag); a pending proposal shows the
-    approve/reject banner for the non-proposer, mirroring
+    `Registrar pago` (amount via `TextField` + `parseAmount`, direction
+    toggle, optional note).
+  - `SplitTableView` — the active table as read-only rows (default % + a row
+    per tag, each with a small `parentA`/`parentB` bar). `Proponer un cambio`
+    → `SplitProposeForm`: **`+` / `−` steppers in 5-point steps** on
+    `parentIds[0]`'s %, the other's derived; a row per rule, `Añadir regla`
+    to add a tag override. **No slider — no native module.** A pending
+    proposal shows the approve/reject banner for the non-proposer, mirroring
     `PatternSetup` / `ProposeOverride`.
   - `ReceiptDetail` (shared) — a "Reparto" row: "Tú $X (40%) · ‹other› $Y".
   - `ReceiptDetail` share action — the multi-rule chooser when needed.
