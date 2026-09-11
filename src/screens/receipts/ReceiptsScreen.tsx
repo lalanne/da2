@@ -10,14 +10,27 @@ import { availableMonths, filterReceipts, type TagFilter } from '../../receipts'
 import { RECEIPT_TAGS, type Receipt } from '../../models/Receipt';
 import { ReceiptUpload } from './ReceiptUpload';
 import { ReceiptDetail } from './ReceiptDetail';
+import { BalanceCard } from '../split/BalanceCard';
+import { BalanceDetail } from '../split/BalanceDetail';
+import { SplitTableView } from '../split/SplitTableView';
+import { SplitProposeForm } from '../split/SplitProposeForm';
+import { useSplitStore } from '../../store/splitStore';
+import { activeSplit } from '../../split';
 import { receiptAmountLabel, receiptSubtitle, tagLabel } from './labels';
 
-type RcView = { name: 'list' } | { name: 'upload' } | { name: 'detail'; receipt: Receipt };
+type RcView =
+  | { name: 'list' }
+  | { name: 'upload' }
+  | { name: 'detail'; receipt: Receipt }
+  | { name: 'balance' }
+  | { name: 'split-table' }
+  | { name: 'split-propose' };
 
 export function ReceiptsScreen() {
   const uid = useAuthStore((s) => s.user?.uid);
   const { household, members } = useHouseholdStore();
   const store = useReceiptsStore();
+  const splitProposals = useSplitStore((s) => s.proposals);
   const [view, setView] = useState<RcView>({ name: 'list' });
   const [segment, setSegment] = useState<'mine' | 'shared'>('mine');
   const [tag, setTag] = useState<TagFilter>(null);
@@ -77,6 +90,44 @@ export function ReceiptsScreen() {
         members={members}
         onBack={() => setView({ name: 'list' })}
         onDeleted={() => setView({ name: 'list' })}
+        onNeedSplitTable={() => setView({ name: 'split-table' })}
+      />
+    );
+  }
+
+  if (view.name === 'balance') {
+    return (
+      <BalanceDetail
+        household={household}
+        members={members}
+        currentUid={uid}
+        onBack={() => setView({ name: 'list' })}
+        onSplitTable={() => setView({ name: 'split-table' })}
+      />
+    );
+  }
+
+  if (view.name === 'split-table') {
+    return (
+      <SplitTableView
+        household={household}
+        members={members}
+        currentUid={uid}
+        onPropose={() => setView({ name: 'split-propose' })}
+        onBack={() => setView({ name: 'list' })}
+      />
+    );
+  }
+
+  if (view.name === 'split-propose') {
+    return (
+      <SplitProposeForm
+        household={household}
+        members={members}
+        currentUid={uid}
+        initial={activeSplit(splitProposals)}
+        onDone={() => setView({ name: 'split-table' })}
+        onBack={() => setView({ name: 'split-table' })}
       />
     );
   }
@@ -122,6 +173,17 @@ export function ReceiptsScreen() {
             testID="receipts-month-filter"
           />
         </View>
+      ) : null}
+
+      {segment === 'shared' ? (
+        <BalanceCard
+          household={household}
+          members={members}
+          currentUid={uid}
+          onRecordPayment={() => setView({ name: 'balance' })}
+          onDetail={() => setView({ name: 'balance' })}
+          onDefineTable={() => setView({ name: 'split-table' })}
+        />
       ) : null}
 
       {receipts.length === 0 ? (

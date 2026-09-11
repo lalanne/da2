@@ -13,6 +13,9 @@ shared place for:
 - **Receipts & invoices** — upload tuition invoices, medical receipts, etc.
   with amount/date and optional tags. Private by default; each receipt is
   explicitly shared with the co-parent when the uploader chooses.
+- **Expense splitting** — an agreed percentage table (a default plus per-tag
+  overrides, changed by propose/approve), a running balance of who owes whom
+  across shared receipts, and recorded payments the other parent confirms.
 
 ## How it works
 

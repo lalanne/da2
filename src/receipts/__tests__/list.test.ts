@@ -15,6 +15,7 @@ function r(overrides: Partial<Receipt> = {}): Receipt {
     childId: null,
     visibility: 'private',
     sharedAt: null,
+    splitPercentA: null,
     createdAt: 1,
     ...overrides,
   };

@@ -8,6 +8,7 @@ import { useCustodyStore } from '../store/custodyStore';
 import { useCustodySync } from '../hooks/useCustodySync';
 import { useEventsSync } from '../hooks/useEventsSync';
 import { useReceiptsSync } from '../hooks/useReceiptsSync';
+import { useSplitSync } from '../hooks/useSplitSync';
 import { pendingForResponder } from '../custody';
 import { CalendarTab } from './calendar/CalendarTab';
 import { EventsTab } from './events/EventsTab';
@@ -20,6 +21,7 @@ export function MainScreen() {
   useCustodySync();
   useEventsSync();
   useReceiptsSync();
+  useSplitSync();
   const uid = useAuthStore((s) => s.user?.uid);
   const proposals = useCustodyStore((s) => s.proposals);
   const [tab, setTab] = useState<Tab>('calendar');

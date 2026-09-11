@@ -53,6 +53,7 @@ function receipt(overrides: Partial<Receipt> = {}): Receipt {
     childId: null,
     visibility: 'private',
     sharedAt: null,
+    splitPercentA: null,
     createdAt: 1,
     ...overrides,
   };
@@ -93,8 +94,8 @@ describe('receiptsStore', () => {
     await store.getState().upload(file, meta);
     expect(repo.uploadReceipt).toHaveBeenCalledWith('h1', 'u1', file, meta);
 
-    await store.getState().share('r9');
-    expect(repo.shareReceipt).toHaveBeenCalledWith('h1', 'r9');
+    await store.getState().share('r9', 40);
+    expect(repo.shareReceipt).toHaveBeenCalledWith('h1', 'r9', 40);
 
     const r = receipt({ id: 'r9' });
     await store.getState().remove(r);

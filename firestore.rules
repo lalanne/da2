@@ -290,17 +290,103 @@ service cloud.firestore {
         && request.resource.data.fileType in ['image', 'pdf']
         && request.resource.data.storagePath is string;
 
-      // The ONLY legal update: flip private → shared (criterion 7).
+      // The ONLY legal update: flip private → shared, freezing the spec-010
+      // split % in the same write (criterion 7 + spec 010).
       allow update: if member()
         && resource.data.uploaderId == uid()
         && resource.data.visibility == 'private'
         && request.resource.data.visibility == 'shared'
         && request.resource.data.sharedAt != null
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visibility', 'sharedAt']);
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['visibility', 'sharedAt', 'splitPercentA'])
+        && request.resource.data.splitPercentA is number
+        && request.resource.data.splitPercentA >= 0
+        && request.resource.data.splitPercentA <= 100;
 
       allow delete: if member()
         && resource.data.uploaderId == uid()
         && resource.data.visibility == 'private';
+    }
+
+    // ---- households/{hid}/splitProposals/{proposalId} — spec 010 ----
+    // The expense-split table, agreed like custody: the newest approved
+    // proposal is the active table.
+    match /households/{hid}/splitProposals/{proposalId} {
+      function member() {
+        return signedIn() && uid() in household(hid).parentIds;
+      }
+
+      allow read: if member();
+
+      allow create: if member()
+        && request.resource.data.proposerId == uid()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.resolvedBy == null
+        && request.resource.data.defaultPercentA is number
+        && request.resource.data.defaultPercentA >= 0
+        && request.resource.data.defaultPercentA <= 100
+        && request.resource.data.overrides is map;
+
+      allow update: if member() && (resolveSplit() || cancelSplit());
+      allow delete: if false;
+
+      // Only the NON-proposing parent approves / rejects.
+      function resolveSplit() {
+        return resource.data.proposerId != uid()
+          && resource.data.status == 'pending'
+          && request.resource.data.status in ['approved', 'rejected']
+          && request.resource.data.resolvedBy == uid()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'resolvedAt', 'resolvedBy']);
+      }
+      function cancelSplit() {
+        return resource.data.proposerId == uid()
+          && resource.data.status == 'pending'
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'resolvedAt']);
+      }
+    }
+
+    // ---- households/{hid}/settlements/{settlementId} — spec 010 ----
+    // A recorded payment; pending until the OTHER parent confirms.
+    match /households/{hid}/settlements/{settlementId} {
+      function member() {
+        return signedIn() && uid() in household(hid).parentIds;
+      }
+
+      allow read: if member();
+
+      allow create: if member()
+        && request.resource.data.recordedBy == uid()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.resolvedBy == null
+        && request.resource.data.payerUid in household(hid).parentIds
+        && request.resource.data.payeeUid in household(hid).parentIds
+        && request.resource.data.payerUid != request.resource.data.payeeUid
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.currency is string;
+
+      allow update: if member() && (confirmSettlement() || cancelSettlement());
+      allow delete: if false;
+
+      // Only the parent who did NOT record it confirms / rejects.
+      function confirmSettlement() {
+        return resource.data.recordedBy != uid()
+          && resource.data.status == 'pending'
+          && request.resource.data.status in ['confirmed', 'rejected']
+          && request.resource.data.resolvedBy == uid()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'resolvedAt', 'resolvedBy']);
+      }
+      function cancelSettlement() {
+        return resource.data.recordedBy == uid()
+          && resource.data.status == 'pending'
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'resolvedAt']);
+      }
     }
 
     // Everything else is added spec-by-spec; default deny until then.

@@ -47,6 +47,7 @@ const receiptPayload = (over: Record<string, unknown> = {}) => ({
   childId: null,
   visibility: 'private',
   sharedAt: null,
+  splitPercentA: null,
   createdAt: 1,
   ...over,
 });
@@ -123,7 +124,15 @@ describe('firestore.rules — receipts metadata (spec 003)', () => {
     const id = await seedReceipt({ uploaderId: A });
     const ref = (uid: string) => doc(db(uid), 'households', HID, 'receipts', id);
 
-    await assertSucceeds(updateDoc(ref(A), { visibility: 'shared', sharedAt: 2 }));
+    // the share write must also freeze the split % (spec 010) and nothing else
+    await assertFails(updateDoc(ref(A), { visibility: 'shared', sharedAt: 2 }));
+    await assertFails(updateDoc(ref(A), { visibility: 'shared', sharedAt: 2, splitPercentA: 150 }));
+    await assertFails(
+      updateDoc(ref(A), { visibility: 'shared', sharedAt: 2, splitPercentA: 40, note: 'x' }),
+    );
+    await assertSucceeds(
+      updateDoc(ref(A), { visibility: 'shared', sharedAt: 2, splitPercentA: 40 }),
+    );
     // now shared — no further writes
     await assertFails(updateDoc(ref(A), { visibility: 'private', sharedAt: null }));
     await assertFails(updateDoc(ref(A), { amount: 99 }));

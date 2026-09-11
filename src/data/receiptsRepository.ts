@@ -49,7 +49,7 @@ export interface ReceiptsRepository {
     file: PickedFile,
     meta: NewReceiptInput,
   ): Promise<void>;
-  shareReceipt(householdId: string, receiptId: string): Promise<void>;
+  shareReceipt(householdId: string, receiptId: string, splitPercentA: number): Promise<void>;
   deleteReceipt(householdId: string, receipt: Receipt): Promise<void>;
   /** Download (once, cached) via the SDK so Storage rules apply; returns a file:// uri. */
   localFileUri(receipt: Receipt): Promise<string>;
@@ -84,6 +84,7 @@ function mapReceipt(id: string, data: Record<string, unknown>): Receipt {
     childId: (data.childId as string | null) ?? null,
     visibility: (data.visibility as ReceiptVisibility) ?? 'private',
     sharedAt: data.sharedAt != null ? toMillis(data.sharedAt) : null,
+    splitPercentA: typeof data.splitPercentA === 'number' ? data.splitPercentA : null,
     createdAt: toMillis(data.createdAt),
   };
 }
@@ -136,10 +137,11 @@ export const receiptsRepository: ReceiptsRepository = {
     });
   },
 
-  async shareReceipt(householdId, receiptId) {
+  async shareReceipt(householdId, receiptId, splitPercentA) {
     await updateDoc(doc(receiptsCollection(householdId), receiptId), {
       visibility: 'shared',
       sharedAt: serverTimestamp(),
+      splitPercentA,
     });
   },
 

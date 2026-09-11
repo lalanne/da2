@@ -39,6 +39,7 @@ const receipt: Receipt = {
   childId: 'c1',
   visibility: 'private',
   sharedAt: null,
+  splitPercentA: null,
   createdAt: 1,
 };
 

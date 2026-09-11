@@ -53,6 +53,7 @@ async function seed(receipt: Record<string, unknown> = {}) {
       childId: null,
       visibility: 'private',
       sharedAt: null,
+      splitPercentA: null,
       createdAt: 1,
       ...receipt,
     });

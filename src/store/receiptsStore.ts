@@ -20,7 +20,7 @@ interface ReceiptsState {
   start: (householdId: string, uid: string) => void;
   stop: () => void;
   upload: (file: PickedFile, meta: NewReceiptInput) => Promise<boolean>;
-  share: (receiptId: string) => Promise<boolean>;
+  share: (receiptId: string, splitPercentA: number) => Promise<boolean>;
   remove: (receipt: Receipt) => Promise<boolean>;
   /** Download (once, cached) via the SDK; returns a file:// uri or null on failure. */
   fileUri: (receipt: Receipt) => Promise<string | null>;
@@ -114,10 +114,13 @@ export function createReceiptsStore(repo: ReceiptsRepository) {
         );
       },
 
-      share: (receiptId) => {
+      share: (receiptId, splitPercentA) => {
         if (!householdId) return Promise.resolve(false);
         const hid = householdId;
-        return run(() => repo.shareReceipt(hid, receiptId), strings.receipts.errors.shareFailed);
+        return run(
+          () => repo.shareReceipt(hid, receiptId, splitPercentA),
+          strings.receipts.errors.shareFailed,
+        );
       },
 
       remove: (receipt) => {

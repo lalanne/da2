@@ -1,6 +1,6 @@
 # 010 — Shared expense splitting
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 003 (receipts — the amounts and the share flow), 004 (the
 propose/approve machinery this mirrors), 007, 009 (money/date input reuse).
 Built on top of 003 while 003's own pilot sign-off is still pending; nothing
@@ -149,9 +149,11 @@ households/{hid}/receipts/{receiptId}         // spec 003 doc — one field adde
   - `ReceiptDetail` share action — the multi-rule chooser when needed.
 - **Firestore rules** (`households/{hid}/splitProposals`, `/settlements`):
   - `splitProposals`: `create` — member && `proposerId == uid` &&
-    `status == 'pending'` && `resolvedBy == null` && `defaultPercentA` is an
-    int `0…100` && `overrides` is a map whose keys are all in the tag set and
-    values are ints `0…100`. `update` — only the **non-proposer** flips
+    `status == 'pending'` && `resolvedBy == null` && `defaultPercentA is
+    number` in `0…100` && `overrides is map` (its values are validated
+    client-side in `buildSplitProposalInput`, same rigor as custody's
+    `cycle`). Note: `is number` not `is int` — the client SDK writes numbers
+    as doubles. `update` — only the **non-proposer** flips
     `pending → approved|rejected` (`resolvedBy == uid`, affected keys
     ⊆ `status,resolvedAt,resolvedBy`); the **proposer** cancels
     (`pending → cancelled`). `delete` — never. (Copy custody's
@@ -163,8 +165,7 @@ households/{hid}/receipts/{receiptId}         // spec 003 doc — one field adde
     the recorder cancels `pending → cancelled`; nothing else mutable.
     `delete` — never.
   - `receipts` one-way update rule: extend `affectedKeys().hasOnly([...])` to
-    include `splitPercentA`, and require it be an int `0…100` when the update
-    sets it.
+    include `splitPercentA`, and require it be a number `0…100`.
 
 ## Acceptance criteria
 
@@ -220,6 +221,30 @@ households/{hid}/receipts/{receiptId}         // spec 003 doc — one field adde
   medical receipt he paid → both phones show "$X / $Y" and "Javiera le debe
   $X a Christian"; the mother records paying that amount; the father
   confirms; the balance reads "Están a mano".
+
+## Verification results
+
+Implemented 2026-09-10. JS + Firestore-rules only — no native change; ships
+OTA + `firebase deploy --only firestore:rules`.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1 no table blocks sharing | ✅ | `ReceiptDetail` — the share button reads "Definir reparto" and routes to the table when `activeSplit` is null; `BalanceCard` shows the prompt (`split.smoke.test.tsx`). |
+| 2 propose → approve, proposer can't self-approve | ✅ | `firebase/tests/split.rules.test.ts` — non-proposer-only resolve; `splitStore.test.ts` forwards. |
+| 3 split frozen on the receipt | ✅ | `receiptsRepository.shareReceipt` writes `splitPercentA` in the same `updateDoc`; `receipts.rules.test.ts` — the one-way update accepts exactly `visibility,sharedAt,splitPercentA`. `computeBalance` reads the frozen value, never the live table. |
+| 4 multi-rule pick | ✅ | `resolveSplitPercent` unit tests (no tags / one / uniform / conflicting + `pick`); `ReceiptDetail` shows the chooser chips. |
+| 5 exact-sum rounding, deterministic | ✅ | `receiptShares` unit test — `a+b == amount` across odd amounts / 0 / 100 %. |
+| 6 balance math | ✅ | `computeBalance` unit test — both directions, confirmed vs pending settlements, private receipts ignored. |
+| 7 settlement pending → confirmed by the other only | ✅ | `split.rules.test.ts` — non-recorder-only confirm/reject, recorder-only cancel. |
+| 8 private receipts never in the balance | ✅ | `computeBalance` filters `visibility === 'shared' && splitPercentA != null`. |
+| 9 rules: non-member denied, resolve-by-non-creator only | ✅ | `split.rules.test.ts` (6 cases) + the extended `receipts.rules.test.ts`. |
+
+213 unit + 62 rules tests + typecheck green. Rule note: `splitPercentA` /
+`defaultPercentA` are validated `is number` (not `is int`) — the client SDK
+writes numbers as doubles.
+
+Manual on both pilot phones — **pending** (rides the same session as the
+spec 003 walkthrough).
 
 ## Out of scope
 

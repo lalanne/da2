@@ -35,6 +35,8 @@ export interface Receipt {
   childId: string | null;
   visibility: ReceiptVisibility;
   sharedAt: number | null;
+  /** `parentIds[0]`'s % of this receipt, frozen when it was shared (spec 010). */
+  splitPercentA: number | null;
   createdAt: number;
 }
 

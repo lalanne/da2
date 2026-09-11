@@ -353,4 +353,86 @@ export const strings = {
       resolveFailed: 'No se pudo completar. Inténtalo de nuevo.',
     },
   },
+
+  // Spec 010 — expense splitting.
+  split: {
+    balance: {
+      settled: 'Están a mano',
+      owes: (debtor: string, amount: string) => `${debtor} te debe ${amount}`,
+      youOwe: (creditor: string, amount: string) => `Le debes ${amount} a ${creditor}`,
+      recordPayment: 'Registrar pago',
+      seeDetail: 'Ver detalle',
+      needsTable: 'Primero define el reparto de gastos.',
+      defineTable: 'Definir reparto',
+    },
+    detail: {
+      title: 'Balance',
+      paidBy: (name: string) => `pagó ${name}`,
+      paidByYou: 'pagaste tú',
+      yourShare: (amount: string) => `tu parte ${amount}`,
+      theirShare: (name: string, amount: string) => `${name} ${amount}`,
+      settlementsHeading: 'Pagos entre ustedes',
+      noSettlements: 'Aún no hay pagos registrados.',
+      empty: 'Todavía no hay recibos compartidos.',
+    },
+    settlement: {
+      pending: 'Pendiente de confirmar',
+      confirmed: 'Confirmado',
+      rejected: 'Rechazado',
+      confirm: 'Confirmar',
+      reject: 'Rechazar',
+      cancel: 'Cancelar',
+      recordedByYou: 'Registrado por ti',
+      line: (payer: string, payee: string, amount: string) => `${payer} → ${payee}: ${amount}`,
+      form: {
+        title: 'Registrar un pago',
+        iPaid: 'Yo pagué',
+        theyPaid: (name: string) => `Me pagó ${name}`,
+        amountLabel: 'Monto',
+        noteLabel: 'Nota (opcional)',
+        submit: 'Registrar',
+      },
+    },
+    table: {
+      title: 'Reparto de gastos',
+      byDefault: 'Por defecto',
+      usesDefault: 'por defecto',
+      activeSince: (dateLabel: string, approver: string) =>
+        `Vigente desde el ${dateLabel} · aprobado por ${approver}`,
+      notSet: 'Aún no acuerdan un reparto. Propón uno para empezar a compartir gastos.',
+      propose: 'Proponer un cambio',
+      proposeFirst: 'Proponer un reparto',
+    },
+    propose: {
+      title: 'Proponer un reparto',
+      subtitle: (approver: string) =>
+        `Ajusta el % en pasos de 5; ${approver} tendrá que aprobar el cambio.`,
+      addRule: 'Añadir regla',
+      removeRule: 'Quitar',
+      submit: (approver: string) => `Enviar propuesta a ${approver}`,
+    },
+    pendingBanner: {
+      forResponder: (proposer: string) => `${proposer} propone un cambio al reparto de gastos.`,
+      forProposer: 'Esperando que la otra persona apruebe tu propuesta de reparto.',
+      approve: 'Aprobar',
+      reject: 'Rechazar',
+      cancel: 'Cancelar propuesta',
+    },
+    share: {
+      chooseRule: '¿Qué regla de reparto aplica a este recibo?',
+      rule: (tagLabel: string, a: number, b: number) => `${tagLabel} — ${a}% / ${b}%`,
+    },
+    receiptRow: {
+      heading: 'Reparto',
+      you: (amount: string, pct: number) => `Tú ${amount} (${pct}%)`,
+      other: (name: string, amount: string, pct: number) => `${name} ${amount} (${pct}%)`,
+    },
+    errors: {
+      badPercent: 'El porcentaje debe estar entre 0 y 100.',
+      badAmount: 'Ingresa un monto válido.',
+      proposeFailed: 'No se pudo enviar la propuesta. Inténtalo de nuevo.',
+      resolveFailed: 'No se pudo completar. Inténtalo de nuevo.',
+      settlementFailed: 'No se pudo registrar el pago. Inténtalo de nuevo.',
+    },
+  },
 } as const;
