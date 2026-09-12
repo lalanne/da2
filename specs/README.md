@@ -22,7 +22,7 @@ This project is built spec-first. Rules:
 | 008 | [Push notifications](008-push-notifications.md) | draft |
 | 009 | [Date & time input](009-date-time-input.md) | implemented |
 | 010 | [Shared expense splitting](010-expense-splitting.md) | implemented |
-| 011 | [Web platform](011-web-platform.md) | draft |
+| 011 | [Web platform](011-web-platform.md) | implemented |
 | 012 | Responsive web layout (not yet drafted — follows 011) | — |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.

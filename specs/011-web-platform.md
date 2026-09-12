@@ -1,6 +1,6 @@
 # 011 — Web platform
 
-**Status:** draft
+**Status:** implemented
 **Depends on:** 001 (the auth-provider abstraction this reuses), 006
 (deployment pattern). **Touches:** every data-layer file across 002–005 and
 010 — no product screen changes.
@@ -185,6 +185,39 @@ the web app is a second client of the identical backend.
   criteria above end-to-end against the live `da2-coparenting` project;
   cross-check real-time sync against a phone running the current build.
 - **Regression:** `npm test` + `npm run typecheck` stay green (criterion 6).
+
+## Verification results
+
+Implemented 2026-09-12. Live at <https://da2-coparenting.web.app>.
+
+| Criterion | Result | Evidence |
+|-----------|--------|----------|
+| 1–4 (sign-in, feature parity, receipt files, real-time cross-platform sync) | ⏳ | Deployed; **pending a manual pass signed in as each parent** — see below. |
+| 5 no rules/data-model change, no native dependency added | ✅ | `firestore.rules` / `storage.rules` untouched; `firebase` web SDK was already a dependency — only `react-native-web` + `react-dom` added (`expo install`), both web-only, never bundled into the native app. |
+| 6 `npm test` / `npm run typecheck` stay green | ✅ | 213 unit tests + typecheck pass unchanged; jest-expo resolves the native `*.ts` files, never the `*.web.ts` twins. |
+
+**What shipped:**
+- `src/data/firebaseWebApp.ts` — the web `FirebaseApp` singleton, reading the
+  new `EXPO_PUBLIC_FIREBASE_*` env vars.
+- 7 `*.web.ts` twins (`googleAuthProvider`, `household`/`custody`/`events`/
+  `receipts`/`split`/`userProfile` repositories) — same interface as the
+  native file in each pair, `firebase` web SDK instead of
+  `@react-native-firebase/*`. Confirmed by grepping the exported web bundle:
+  zero references to `react-native-firebase` / `google-signin`.
+- `googleAuthProvider.web.ts`: `signInWithPopup` + `browserLocalPersistence`.
+- `receiptsRepository.web.ts`: upload reads the picker's `blob:` URI via
+  `fetch().blob()` then `uploadBytes`; display returns `getDownloadURL()`
+  directly (no local-file cache step). `ReceiptDetail`'s "Abrir PDF" branches
+  on `Platform.OS === 'web'` to `window.open` instead of `expo-sharing`.
+- Registered the Firebase Web App (`firebase apps:create WEB`), `firebase.json`
+  `hosting` block (`dist`, SPA rewrite), deployed via
+  `expo export -p web` + `firebase deploy --only hosting`.
+- Spec 006 gained "Path C — Web".
+
+**Manual verification — pending:** sign in as each parent in a separate
+browser profile and run the full criteria-2 list (propose/approve custody,
+kid events, receipts upload/share, split propose/approve, settlements),
+cross-checked against a phone for real-time sync.
 
 ## Out of scope
 

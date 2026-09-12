@@ -28,10 +28,10 @@ acceptance criteria pass on these phones.
   produces an install link; mother taps the link to install/update. No Play
   Console until public launch.
 
-## Two deployment paths
+## Three deployment paths
 
 Most changes are JS/TS-only and take minutes; only native changes need new
-binaries.
+binaries. Spec 011 adds a third, independent path for the web build.
 
 ### Path A — OTA update (JS/TS-only changes: most specs and bug fixes)
 
@@ -66,6 +66,28 @@ eas submit --platform ios          # → TestFlight (beta review ~1 day)
 
 After a native release, OTA updates target the new `expo.version` — phones on
 the old binary stop receiving OTAs until they install the new build.
+
+### Path C — Web (spec 011)
+
+A wholly separate export/deploy, not an EAS build — no `eas.json` profile,
+no app-store review, redeploy = the update (no OTA / relaunch dance).
+
+```
+npx expo export -p web
+npx firebase deploy --only hosting --project da2-coparenting
+```
+
+Needs `.env` populated with the `EXPO_PUBLIC_FIREBASE_*` vars (the web app's
+Firebase config — not a secret, but kept out of git like
+`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` for consistency). Regenerate them any time
+with:
+
+```
+npx firebase apps:sdkconfig WEB 1:256625123188:web:2564e016dc359420acd621 --project da2-coparenting
+```
+
+Live at <https://da2-coparenting.web.app>. Same Firestore/Storage rules,
+same backend — deploying web never needs a rules deploy on its own.
 
 ### Choosing the path
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Platform, StyleSheet, View } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { theme } from '../../theme';
 import { Banner, Button, Card, Chip, Screen, Text } from '../../components';
@@ -134,7 +134,13 @@ export function ReceiptDetail({
         ) : receipt.fileType === 'image' ? (
           <Image source={{ uri }} style={styles.image} resizeMode="contain" />
         ) : (
-          <Button title={d.openPdf} onPress={() => void Sharing.shareAsync(uri)} testID="open-pdf" />
+          <Button
+            title={d.openPdf}
+            onPress={() =>
+              void (Platform.OS === 'web' ? window.open(uri, '_blank') : Sharing.shareAsync(uri))
+            }
+            testID="open-pdf"
+          />
         )}
       </View>
 
