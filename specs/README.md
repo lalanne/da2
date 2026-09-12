@@ -22,6 +22,8 @@ This project is built spec-first. Rules:
 | 008 | [Push notifications](008-push-notifications.md) | draft |
 | 009 | [Date & time input](009-date-time-input.md) | implemented |
 | 010 | [Shared expense splitting](010-expense-splitting.md) | implemented |
+| 011 | [Web platform](011-web-platform.md) | draft |
+| 012 | Responsive web layout (not yet drafted — follows 011) | — |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -46,6 +48,13 @@ The number is *mostly* the build order, with two deliberate exceptions:
 - **010 (expense splitting)** builds on 003 (receipts) and reuses 004's
   propose/approve machinery. It pulls "splitting math / balances /
   settlement" from `000`'s v1 *out* column into scope.
+- **011 (web platform) + 012 (responsive web layout)** move web ahead of the
+  public launch (`000`'s original order was Android → iOS → web), at the
+  pilot's request, with full feature parity as the goal. 011 is
+  infrastructure only — the same mobile UI running in a browser via the
+  `firebase` web SDK, no rules or data changes. 012 (not yet drafted) is the
+  desktop redesign layered on top once 011 is verified.
 
 So the working order is: **001 → 002 → 007 → 004 → 005 → 003 → 008**, with 006
-running throughout.
+running throughout and 011/012 following once the mobile pilot's core specs
+are settled.

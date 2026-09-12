@@ -21,7 +21,9 @@ linked into one shared household via invite code.
   mother's Android phone and the father's iPhone (TestFlight) — with one real
   household of 3 children. See spec 006 for the deployment pipeline.
 - **Public launch: Android first** (Google Play), then iOS App Store, then
-  web — all from the same codebase.
+  web — all from the same codebase. Web moved up to spec 011 (platform) +
+  012 (responsive layout), ahead of the public launch, at the pilot's
+  request.
 - Framework: **Expo (React Native) + TypeScript**; EAS Build/Submit/Update
   for delivery.
 

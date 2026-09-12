@@ -32,7 +32,7 @@ languages can be added later.
 
 | Layer | Choice |
 |-------|--------|
-| App | Expo (React Native) + TypeScript — pilot on Android + iOS (TestFlight); public launch Android first, then iOS and web, same codebase |
+| App | Expo (React Native) + TypeScript — pilot on Android + iOS (TestFlight); web moved up (spec 011 platform + 012 layout, full feature parity), same codebase; public launch Android first, then iOS |
 | Auth | Firebase Auth (Google Sign-In; Sign in with Apple before iOS launch) |
 | Data | Cloud Firestore (real-time sync between parents) |
 | Files | Firebase Storage (receipt images/PDFs) |
