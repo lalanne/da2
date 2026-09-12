@@ -214,6 +214,16 @@ Implemented 2026-09-12. Live at <https://da2-coparenting.web.app>.
   `expo export -p web` + `firebase deploy --only hosting`.
 - Spec 006 gained "Path C — Web".
 
+**Bug found on first deploy, fixed same day:** the page loaded blank.
+`firebaseWebApp.ts` read the env vars through a `requireEnv(name) →
+process.env[name]` helper — a dynamic property access Expo's babel plugin
+can't statically inline, so every `EXPO_PUBLIC_FIREBASE_*` value came back
+`undefined` in the browser and `initializeApp()` threw at startup with
+nothing to catch it. Fixed by writing each `process.env.EXPO_PUBLIC_X` as a
+literal expression at the call site; confirmed by grepping the rebuilt
+bundle for the actual `apiKey` value (present after the fix, absent before).
+Rebuilt + redeployed.
+
 **Manual verification — pending:** sign in as each parent in a separate
 browser profile and run the full criteria-2 list (propose/approve custody,
 kid events, receipts upload/share, split propose/approve, settlements),
