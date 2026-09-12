@@ -14,7 +14,11 @@
     { "file": "HoraLista.dc.html", "x": 500, "y": 4360, "w": 390, "h": 660, "title": "Selector de hora" },
     { "file": "BalanceCifra.dc.html", "x": 0, "y": 5320, "w": 390, "h": 640, "title": "Balance (Compartidos)" },
     { "file": "SplitTabla.dc.html", "x": 500, "y": 5320, "w": 390, "h": 720, "title": "Reparto — tabla" },
-    { "file": "SplitEditPaso.dc.html", "x": 1000, "y": 5320, "w": 390, "h": 720, "title": "Reparto — proponer cambio" }
+    { "file": "SplitEditPaso.dc.html", "x": 1000, "y": 5320, "w": 390, "h": 720, "title": "Reparto — proponer cambio" },
+    { "file": "WebADocumento.dc.html", "x": 0, "y": 6180, "w": 1280, "h": 832, "title": "Web — A documento" },
+    { "file": "WebBBarraLateral.dc.html", "x": 1360, "y": 6180, "w": 1280, "h": 832, "title": "Web — B barra lateral" },
+    { "file": "WebCPanel.dc.html", "x": 2720, "y": 6180, "w": 1280, "h": 832, "title": "Web — C panel (calendario)" },
+    { "file": "WebCRecibos.dc.html", "x": 4080, "y": 6180, "w": 1280, "h": 832, "title": "Web — C panel (recibos, maestro-detalle)" }
   ],
   "annotations": [
     { "id": "flow-note", "x": 0, "y": -110, "w": 890, "text": "Flujo de alta — spec 001 (auth) + 002 (hogar), re-skinned. Tono: neutral y tranquilo, terreno común para dos hogares." },
@@ -22,7 +26,8 @@
     { "id": "recibos-note", "x": 0, "y": 2860, "w": 890, "text": "Recibos — spec 003. Etiquetas múltiples de un conjunto fijo (nada preseleccionado al subir); sin etiquetas = «Sin categoría». Filas de filtro = primitiva FilterTabs nueva (spec 007): pestañas con subrayado acento en la activa, sin cajas. Los chips (primitiva Chip) quedan para el multi-select al subir y para mostrar etiquetas en el detalle." },
     { "id": "fecha-note", "x": 0, "y": 4240, "w": 890, "text": "Spec 009 — selectores de fecha y hora. Reemplazan el texto libre AAAA-MM-DD / HH:MM en 002 (nacimiento), 003 (gasto), 004 (fechas ancla) y 005 (evento + hora). Puras JS, reutilizan src/custody/dates.ts y el MonthGrid — sin dependencia nativa, se despliega OTA. FECHA: calendario en popover anclado al campo. HORA: hoja inferior con lista en pasos de 15 min. Ambos: un toque elige y cierra." },
     { "id": "cal-color-note", "x": 500, "y": 1130, "w": 390, "text": "Color elegido (spec 004, 2026-09-10): rosa suave para mamá, azul suave para papá. Tokens parentA/parentB en src/theme; el emblema de marca ahora tiene sus propios tokens." },
-    { "id": "split-note", "x": 0, "y": 5200, "w": 1390, "text": "Spec 010 (aprobado 2026-09-10) — reparto de gastos. BALANCE arriba de «Compartidos»: neto grande + «Registrar pago» / «Ver detalle». REPARTO: tabla de % (por defecto + overrides por etiqueta), se acuerda con propuesta→aprobación como en custodia; se edita con pasos +/− de 5 en 5 (JS puro). Un pago registrado queda pendiente hasta que la otra persona lo confirma. Javiera = rosa, Christian = azul." }
+    { "id": "split-note", "x": 0, "y": 5200, "w": 1390, "text": "Spec 010 (aprobado 2026-09-10) — reparto de gastos. BALANCE arriba de «Compartidos»: neto grande + «Registrar pago» / «Ver detalle». REPARTO: tabla de % (por defecto + overrides por etiqueta), se acuerda con propuesta→aprobación como en custodia; se edita con pasos +/− de 5 en 5 (JS puro). Un pago registrado queda pendiente hasta que la otra persona lo confirma. Javiera = rosa, Christian = azul." },
+    { "id": "web-note", "x": 0, "y": 6060, "w": 1280, "text": "Spec 012 (propuesta) — la app web hoy es el layout móvil sin escalar, gigante en pantalla ancha. A DOCUMENTO: sin barra lateral, pestañas arriba, columna angosta centrada — el cambio más chico, cada pantalla existente sirve tal cual. B BARRA LATERAL: navegación fija a la izquierda (patrón de escritorio) pero el contenido de cada pantalla sigue centrado y angosto — no hace falta rediseñar el interior de las pantallas. C PANEL: barra lateral + el ancho extra se usa de verdad — calendario grande con una columna lateral (cambio propuesto, próximos eventos, balance) y recibos como lista + detalle uno al lado del otro en vez de navegar. C es el más «app de escritorio», pero implica rehacer cómo Recibos/Calendario manejan su estado (lista+detalle a la vez, no una pantalla que reemplaza a la otra)." }
   ],
   "launch": { "view": "canvas" }
 }

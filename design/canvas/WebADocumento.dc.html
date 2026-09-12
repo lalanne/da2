@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .d { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #2A2926; }
+    .mom { background: #F4E3E8; color: #A96079; }
+    .dad { background: #E4EDF3; color: #46617E; }
+    .out { color: #C4BEB2; }
+    .today { box-shadow: inset 0 0 0 2px #46617E; font-weight: 600; }
+  </style>
+</helmet>
+<div style="width: 1280px; min-height: 832px; background: #F1EFEC; box-sizing: border-box; display: flex; flex-direction: column;">
+
+  <div style="height: 56px; background: #FBFAF8; border-bottom: 1px solid #E4E0DA; display: flex; align-items: center; justify-content: center; position: relative;">
+    <span style="position: absolute; left: 24px; font-size: 14px; font-weight: 700; letter-spacing: 2px; color: #767268;">DA2</span>
+    <div style="display: flex; gap: 28px;">
+      <span style="font-size: 14px; font-weight: 600; color: #46617E; border-bottom: 2px solid #46617E; padding-bottom: 17px; margin-bottom: -18px;">Calendario</span>
+      <span style="font-size: 14px; color: #6C6960;">Eventos</span>
+      <span style="font-size: 14px; color: #6C6960;">Recibos</span>
+      <span style="font-size: 14px; color: #6C6960;">Hogar</span>
+    </div>
+    <span style="position: absolute; right: 24px; font-size: 13px; color: #767268;">Javiera · Cerrar sesión</span>
+  </div>
+
+  <div style="flex: 1; display: flex; justify-content: center; padding: 40px 24px;">
+    <div style="width: 560px; display: flex; flex-direction: column; gap: 20px;">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #2A2926;">Calendario de custodia</h1>
+
+      <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 20px; color: #6C6960; cursor: pointer;">‹</span>
+          <div style="font-size: 16px; font-weight: 600; color: #2A2926;">Septiembre 2026</div>
+          <span style="font-size: 20px; color: #6C6960; cursor: pointer;">›</span>
+        </div>
+        <div class="grid" style="font-size: 12px; font-weight: 600; color: #767268; text-align: center;">
+          <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+        </div>
+        <div class="grid">
+          <div class="d out">31</div>
+          <div class="d mom">1</div><div class="d mom">2</div><div class="d mom">3</div><div class="d mom">4</div><div class="d mom">5</div><div class="d mom">6</div>
+          <div class="d mom">7</div><div class="d dad">8</div><div class="d dad">9</div><div class="d dad today">10</div><div class="d dad">11</div><div class="d dad">12</div><div class="d dad">13</div>
+          <div class="d dad">14</div><div class="d mom">15</div><div class="d mom">16</div><div class="d mom">17</div><div class="d mom">18</div><div class="d mom">19</div><div class="d mom">20</div>
+          <div class="d mom">21</div><div class="d dad">22</div><div class="d dad">23</div><div class="d dad">24</div><div class="d dad">25</div><div class="d dad">26</div><div class="d dad">27</div>
+          <div class="d dad">28</div><div class="d mom">29</div><div class="d mom">30</div><div class="d out">1</div><div class="d out">2</div><div class="d out">3</div><div class="d out">4</div>
+        </div>
+        <div style="display: flex; gap: 16px; padding-top: 2px;">
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 12px; height: 12px; border-radius: 4px; background: #F4E3E8; border: 1px solid #A96079;"></span> Con Javiera</div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 12px; height: 12px; border-radius: 4px; background: #E4EDF3; border: 1px solid #46617E;"></span> Con Christian</div>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13px; font-weight: 600; color: #785A24;">CAMBIO PROPUESTO</div>
+        <div style="font-size: 15px; color: #2A2926; line-height: 22px;">Sábado 12 de septiembre pasa a estar <strong>con Christian</strong>.</div>
+        <div style="display: flex; gap: 8px;">
+          <button style="flex: 1; height: 40px; border: none; border-radius: 10px; background: #46617E; color: #FFFFFF; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;">Aprobar</button>
+          <button style="flex: 1; height: 40px; border: 1px solid #E4E0DA; border-radius: 10px; background: #FFFFFF; color: #9E4430; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;">Rechazar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin: 0; padding: 0 24px 20px; font-size: 12px; color: #767268; text-align: center;">Opción A — «Documento»: sin barra lateral, pestañas arriba, todo el contenido en una columna angosta centrada. Cambio mínimo — cada pantalla existente cabe tal cual, solo se limita el ancho.</p>
+
+</div>
+</x-dc>
+</body>
+</html>

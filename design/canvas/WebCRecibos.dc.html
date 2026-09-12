@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+    .nav { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 10px; font-size: 14px; }
+    .navicon { width: 20px; height: 20px; flex-shrink: 0; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; cursor: pointer; }
+    .rowsel { background: #ECF1F5; }
+  </style>
+</helmet>
+<div style="width: 1280px; min-height: 832px; background: #F1EFEC; box-sizing: border-box; display: flex;">
+
+  <div style="width: 232px; flex-shrink: 0; background: #FBFAF8; border-right: 1px solid #E4E0DA; display: flex; flex-direction: column; padding: 20px 12px;">
+    <div style="font-size: 14px; font-weight: 700; letter-spacing: 2px; color: #767268; padding: 8px 12px 24px;">DA2</div>
+    <div class="nav" style="color: #6C6960;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="#6C6960" stroke-width="1.5"/><path d="M3 8h14M6.5 2.5v3M13.5 2.5v3" stroke="#6C6960" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Calendario
+    </div>
+    <div class="nav" style="color: #6C6960;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#6C6960" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="#6C6960" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Eventos
+    </div>
+    <div class="nav" style="background: #ECF1F5; color: #46617E; font-weight: 600;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><path d="M5 3h7l3 3v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="#46617E" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 10h6M7 13h6" stroke="#46617E" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Recibos
+    </div>
+    <div class="nav" style="color: #6C6960;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><path d="M3 10 10 4l7 6" stroke="#6C6960" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9v7a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="#6C6960" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      Hogar
+    </div>
+    <div style="flex: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-top: 1px solid #E4E0DA;">
+      <span style="width: 28px; height: 28px; border-radius: 999px; background: #ECF1F5; color: #46617E; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;">J</span>
+      <span style="font-size: 13px; color: #2A2926;">Javiera</span>
+    </div>
+  </div>
+
+  <div style="width: 380px; flex-shrink: 0; border-right: 1px solid #E4E0DA; background: #FBFAF8; display: flex; flex-direction: column; padding: 28px 20px; gap: 16px; overflow: hidden;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #2A2926;">Recibos</h1>
+      <button style="height: 34px; padding: 0 14px; border: none; border-radius: 9px; background: #46617E; color: #FFFFFF; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;">＋ Agregar</button>
+    </div>
+    <div style="display: flex; gap: 16px; font-size: 13px; font-weight: 600;">
+      <span style="color: #6C6960;">Mis recibos</span>
+      <span style="color: #46617E; border-bottom: 2px solid #46617E; padding-bottom: 4px;">Compartidos</span>
+    </div>
+    <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 14px; overflow: hidden;">
+      <div class="row rowsel">
+        <div><div style="font-size: 15px; font-weight: 600; color: #2A2926;">$182.000</div><div style="font-size: 12px; color: #6C6960;">10 sep · Matrícula</div></div>
+        <span style="font-size: 11px; font-weight: 600; color: #3F6B52;">Compartido</span>
+      </div>
+      <div style="height: 1px; background: #EFECE6;"></div>
+      <div class="row">
+        <div><div style="font-size: 15px; font-weight: 600; color: #2A2926;">$24.500</div><div style="font-size: 12px; color: #6C6960;">8 sep · Médico</div></div>
+        <span style="font-size: 11px; font-weight: 600; color: #3F6B52;">Compartido</span>
+      </div>
+      <div style="height: 1px; background: #EFECE6;"></div>
+      <div class="row">
+        <div><div style="font-size: 15px; font-weight: 600; color: #2A2926;">$9.990</div><div style="font-size: 12px; color: #6C6960;">3 sep · Sin categoría</div></div>
+        <span style="font-size: 11px; font-weight: 600; color: #3F6B52;">Compartido</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; padding: 36px 40px; display: flex; justify-content: center;">
+    <div style="width: 420px; display: flex; flex-direction: column; gap: 20px;">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 600; color: #2A2926;">$182.000</h2>
+      <div style="width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; background: #F1EFEC; border: 1px solid #E4E0DA; display: flex; align-items: center; justify-content: center;">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="6" width="28" height="28" rx="4" stroke="#B7B1A5" stroke-width="1.6"/><path d="M11 27l7-8 5 6 4-5 4 5" stroke="#B7B1A5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="15" r="2.4" fill="#B7B1A5"/></svg>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 12px; color: #6C6960;">Etiquetas</span><span style="padding: 6px 12px; align-self: flex-start; border-radius: 999px; background: #ECF1F5; color: #46617E; font-size: 13px; font-weight: 600;">Matrícula</span></div>
+        <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 12px; color: #6C6960;">Fecha del gasto</span><span style="font-size: 15px; color: #2A2926;">2026-09-10</span></div>
+        <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 12px; color: #6C6960;">Reparto</span><span style="font-size: 15px; color: #2A2926;">Tú $72.800 (40%) · Christian $109.200 (60%)</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif; }
+    a { color: #46617E; } a:hover { color: #33485F; }
+    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .d { aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #2A2926; }
+    .mom { background: #F4E3E8; color: #A96079; }
+    .dad { background: #E4EDF3; color: #46617E; }
+    .out { color: #C4BEB2; }
+    .today { box-shadow: inset 0 0 0 2px #46617E; font-weight: 600; }
+    .nav { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 10px; font-size: 14px; }
+    .navicon { width: 20px; height: 20px; flex-shrink: 0; }
+  </style>
+</helmet>
+<div style="width: 1280px; min-height: 832px; background: #F1EFEC; box-sizing: border-box; display: flex;">
+
+  <div style="width: 232px; flex-shrink: 0; background: #FBFAF8; border-right: 1px solid #E4E0DA; display: flex; flex-direction: column; padding: 20px 12px;">
+    <div style="font-size: 14px; font-weight: 700; letter-spacing: 2px; color: #767268; padding: 8px 12px 24px;">DA2</div>
+
+    <div class="nav" style="background: #ECF1F5; color: #46617E; font-weight: 600;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="#46617E" stroke-width="1.5"/><path d="M3 8h14M6.5 2.5v3M13.5 2.5v3" stroke="#46617E" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Calendario
+    </div>
+    <div class="nav" style="color: #6C6960;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#6C6960" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="#6C6960" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Eventos
+    </div>
+    <div class="nav" style="color: #6C6960;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><path d="M5 3h7l3 3v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="#6C6960" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 10h6M7 13h6" stroke="#6C6960" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Recibos
+    </div>
+    <div class="nav" style="color: #6C6960;">
+      <svg class="navicon" viewBox="0 0 20 20" fill="none"><path d="M3 10 10 4l7 6" stroke="#6C6960" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9v7a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="#6C6960" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      Hogar
+    </div>
+
+    <div style="flex: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-top: 1px solid #E4E0DA;">
+      <span style="width: 28px; height: 28px; border-radius: 999px; background: #ECF1F5; color: #46617E; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;">J</span>
+      <span style="font-size: 13px; color: #2A2926;">Javiera</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; justify-content: center; padding: 40px 24px; overflow: auto;">
+    <div style="width: 620px; display: flex; flex-direction: column; gap: 20px;">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #2A2926;">Calendario de custodia</h1>
+
+      <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 20px; color: #6C6960; cursor: pointer;">‹</span>
+          <div style="font-size: 16px; font-weight: 600; color: #2A2926;">Septiembre 2026</div>
+          <span style="font-size: 20px; color: #6C6960; cursor: pointer;">›</span>
+        </div>
+        <div class="grid" style="font-size: 12px; font-weight: 600; color: #767268; text-align: center;">
+          <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+        </div>
+        <div class="grid">
+          <div class="d out">31</div>
+          <div class="d mom">1</div><div class="d mom">2</div><div class="d mom">3</div><div class="d mom">4</div><div class="d mom">5</div><div class="d mom">6</div>
+          <div class="d mom">7</div><div class="d dad">8</div><div class="d dad">9</div><div class="d dad today">10</div><div class="d dad">11</div><div class="d dad">12</div><div class="d dad">13</div>
+          <div class="d dad">14</div><div class="d mom">15</div><div class="d mom">16</div><div class="d mom">17</div><div class="d mom">18</div><div class="d mom">19</div><div class="d mom">20</div>
+          <div class="d mom">21</div><div class="d dad">22</div><div class="d dad">23</div><div class="d dad">24</div><div class="d dad">25</div><div class="d dad">26</div><div class="d dad">27</div>
+          <div class="d dad">28</div><div class="d mom">29</div><div class="d mom">30</div><div class="d out">1</div><div class="d out">2</div><div class="d out">3</div><div class="d out">4</div>
+        </div>
+        <div style="display: flex; gap: 16px; padding-top: 2px;">
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 12px; height: 12px; border-radius: 4px; background: #F4E3E8; border: 1px solid #A96079;"></span> Con Javiera</div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6C6960;"><span style="width: 12px; height: 12px; border-radius: 4px; background: #E4EDF3; border: 1px solid #46617E;"></span> Con Christian</div>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E4E0DA; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 13px; font-weight: 600; color: #785A24;">CAMBIO PROPUESTO</div>
+        <div style="font-size: 15px; color: #2A2926; line-height: 22px;">Sábado 12 de septiembre pasa a estar <strong>con Christian</strong>.</div>
+        <div style="display: flex; gap: 8px;">
+          <button style="flex: 1; height: 40px; border: none; border-radius: 10px; background: #46617E; color: #FFFFFF; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;">Aprobar</button>
+          <button style="flex: 1; height: 40px; border: 1px solid #E4E0DA; border-radius: 10px; background: #FFFFFF; color: #9E4430; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;">Rechazar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
