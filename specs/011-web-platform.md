@@ -224,10 +224,12 @@ literal expression at the call site; confirmed by grepping the rebuilt
 bundle for the actual `apiKey` value (present after the fix, absent before).
 Rebuilt + redeployed.
 
-**Manual verification — pending:** sign in as each parent in a separate
-browser profile and run the full criteria-2 list (propose/approve custody,
-kid events, receipts upload/share, split propose/approve, settlements),
-cross-checked against a phone for real-time sync.
+**Manual verification:** sign-in and the main app (calendar) confirmed
+working in a browser 2026-09-12. Still to walk: events, receipts
+upload/share, split propose/approve, settlements, and a cross-check against
+a phone for real-time sync — folded into 012's verification pass instead of
+re-testing the unstyled shell twice. As expected, the mobile layout renders
+**unscaled and oversized on a wide window** — spec 012 (next) fixes that.
 
 ## Out of scope
 
