@@ -12,8 +12,13 @@ interface ProposalBase {
   status: ProposalStatus;
   createdAt: number;
   resolvedAt: number | null;
-  /** Who approved / rejected. null while pending and on cancel. */
+  /** Who approved / rejected. null while pending and on cancel.
+   *  Spec 015: `resolvedBy === proposerId` means it was self-approved in a
+   *  solo household — impossible with two parents, so it needs no extra flag. */
   resolvedBy: string | null;
+  /** Spec 015 — uid of the co-parent who accepted a unilateral decision after
+   *  joining. null while nobody has (a *provisional* decision). */
+  acknowledgedBy: string | null;
 }
 
 export interface PatternProposal extends ProposalBase {

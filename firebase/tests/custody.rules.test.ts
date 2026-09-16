@@ -51,6 +51,7 @@ async function seedProposal(data: Record<string, unknown>): Promise<string> {
       createdAt: 1,
       resolvedAt: null,
       resolvedBy: null,
+      acknowledgedBy: null,
       ...data,
     });
     id = ref.id;
@@ -71,6 +72,7 @@ const patternPayload = {
   createdAt: 1,
   resolvedAt: null,
   resolvedBy: null,
+  acknowledgedBy: null,
   cycle: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
   anchorDate: '2026-09-07',
   changeoverTime: '18:00',
@@ -108,6 +110,7 @@ describe('firestore.rules — custody proposals (spec 004)', () => {
           createdAt: 1,
           resolvedAt: null,
           resolvedBy: null,
+          acknowledgedBy: null,
           date: '2026-09-12',
           assignedTo: 1,
           startTime: null,

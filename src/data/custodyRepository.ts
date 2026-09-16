@@ -65,6 +65,9 @@ function mapProposal(id: string, data: Record<string, unknown>): Proposal | null
     createdAt: toMillis(data.createdAt),
     resolvedAt: data.resolvedAt != null ? toMillis(data.resolvedAt) : null,
     resolvedBy: (data.resolvedBy as string | null) ?? null,
+    // Spec 015; absent on documents written before this spec, which is
+    // correct — they were necessarily bilateral, nothing to acknowledge.
+    acknowledgedBy: (data.acknowledgedBy as string | null) ?? null,
   };
   if (data.type === 'pattern') {
     return {

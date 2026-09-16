@@ -1,6 +1,6 @@
 # 015 — Solo parent (using the app without the co-parent)
 
-**Status:** draft
+**Status:** approved
 **Depends on:** 002 (household), 004 (custody calendar), 010 (expense
 splitting). Touches 003 (receipts) only in how the balance is presented.
 
@@ -159,6 +159,12 @@ Once `parentIds.size() == 2`, the balance renders in **two segments**:
   *[parent]'s record*.
 - **"Desde que te uniste"** — the agreed period.
 
+The boundary is `Household.coParentJoinedAt`, written in the same update as
+`secondParentJoins()`. Settlements are classified by their sentinel (which is
+self-describing), receipts by `sharedAt < coParentJoinedAt`. A receipt has no
+other marker of when it entered the ledger, and adding one to the spec-003
+document would be more invasive than a single household field.
+
 Accepting the split table going forward does **not** retroactively bless the
 solo-period ledger. Both totals are shown; the app never merges them into one
 authoritative number behind the parents' backs.
@@ -179,6 +185,8 @@ Changes are additive; no collection is added or removed.
 ```
 households/{hid}
   coParentName: string | null     // NEW — display name for the absent side
+  coParentJoinedAt: number | null // NEW — when parentIds went 1 -> 2; the
+                                  // boundary requirement 5 splits the balance on
 
 households/{hid}/proposals/{id}          (spec 004)
 households/{hid}/splitProposals/{id}     (spec 010)

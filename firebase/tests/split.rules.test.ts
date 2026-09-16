@@ -44,6 +44,7 @@ const proposalPayload = (over: Record<string, unknown> = {}) => ({
   createdAt: 1,
   resolvedAt: null,
   resolvedBy: null,
+  acknowledgedBy: null,
   defaultPercentA: 40,
   overrides: { medical: 50 },
   ...over,

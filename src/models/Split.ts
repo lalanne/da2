@@ -16,7 +16,10 @@ export interface SplitProposal extends SplitTable {
   status: SplitProposalStatus;
   createdAt: number;
   resolvedAt: number | null;
+  /** Spec 015: `resolvedBy === proposerId` = self-approved while solo. */
   resolvedBy: string | null;
+  /** Spec 015 — uid of the co-parent who accepted it after joining. */
+  acknowledgedBy: string | null;
 }
 
 export type NewSplitProposalInput = SplitTable;

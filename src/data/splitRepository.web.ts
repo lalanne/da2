@@ -45,6 +45,7 @@ function mapProposal(id: string, d: Record<string, unknown>): SplitProposal {
     createdAt: toMillis(d.createdAt),
     resolvedAt: d.resolvedAt != null ? toMillis(d.resolvedAt) : null,
     resolvedBy: (d.resolvedBy as string | null) ?? null,
+    acknowledgedBy: (d.acknowledgedBy as string | null) ?? null,
     defaultPercentA: typeof d.defaultPercentA === 'number' ? d.defaultPercentA : 50,
     overrides: mapOverrides(d.overrides),
   };

@@ -77,6 +77,8 @@ function mapHousehold(id: string, data: Record<string, unknown> | undefined): Ho
     pendingInviteCode:
       typeof data.pendingInviteCode === 'string' ? data.pendingInviteCode : null,
     timezone: typeof data.timezone === 'string' ? data.timezone : DEFAULT_TIMEZONE,
+    coParentName: typeof data.coParentName === 'string' ? data.coParentName : null,
+    coParentJoinedAt: typeof data.coParentJoinedAt === 'number' ? data.coParentJoinedAt : null,
     createdBy: typeof data.createdBy === 'string' ? data.createdBy : '',
     createdAt: toMillis(data.createdAt),
   };

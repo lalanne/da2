@@ -40,6 +40,7 @@ function mapProposal(id: string, data: Record<string, unknown>): Proposal | null
     createdAt: toMillis(data.createdAt),
     resolvedAt: data.resolvedAt != null ? toMillis(data.resolvedAt) : null,
     resolvedBy: (data.resolvedBy as string | null) ?? null,
+    acknowledgedBy: (data.acknowledgedBy as string | null) ?? null,
   };
   if (data.type === 'pattern') {
     return {

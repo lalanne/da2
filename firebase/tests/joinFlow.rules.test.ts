@@ -5,7 +5,7 @@ import {
   RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'node:fs';
-import { arrayUnion, doc, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { arrayUnion, doc, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 
 let testEnv: RulesTestEnvironment;
 
@@ -104,6 +104,7 @@ describe('the join flow, write by write (mirrors householdRepository)', () => {
     batch.update(doc(db, 'households', HID), {
       parentIds: arrayUnion(JOINER),
       pendingInviteCode: null,
+      coParentJoinedAt: serverTimestamp(),
     });
     batch.update(doc(db, 'users', JOINER), { householdId: HID });
     await assertSucceeds(batch.commit());
