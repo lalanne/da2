@@ -1,6 +1,6 @@
 # 012 — Responsive web layout
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 011 (the web platform this styles). **Touches:** `Screen`,
 `MainScreen`, and the 4 tab screens' view-state machines (no data, store, or
 repository changes).
@@ -165,3 +165,42 @@ None. No store, repository, or rule changes — this is rendering only.
 - Any change to what data exists or how it's stored.
 - Keyboard shortcuts, hover states beyond what `Pressable`'s web output
   gives for free, or other desktop-specific interaction polish.
+
+## Verification results (2026-09-16)
+
+Implemented exactly as designed, with one addition beyond the original
+draft: the calendar rail's pending-proposal card (§ "Calendar side rail")
+carries real Aprobar/Rechazar buttons wired to `custody.resolve`, not just a
+link out to the proposals list — matches criterion 4 ("each still
+actionable") literally.
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | `< 960px` renders pixel-for-pixel as spec 011 | ✅ — every wide-web branch is gated behind `useWideWeb()`; nothing below the breakpoint changed |
+| 2 | `≥ 960px` → persistent sidebar (`WebShell`), same 4 destinations + badge | ✅ `src/components/WebShell.tsx`, wired in `MainScreen.tsx` |
+| 3 | Screens with no bespoke treatment get the width cap | ✅ `Screen`'s `webCap` (720px, centered) — unconditional on web, independent of the breakpoint |
+| 4 | Calendar side rail: pending proposal (actionable) + upcoming events + balance | ✅ `CalendarTab`'s wide-web branch — `calendar-rail-pending` (approve/reject), `calendar-rail-upcoming`, `calendar-rail-balance` |
+| 5 | `≥ 960px` push views open as a `WebDialog` over the base tab | ✅ `CalendarTab`, `EventsTab`, `ReceiptsScreen` all route their "push" states through `WebDialog` on wide web |
+| 6 | Receipts/Events: list + detail side by side, selecting swaps only the detail pane | ✅ master-detail columns in both screens; list stays mounted (scroll/filters preserved since it isn't unmounted) |
+| 7 | No regression to native/narrow-web behaviour | ✅ full existing suite green throughout; every new code path is additive behind `useWideWeb()` |
+| 8 | `npm test` + `npm run typecheck` stay green | ✅ 39 suites / 232 tests, `tsc --noEmit` clean; `npm run test:rules` also re-run clean (unaffected, no rules touched) |
+
+**Automated:** unit test for `useWideWeb()`'s breakpoint logic
+(`src/web/__tests__/useWideWeb.test.ts`); component tests for `WebShell`
+(destinations, badge, onChange, sign-out) and `WebDialog` (mounts children
+only when visible, backdrop closes) under `src/components/__tests__/`;
+wide-web integration tests per screen — `calendarTab.wideWeb.test.tsx`
+(rail rendering, dialog-over-calendar, rail navigation, rail proposal
+resolve), `eventsTab.wideWeb.test.tsx` and `receiptsScreen.wideWeb.test.tsx`
+(master-detail rendering, dialog-over-list) — all passing.
+
+**Manual, in a browser:** deployed to https://da2-coparenting.web.app;
+pending on the pilot to confirm the resize-across-breakpoint experience and
+give the still-outstanding spec-011 full walkthrough (calendar, events,
+receipts, split, cross-device sync) at a comfortable desktop size — folding
+that into one combined verification pass covering 003/010/011/012 together,
+same as noted in spec 011.
+
+**Manual, on both pilot phones:** not yet re-confirmed after this spec;
+expected to be a no-op since every native code path is unchanged, but still
+needs an explicit pass per spec 006's process.

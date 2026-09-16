@@ -13,3 +13,5 @@ export { CodeChip } from './CodeChip';
 export { Emblem } from './Emblem';
 export { Avatar } from './Avatar';
 export { TabBar, type TabItem } from './TabBar';
+export { WebShell } from './WebShell';
+export { WebDialog } from './WebDialog';

@@ -8,14 +8,25 @@ interface Props {
   subtitle?: string;
   /** Dim the title (e.g. an empty slot). */
   muted?: boolean;
+  /** Spec 012: highlight as the open item in a wide-web master-detail pane. */
+  selected?: boolean;
   leading?: ReactNode;
   trailing?: ReactNode;
   onPress?: () => void;
   testID?: string;
 }
 
-/** One row in a list — household members, children, later receipts / events. */
-export function ListRow({ title, subtitle, muted, leading, trailing, onPress, testID }: Props) {
+/** One row in a list — household members, children, receipts, events. */
+export function ListRow({
+  title,
+  subtitle,
+  muted,
+  selected,
+  leading,
+  trailing,
+  onPress,
+  testID,
+}: Props) {
   const body = (
     <>
       {leading ? <View style={styles.leading}>{leading}</View> : null}
@@ -41,6 +52,7 @@ export function ListRow({ title, subtitle, muted, leading, trailing, onPress, te
         accessibilityRole="button"
         style={({ pressed }) => [
           styles.row,
+          selected && styles.rowSelected,
           pressed && { backgroundColor: theme.colors.pressedOverlay },
         ]}
       >
@@ -50,7 +62,7 @@ export function ListRow({ title, subtitle, muted, leading, trailing, onPress, te
   }
 
   return (
-    <View style={styles.row} testID={testID}>
+    <View style={[styles.row, selected && styles.rowSelected]} testID={testID}>
       {body}
     </View>
   );
@@ -65,6 +77,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
   },
+  rowSelected: { backgroundColor: theme.colors.accentSoft },
   leading: { flexShrink: 0 },
   text: { flex: 1, gap: theme.spacing.xs },
 });

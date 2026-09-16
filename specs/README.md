@@ -23,7 +23,7 @@ This project is built spec-first. Rules:
 | 009 | [Date & time input](009-date-time-input.md) | implemented |
 | 010 | [Shared expense splitting](010-expense-splitting.md) | implemented |
 | 011 | [Web platform](011-web-platform.md) | implemented |
-| 012 | [Responsive web layout](012-responsive-web-layout.md) | approved |
+| 012 | [Responsive web layout](012-responsive-web-layout.md) | implemented |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -52,8 +52,9 @@ The number is *mostly* the build order, with two deliberate exceptions:
   public launch (`000`'s original order was Android → iOS → web), at the
   pilot's request, with full feature parity as the goal. 011 is
   infrastructure only — the same mobile UI running in a browser via the
-  `firebase` web SDK, no rules or data changes. 012 (not yet drafted) is the
-  desktop redesign layered on top once 011 is verified.
+  `firebase` web SDK, no rules or data changes. 012 is the desktop redesign
+  layered on top — a sidebar, master-detail lists, and a calendar side rail
+  behind a `useWideWeb()` breakpoint, additive to every native/narrow path.
 
 So the working order is: **001 → 002 → 007 → 004 → 005 → 003 → 008**, with 006
 running throughout and 011/012 following once the mobile pilot's core specs

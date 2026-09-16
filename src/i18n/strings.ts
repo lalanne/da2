@@ -287,6 +287,14 @@ export const strings = {
       proposedBy: (name: string) => `Propuesto por ${name}`,
     },
 
+    // Spec 012: the wide-web side rail next to the calendar.
+    rail: {
+      upcomingTitle: 'Próximos eventos',
+      noUpcoming: 'No hay eventos próximos.',
+      viewEvents: 'Ver todos en Eventos',
+      viewReceipts: 'Ver en Recibos',
+    },
+
     day: {
       changeoverAt: (time: string) => `Cambio de casa a las ${time}`,
       untilTime: (time: string) => `hasta las ${time}`,

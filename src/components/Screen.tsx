@@ -29,6 +29,7 @@ interface Props {
 export function Screen({ children, scroll, center, style, testID }: Props) {
   const contentStyle: StyleProp<ViewStyle> = [
     styles.content,
+    Platform.OS === 'web' && styles.webCap,
     center && styles.center,
     style,
   ];
@@ -41,7 +42,11 @@ export function Screen({ children, scroll, center, style, testID }: Props) {
       >
         {scroll ? (
           <ScrollView
-            contentContainerStyle={[styles.scrollContent, center && styles.center]}
+            contentContainerStyle={[
+              styles.scrollContent,
+              Platform.OS === 'web' && styles.webCap,
+              center && styles.center,
+            ]}
             keyboardShouldPersistTaps="handled"
           >
             {children}
@@ -68,4 +73,7 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.xl,
   },
   center: { justifyContent: 'center' },
+  // Spec 012: without this, content stretches edge-to-edge on a wide
+  // browser window — the mobile layout was never designed for that width.
+  webCap: { maxWidth: 720, width: '100%', alignSelf: 'center' },
 });
