@@ -23,7 +23,7 @@ This project is built spec-first. Rules:
 | 009 | [Date & time input](009-date-time-input.md) | implemented |
 | 010 | [Shared expense splitting](010-expense-splitting.md) | implemented |
 | 011 | [Web platform](011-web-platform.md) | implemented |
-| 012 | Responsive web layout (not yet drafted — follows 011) | — |
+| 012 | [Responsive web layout](012-responsive-web-layout.md) | approved |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
