@@ -91,4 +91,7 @@ instead of guessing.
   `git@github-lalanne:lalanne/da2.git`). Plain `github.com` authenticates as
   the author's work account (`clalanne-enghouse`), which has no access to this
   repo — do not "fix" the remote back to `github.com`.
-- Work happens directly on `main`.
+- **Never commit a new feature or bug fix directly to `main`.** Create a
+  branch, push it, and open a PR (`gh pr create`) for the user to review and
+  merge — a safety rail against unreviewed changes landing on `main`. Don't
+  merge the PR yourself unless explicitly told to.
