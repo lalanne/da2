@@ -194,12 +194,16 @@ wide-web integration tests per screen — `calendarTab.wideWeb.test.tsx`
 resolve), `eventsTab.wideWeb.test.tsx` and `receiptsScreen.wideWeb.test.tsx`
 (master-detail rendering, dialog-over-list) — all passing.
 
-**Manual, in a browser:** deployed to https://da2-coparenting.web.app;
-pending on the pilot to confirm the resize-across-breakpoint experience and
-give the still-outstanding spec-011 full walkthrough (calendar, events,
-receipts, split, cross-device sync) at a comfortable desktop size — folding
-that into one combined verification pass covering 003/010/011/012 together,
-same as noted in spec 011.
+**Manual, in a browser:** deployed to https://da2-coparenting.web.app; the
+user confirmed the wide-window layout "looks fine" (2026-09-16) — a visual
+spot-check of the sidebar/rail/master-detail chrome, not a full functional
+pass. Still pending: exercising each criterion (proposal approve/reject
+from the rail, master-detail selection swapping only the detail pane, a
+push dialog closing back to the right place) and the still-outstanding
+spec-011 full walkthrough (calendar, events, receipts, split, cross-device
+sync) at a comfortable desktop size — folding that into one combined
+verification pass covering 003/010/011/012 together, same as noted in
+spec 011.
 
 **Manual, on both pilot phones:** not yet re-confirmed after this spec;
 expected to be a no-op since every native code path is unchanged, but still
