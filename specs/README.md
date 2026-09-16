@@ -24,6 +24,7 @@ This project is built spec-first. Rules:
 | 010 | [Shared expense splitting](010-expense-splitting.md) | implemented |
 | 011 | [Web platform](011-web-platform.md) | implemented |
 | 012 | [Responsive web layout](012-responsive-web-layout.md) | implemented |
+| 013 | [Receipt auto-extraction](013-receipt-auto-extraction.md) | draft — **v2, deferred** |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -59,3 +60,9 @@ The number is *mostly* the build order, with two deliberate exceptions:
 So the working order is: **001 → 002 → 007 → 004 → 005 → 003 → 008**, with 006
 running throughout and 011/012 following once the mobile pilot's core specs
 are settled.
+
+- **013 (receipt auto-extraction) is v2 — not in the build order at all.**
+  `000`'s v1 scope table already lists "OCR of receipts" as out of scope.
+  013 is written ahead of time so the shape is ready, but is not scheduled
+  and should not be implemented without an explicit decision to start v2
+  work.

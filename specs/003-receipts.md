@@ -242,7 +242,7 @@ usage-description strings; `firebase.json` gains the `storage` emulator; the
 
 - Expense splitting, balances, "me debes" math → **spec 010** (built on this
   spec; a `splitPercentA` field is added to the receipt doc there).
-- OCR / auto-extraction of the amount.
+- OCR / auto-extraction of the amount → **spec 013 (v2, deferred)**.
 - Un-sharing, or editing any field after upload (v1: delete while private,
   re-upload).
 - Multi-currency entry (model supports it; UI is CLP-only in v1).
