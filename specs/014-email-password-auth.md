@@ -236,17 +236,18 @@ tests, all green (up from 8/62 pre-spec).
   error, signed out, signed back in with the same credentials, then deleted
   — full round trip confirmed working, no residue left in production Auth.
 
+**Shipped to both clients (2026-09-16):**
+- OTA update published to the `pilot` channel (runtime 1.2.0, android + ios,
+  update group `478de0f9-61e0-470a-9adb-b0b5d1af0097`) — reaches both pilot
+  phones on next relaunch.
+- Web rebuilt and redeployed to https://da2-coparenting.web.app; verified
+  the live bundle actually contains the new code (grepped the deployed JS
+  for `"Continuar con tu correo"` — present).
+
 **Still open:**
-- **The app itself does not have this code yet.** Everything above is
-  backend config (Firebase project settings + rules) plus what's on `main`
-  in git — neither the pilot phones (last OTA to the `pilot` channel was 6
-  days ago, spec 009) nor the deployed web app
-  (https://da2-coparenting.web.app, last rebuilt for spec 012) have been
-  updated since this spec landed. The feature is *reachable only via a
-  script*, not via any client a parent actually uses, until an OTA
-  update / web redeploy ships this code.
 - The live smoke test didn't click a real verification-email link (only
   confirmed the email dispatches without error) — worth one real sign-up
   from the app itself to eyeball the email and confirm "Ya verifiqué mi
   correo" unlocks the app after clicking it.
-- Manual, both pilot phones: not started (blocked on the OTA above).
+- Manual, both pilot phones: not started — the code is now on both devices,
+  just not yet exercised by a parent.
