@@ -225,22 +225,28 @@ suites / 288 tests, `tsc --noEmit` clean. Rules: `emailVerification.rules.test.t
 (new) + one added case in `receiptsStorage.rules.test.ts`; 9 rules suites / 69
 tests, all green (up from 8/62 pre-spec).
 
-**Not yet done — deliberately paused before going further, both outward-facing/hard-to-reverse:**
-- **Enabling "Email/Password" sign-in in the Firebase console.** This is a
-  one-time manual toggle (Authentication → Sign-in method), not something
-  `firebase deploy` touches. Without it, `createUserWithEmailAndPassword`
-  fails server-side even though the client code is correct. **Needs to be
-  done before this feature works for real users.**
-- **Deploying the updated `firestore.rules` / `storage.rules` to
-  `da2-coparenting`.** The code and the emulator-tested rules are ready
-  (`npx firebase deploy --only firestore:rules,storage --project
-  da2-coparenting`), but this changes the access gate for the **live pilot
-  household already using the app** — per the spec's own "Rollout care"
-  note, holding off on an unsupervised deploy of this specific piece until
-  there's a chance to confirm it, or the go-ahead to just ship it (Google's
-  `email_verified: true` claim is well-established Firebase behavior, so
-  the risk is believed low, not zero).
-- The JS/OTA side of this (the new screens, `App.tsx` gate, `AuthUser.emailVerified`)
-  is inert for every existing user until the rules deploy happens — it can
-  ship via OTA safely on its own first.
-- Manual, both pilot phones: not started (blocked on the two steps above).
+**Backend config — done (2026-09-16):**
+- "Email/Password" sign-in enabled in the Firebase console (Authentication →
+  Sign-in method) by the user.
+- `firestore.rules` / `storage.rules` deployed to `da2-coparenting`
+  (`npx firebase deploy --only firestore:rules,storage`).
+- **Live smoke test against production**, not the emulator: a throwaway
+  account was created with `createUserWithEmailAndPassword` against the real
+  `da2-coparenting` project, `sendEmailVerification` dispatched without
+  error, signed out, signed back in with the same credentials, then deleted
+  — full round trip confirmed working, no residue left in production Auth.
+
+**Still open:**
+- **The app itself does not have this code yet.** Everything above is
+  backend config (Firebase project settings + rules) plus what's on `main`
+  in git — neither the pilot phones (last OTA to the `pilot` channel was 6
+  days ago, spec 009) nor the deployed web app
+  (https://da2-coparenting.web.app, last rebuilt for spec 012) have been
+  updated since this spec landed. The feature is *reachable only via a
+  script*, not via any client a parent actually uses, until an OTA
+  update / web redeploy ships this code.
+- The live smoke test didn't click a real verification-email link (only
+  confirmed the email dispatches without error) — worth one real sign-up
+  from the app itself to eyeball the email and confirm "Ya verifiqué mi
+  correo" unlocks the app after clicking it.
+- Manual, both pilot phones: not started (blocked on the OTA above).
