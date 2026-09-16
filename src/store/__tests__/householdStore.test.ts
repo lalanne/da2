@@ -10,6 +10,7 @@ const me: AuthUser = {
   displayName: 'Javiera',
   email: 'javi@example.com',
   photoUrl: null,
+  emailVerified: true,
 };
 
 const flush = () => new Promise((resolve) => setImmediate(resolve));

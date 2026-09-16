@@ -22,6 +22,7 @@ function toAuthUser(user: User): AuthUser {
     displayName: user.displayName,
     email: user.email,
     photoUrl: user.photoURL,
+    emailVerified: user.emailVerified,
   };
 }
 

@@ -45,13 +45,25 @@ describe('googleAuthProvider.signIn', () => {
   it('exchanges a Google ID token for a Firebase user', async () => {
     mockGoogleSignIn.mockResolvedValue({ type: 'success', data: { idToken: 'id-token' } });
     mockSignInWithCredential.mockResolvedValue({
-      user: { uid: 'uid-1', displayName: 'Ana', email: 'ana@example.com', photoURL: null },
+      user: {
+        uid: 'uid-1',
+        displayName: 'Ana',
+        email: 'ana@example.com',
+        photoURL: null,
+        emailVerified: true,
+      },
     });
 
     const user = await googleAuthProvider.signIn();
 
     expect(mockCredential).toHaveBeenCalledWith('id-token');
-    expect(user).toEqual({ uid: 'uid-1', displayName: 'Ana', email: 'ana@example.com', photoUrl: null });
+    expect(user).toEqual({
+      uid: 'uid-1',
+      displayName: 'Ana',
+      email: 'ana@example.com',
+      photoUrl: null,
+      emailVerified: true,
+    });
   });
 
   it('throws a signInCancelled AuthError when the user cancels', async () => {

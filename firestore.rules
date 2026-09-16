@@ -3,8 +3,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Spec 014: an authenticated-but-unverified email/password account is
+    // treated the same as signed-out everywhere. Google (and later Apple)
+    // sign-ins always carry `email_verified: true` on their ID token, so
+    // this is a no-op for every account this app already has.
     function signedIn() {
-      return request.auth != null;
+      return request.auth != null && request.auth.token.email_verified == true;
     }
     function uid() {
       return request.auth.uid;

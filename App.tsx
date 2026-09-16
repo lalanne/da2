@@ -7,6 +7,7 @@ import { theme } from './src/theme';
 import { WelcomeScreen } from './src/screens/WelcomeScreen';
 import { MainScreen } from './src/screens/MainScreen';
 import { HouseholdOnboardingScreen } from './src/screens/HouseholdOnboardingScreen';
+import { VerifyEmailScreen } from './src/screens/VerifyEmailScreen';
 
 // react-native-firebase auth can briefly re-emit `null` when the app returns
 // from the background before it re-resolves the persisted session. Wait this
@@ -24,7 +25,10 @@ export default function App() {
       clearTimeout(signOutTimer.current);
       signOutTimer.current = null;
     }
-    if (user) {
+    // Spec 014: an unverified email/password sign-up has no household access
+    // (rules deny it) — don't start the listener until they verify, so it
+    // isn't just generating permission-denied noise in the meantime.
+    if (user && user.emailVerified) {
       useHouseholdStore.getState().start(user);
     } else {
       signOutTimer.current = setTimeout(() => {
@@ -54,6 +58,12 @@ export default function App() {
       ) : (
         <WelcomeScreen />
       );
+    }
+    if (!user.emailVerified) {
+      // Spec 014 — gate household/main routing until the email is
+      // confirmed. In practice only reachable for an email/password
+      // sign-up; Google accounts arrive already verified.
+      return <VerifyEmailScreen />;
     }
     if (householdStatus === 'active') {
       return <MainScreen />;

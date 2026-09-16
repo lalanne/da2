@@ -45,7 +45,7 @@ async function seedHousehold() {
 
 function db(uid?: string) {
   return uid
-    ? testEnv.authenticatedContext(uid).firestore()
+    ? testEnv.authenticatedContext(uid, { email_verified: true }).firestore()
     : testEnv.unauthenticatedContext().firestore();
 }
 

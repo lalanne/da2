@@ -34,4 +34,23 @@ describe('WelcomeScreen', () => {
 
     expect(screen.getByTestId('sign-in-error')).toHaveTextContent('Network error.');
   });
+
+  it('switches to the email auth screen and back (spec 014)', async () => {
+    mockedUseAuthStore.mockReturnValue({
+      signIn: jest.fn(),
+      isSigningIn: false,
+      error: null,
+      signUpWithEmail: jest.fn(),
+      signInWithEmail: jest.fn(),
+      sendPasswordReset: jest.fn(),
+    });
+
+    await render(<WelcomeScreen />);
+    fireEvent.press(screen.getByTestId('continue-with-email-button'));
+
+    expect(await screen.findByTestId('email-auth-screen')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('email-auth-back-button'));
+    expect(await screen.findByTestId('google-sign-in-button')).toBeTruthy();
+  });
 });

@@ -25,6 +25,7 @@ This project is built spec-first. Rules:
 | 011 | [Web platform](011-web-platform.md) | implemented |
 | 012 | [Responsive web layout](012-responsive-web-layout.md) | implemented |
 | 013 | [Receipt auto-extraction](013-receipt-auto-extraction.md) | draft — **v2, deferred** |
+| 014 | [Email/password accounts](014-email-password-auth.md) | implemented |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -66,3 +67,8 @@ are settled.
   013 is written ahead of time so the shape is ready, but is not scheduled
   and should not be implemented without an explicit decision to start v2
   work.
+- **014 (email/password accounts) jumps the queue** — built right after 012,
+  ahead of the still-pending 003/010/011/012 combined manual verification
+  pass. It extends 001 (auth) with a second, credential-based sign-in
+  method; `AuthProvider` (Google/Apple) is untouched, a sibling
+  `EmailAuthProvider` is added alongside it.

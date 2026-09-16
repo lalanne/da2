@@ -87,4 +87,4 @@ harness remains planned for later specs.
 ## Out of scope
 
 - Sign in with Apple (required before iOS launch — tracked in 000).
-- Email/password accounts.
+- Email/password accounts → **spec 014**.

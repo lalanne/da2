@@ -43,7 +43,7 @@ describe('firestore.rules — users/{uid}', () => {
   });
 
   it('lets a user read and write only their own profile', async () => {
-    const aliceDb = testEnv.authenticatedContext('alice').firestore();
+    const aliceDb = testEnv.authenticatedContext('alice', { email_verified: true }).firestore();
 
     await assertSucceeds(setDoc(doc(aliceDb, 'users/alice'), newProfile('Alice')));
     await assertSucceeds(getDoc(doc(aliceDb, 'users/alice')));
@@ -54,7 +54,7 @@ describe('firestore.rules — users/{uid}', () => {
       await setDoc(doc(ctx.firestore(), 'users/bob'), newProfile('Bob'));
     });
 
-    const aliceDb = testEnv.authenticatedContext('alice').firestore();
+    const aliceDb = testEnv.authenticatedContext('alice', { email_verified: true }).firestore();
 
     await assertFails(getDoc(doc(aliceDb, 'users/bob')));
     await assertFails(setDoc(doc(aliceDb, 'users/bob'), newProfile('Hacked')));

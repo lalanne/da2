@@ -29,12 +29,19 @@ function getWebClientId(): string {
   return webClientId;
 }
 
-function toAuthUser(user: { uid: string; displayName: string | null; email: string | null; photoURL: string | null }): AuthUser {
+function toAuthUser(user: {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  emailVerified: boolean;
+}): AuthUser {
   return {
     uid: user.uid,
     displayName: user.displayName,
     email: user.email,
     photoUrl: user.photoURL,
+    emailVerified: user.emailVerified,
   };
 }
 

@@ -18,6 +18,7 @@ interface Props {
   autoComplete?: TextInputProps['autoComplete'];
   autoCorrect?: boolean;
   keyboardType?: TextInputProps['keyboardType'];
+  secureTextEntry?: boolean;
   testID?: string;
 }
 
@@ -36,6 +37,7 @@ export function TextField({
   autoComplete = 'off',
   autoCorrect = false,
   keyboardType,
+  secureTextEntry,
   testID,
 }: Props) {
   const [focused, setFocused] = useState(false);
@@ -59,6 +61,7 @@ export function TextField({
         autoComplete={autoComplete}
         autoCorrect={autoCorrect}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
         style={[
           styles.input,
           {

@@ -8,4 +8,11 @@ module.exports = {
   GoogleAuthProvider: {
     credential: jest.fn((idToken) => ({ idToken })),
   },
+  // Spec 014 — email/password:
+  createUserWithEmailAndPassword: jest.fn().mockRejectedValue(new Error('createUserWithEmailAndPassword is not mocked in this test')),
+  signInWithEmailAndPassword: jest.fn().mockRejectedValue(new Error('signInWithEmailAndPassword is not mocked in this test')),
+  sendPasswordResetEmail: jest.fn().mockRejectedValue(new Error('sendPasswordResetEmail is not mocked in this test')),
+  sendEmailVerification: jest.fn().mockRejectedValue(new Error('sendEmailVerification is not mocked in this test')),
+  updateProfile: jest.fn().mockRejectedValue(new Error('updateProfile is not mocked in this test')),
+  reload: jest.fn().mockRejectedValue(new Error('reload is not mocked in this test')),
 };

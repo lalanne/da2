@@ -48,7 +48,7 @@ async function seed() {
 describe('the join flow, write by write (mirrors householdRepository)', () => {
   it('step 1 — redeem the code', async () => {
     await seed();
-    const db = testEnv.authenticatedContext(JOINER).firestore();
+    const db = testEnv.authenticatedContext(JOINER, { email_verified: true }).firestore();
     await assertSucceeds(updateDoc(doc(db, 'inviteCodes', CODE), { redeemedBy: JOINER }));
   });
 
@@ -57,7 +57,7 @@ describe('the join flow, write by write (mirrors householdRepository)', () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await updateDoc(doc(ctx.firestore(), 'inviteCodes', CODE), { redeemedBy: JOINER });
     });
-    const db = testEnv.authenticatedContext(JOINER).firestore();
+    const db = testEnv.authenticatedContext(JOINER, { email_verified: true }).firestore();
     await assertSucceeds(updateDoc(doc(db, 'users', JOINER), { joinedVia: CODE }));
   });
 
@@ -67,13 +67,13 @@ describe('the join flow, write by write (mirrors householdRepository)', () => {
       await updateDoc(doc(ctx.firestore(), 'users', JOINER), { joinedVia: 'OLDCODE1' });
       await updateDoc(doc(ctx.firestore(), 'inviteCodes', CODE), { redeemedBy: JOINER });
     });
-    const db = testEnv.authenticatedContext(JOINER).firestore();
+    const db = testEnv.authenticatedContext(JOINER, { email_verified: true }).firestore();
     await assertSucceeds(updateDoc(doc(db, 'users', JOINER), { joinedVia: CODE }));
   });
 
   it('step 1 also works when the household still points parentIds at the creator', async () => {
     await seed();
-    const db = testEnv.authenticatedContext(JOINER).firestore();
+    const db = testEnv.authenticatedContext(JOINER, { email_verified: true }).firestore();
     await assertSucceeds(updateDoc(doc(db, 'inviteCodes', CODE), { redeemedBy: JOINER }));
   });
 
@@ -89,7 +89,7 @@ describe('the join flow, write by write (mirrors householdRepository)', () => {
         pendingInviteCode: CODE, createdBy: CREATOR,
       });
     });
-    const db = testEnv.authenticatedContext(CREATOR).firestore();
+    const db = testEnv.authenticatedContext(CREATOR, { email_verified: true }).firestore();
     await assertSucceeds(updateDoc(doc(db, 'users', CREATOR), { householdId: HID }));
   });
 
@@ -99,7 +99,7 @@ describe('the join flow, write by write (mirrors householdRepository)', () => {
       await updateDoc(doc(ctx.firestore(), 'inviteCodes', CODE), { redeemedBy: JOINER });
       await updateDoc(doc(ctx.firestore(), 'users', JOINER), { joinedVia: CODE });
     });
-    const db = testEnv.authenticatedContext(JOINER).firestore();
+    const db = testEnv.authenticatedContext(JOINER, { email_verified: true }).firestore();
     const batch = writeBatch(db);
     batch.update(doc(db, 'households', HID), {
       parentIds: arrayUnion(JOINER),

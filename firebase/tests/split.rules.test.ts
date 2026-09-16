@@ -36,7 +36,7 @@ async function seedHousehold() {
 }
 
 const db = (uid?: string) =>
-  (uid ? testEnv.authenticatedContext(uid) : testEnv.unauthenticatedContext()).firestore();
+  (uid ? testEnv.authenticatedContext(uid, { email_verified: true }) : testEnv.unauthenticatedContext()).firestore();
 
 const proposalPayload = (over: Record<string, unknown> = {}) => ({
   proposerId: A,

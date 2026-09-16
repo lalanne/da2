@@ -61,7 +61,7 @@ async function seed(receipt: Record<string, unknown> = {}) {
 }
 
 const storage = (uid?: string) =>
-  (uid ? testEnv.authenticatedContext(uid) : testEnv.unauthenticatedContext()).storage();
+  (uid ? testEnv.authenticatedContext(uid, { email_verified: true }) : testEnv.unauthenticatedContext()).storage();
 
 const opts = { contentType: 'image/jpeg' };
 
@@ -104,5 +104,13 @@ describe('storage.rules — receipt files (spec 003, criterion 6)', () => {
     );
     const big = new Uint8Array(10 * 1024 * 1024 + 1);
     await assertFails(uploadBytes(ref(storage(A), PATH), big, opts));
+  });
+
+  // Spec 014: member() mirrors firestore.rules' signedIn() gate.
+  it('an unverified member (email/password, not yet confirmed) is denied', async () => {
+    await seed();
+    const unverified = testEnv.authenticatedContext(A, { email_verified: false }).storage();
+    await assertFails(uploadBytes(ref(unverified, PATH), IMAGE, opts));
+    await assertFails(getBytes(ref(unverified, PATH)));
   });
 });

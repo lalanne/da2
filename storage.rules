@@ -7,8 +7,11 @@ service firebase.storage {
   match /b/{bucket}/o {
 
     match /households/{hid}/receipts/{uploaderId}/{fileName} {
+      // Spec 014: mirrors firestore.rules' signedIn() — an unverified
+      // email/password account is treated as not signed in here too.
       function member() {
         return request.auth != null
+          && request.auth.token.email_verified == true
           && request.auth.uid in
              firestore.get(/databases/(default)/documents/households/$(hid)).data.parentIds;
       }
