@@ -243,6 +243,10 @@ the next OTA.
 
 - OS push notifications for proposals → **spec 008** (needs Cloud Functions +
   APNs + a native build).
+- Using the calendar without a co-parent in the household → **spec 015**,
+  which relaxes this spec's "a proposer may not approve their own proposal"
+  rule to self-approval **only** when `parentIds.size() == 1`. The two-parent
+  invariant here is unchanged.
 - More than one changeover time in a pattern (e.g. a different weekday vs
   weekend handover time); sub-hour precision.
 - Multi-child differing schedules — v1 is one schedule for all kids.
