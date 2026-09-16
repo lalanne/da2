@@ -89,6 +89,24 @@ npx firebase apps:sdkconfig WEB 1:256625123188:web:2564e016dc359420acd621 --proj
 Live at <https://da2-coparenting.web.app>. Same Firestore/Storage rules,
 same backend — deploying web never needs a rules deploy on its own.
 
+⚠️ **Metro's bundler cache can bake in a stale (or missing) env var.**
+`EXPO_PUBLIC_*` inlining happens at bundle time; Metro's cache is keyed on
+file content, not on the *value* of environment variables at the moment
+`npx expo export` runs. If the cache is warm from an earlier invocation —
+even in a different shell/process where `.env` wasn't loaded — a plain
+`npx expo export -p web` can silently reuse that stale transform and ship a
+bundle with `apiKey: undefined` (blank page, no console error a user would
+notice reporting). The tell: the CLI prints `Web Bundled <N>ms` — a few
+hundred ms means a cache hit (suspect), several seconds means a real
+rebuild (trustworthy). Always verify before deploying:
+```
+npx expo export -p web --clear   # force a real rebuild
+grep -o "AIzaSy[A-Za-z0-9_-]*" dist/_expo/static/js/web/index-*.js   # the real key, not empty
+```
+Found 2026-09-16 shipping spec 014: a deploy silently went out with no
+Firebase config baked in, and the only symptom was "looks blank" from a
+live user report — nothing in the deploy command's own output flagged it.
+
 ### Choosing the path
 
 `runtimeVersion` uses the `appVersion` policy — every OTA update targets
