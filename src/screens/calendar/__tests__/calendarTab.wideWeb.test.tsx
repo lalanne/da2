@@ -102,6 +102,7 @@ function setup(wideWeb: boolean, extraProposals: typeof pendingOverride[] = [], 
     cancel: jest.fn(),
     proposeDayOverride: jest.fn(),
     proposePattern: jest.fn(),
+    acknowledge: jest.fn(),
   });
   mockedEvents.mockImplementation(selectable({ events: [event], isSubmitting: false }));
   mockedReceipts.mockImplementation(selectable({ shared: [] }));
@@ -156,5 +157,49 @@ describe('CalendarTab — wide web (spec 012)', () => {
     fireEvent.press(screen.getByTestId(`calendar-rail-approve-${pendingOverride.id}`));
 
     expect(resolve).toHaveBeenCalledWith(pendingOverride.id, 'approved');
+  });
+});
+
+describe('CalendarTab — provisional pattern (spec 015)', () => {
+  it('shows the badge and lets the newcomer accept a self-approved pattern', async () => {
+    setup(false);
+    const acknowledge = jest.fn();
+    mockedCustody.mockReturnValue({
+      proposals: [{ ...pattern, resolvedBy: 'u1', acknowledgedBy: null }], // self-approved by u1
+      isSubmitting: false,
+      resolve: jest.fn(),
+      cancel: jest.fn(),
+      proposeDayOverride: jest.fn(),
+      proposePattern: jest.fn(),
+      acknowledge,
+    });
+    // The current user (u1 in setup()) is the proposer here, so switch to u2
+    // to be the reviewing newcomer.
+    mockedAuth.mockImplementation(selectable({ user: { uid: 'u2', displayName: 'Cristián' } }));
+
+    await render(<CalendarTab />);
+
+    expect(screen.getByTestId('calendar-provisional-badge')).toBeTruthy();
+    fireEvent.press(screen.getByTestId('calendar-acknowledge-pattern'));
+    expect(acknowledge).toHaveBeenCalledWith('p1');
+  });
+
+  it('hides the accept action for the parent who made the decision', async () => {
+    setup(false);
+    mockedCustody.mockReturnValue({
+      proposals: [{ ...pattern, resolvedBy: 'u1', acknowledgedBy: null }],
+      isSubmitting: false,
+      resolve: jest.fn(),
+      cancel: jest.fn(),
+      proposeDayOverride: jest.fn(),
+      proposePattern: jest.fn(),
+      acknowledge: jest.fn(),
+    });
+    // setup() already sets the current user to u1, the proposer.
+
+    await render(<CalendarTab />);
+
+    expect(screen.getByTestId('calendar-provisional-badge')).toBeTruthy();
+    expect(screen.queryByTestId('calendar-acknowledge-pattern')).toBeNull();
   });
 });
