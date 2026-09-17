@@ -16,6 +16,7 @@ function makeRepo() {
     createDayOverrideProposal: jest.fn(async () => {}),
     resolveProposal: jest.fn(async () => {}),
     cancelProposal: jest.fn(async () => {}),
+    acknowledgeProposal: jest.fn(async () => {}),
   };
   return { repo, emit: (p: Proposal[]) => cb?.(p) };
 }
@@ -41,13 +42,31 @@ describe('custodyStore', () => {
     expect(store.getState().status).toBe('ready');
   });
 
-  it('proposePattern forwards householdId + proposerId to the repo', async () => {
+  it('proposePattern forwards householdId + proposerId + solo to the repo', async () => {
     const { repo } = makeRepo();
     const store = createCustodyStore(repo);
     store.getState().start('h1', 'u1');
 
-    expect(await store.getState().proposePattern(patternInput)).toBe(true);
-    expect(repo.createPatternProposal).toHaveBeenCalledWith('h1', 'u1', patternInput);
+    expect(await store.getState().proposePattern(patternInput, false)).toBe(true);
+    expect(repo.createPatternProposal).toHaveBeenCalledWith('h1', 'u1', patternInput, false);
+  });
+
+  it('proposePattern forwards solo=true when the household has one parent', async () => {
+    const { repo } = makeRepo();
+    const store = createCustodyStore(repo);
+    store.getState().start('h1', 'u1');
+
+    expect(await store.getState().proposePattern(patternInput, true)).toBe(true);
+    expect(repo.createPatternProposal).toHaveBeenCalledWith('h1', 'u1', patternInput, true);
+  });
+
+  it('acknowledge forwards householdId + uid to the repo', async () => {
+    const { repo } = makeRepo();
+    const store = createCustodyStore(repo);
+    store.getState().start('h1', 'u2');
+
+    expect(await store.getState().acknowledge('p1')).toBe(true);
+    expect(repo.acknowledgeProposal).toHaveBeenCalledWith('h1', 'p1', 'u2');
   });
 
   it('resolve and cancel forward correctly', async () => {
@@ -70,7 +89,7 @@ describe('custodyStore', () => {
     const store = createCustodyStore(repo);
     store.getState().start('h1', 'u1');
 
-    expect(await store.getState().proposePattern(patternInput)).toBe(false);
+    expect(await store.getState().proposePattern(patternInput, false)).toBe(false);
     expect(store.getState().actionError).toBe(
       `${strings.custody.errors.proposeFailed} [firestore/permission-denied]`,
     );
@@ -86,8 +105,8 @@ describe('custodyStore', () => {
     store.getState().start('h1', 'u1');
 
     const input = { date: '2026-09-12', assignedTo: 1, startTime: null, endTime: null };
-    const first = store.getState().proposeDayOverride(input);
-    const second = await store.getState().proposeDayOverride(input);
+    const first = store.getState().proposeDayOverride(input, false);
+    const second = await store.getState().proposeDayOverride(input, false);
     release();
     await first;
 

@@ -20,6 +20,17 @@ function db() {
 const proposalsCol = (hid: string) => collection(db(), 'households', hid, 'splitProposals');
 const settlementsCol = (hid: string) => collection(db(), 'households', hid, 'settlements');
 
+/** Spec 015 — see the native twin for the rationale. */
+function resolutionFields<Resolved extends string>(
+  solo: boolean,
+  resolvedStatus: Resolved,
+  proposerId: string,
+) {
+  return solo
+    ? { status: resolvedStatus, resolvedAt: serverTimestamp(), resolvedBy: proposerId }
+    : { status: 'pending' as const, resolvedAt: null, resolvedBy: null };
+}
+
 function toMillis(value: unknown): number {
   if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
     return (value as { toMillis: () => number }).toMillis();
@@ -92,13 +103,12 @@ export const splitRepository: SplitRepository = {
     );
   },
 
-  async proposeSplit(householdId, proposerId, input) {
+  async proposeSplit(householdId, proposerId, input, solo) {
     await addDoc(proposalsCol(householdId), {
       proposerId,
-      status: 'pending',
+      ...resolutionFields(solo, 'approved', proposerId),
+      acknowledgedBy: null,
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       defaultPercentA: input.defaultPercentA,
       overrides: input.overrides,
     });
@@ -119,13 +129,17 @@ export const splitRepository: SplitRepository = {
     });
   },
 
-  async recordSettlement(householdId, recordedBy, input) {
+  async acknowledgeSplitProposal(householdId, proposalId, uid) {
+    await updateDoc(doc(proposalsCol(householdId), proposalId), {
+      acknowledgedBy: uid,
+    });
+  },
+
+  async recordSettlement(householdId, recordedBy, input, solo) {
     await addDoc(settlementsCol(householdId), {
       recordedBy,
-      status: 'pending',
+      ...resolutionFields(solo, 'confirmed', recordedBy),
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       payerUid: input.payerUid,
       payeeUid: input.payeeUid,
       amount: input.amount,

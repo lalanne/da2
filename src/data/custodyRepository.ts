@@ -23,15 +23,18 @@ export interface CustodyRepository {
     cb: (proposals: Proposal[]) => void,
     onError?: (error: unknown) => void,
   ): Unsubscribe;
+  /** `solo`: the household has one parent — spec 015 self-approves at creation. */
   createPatternProposal(
     householdId: string,
     proposerId: string,
     input: NewPatternInput,
+    solo: boolean,
   ): Promise<void>;
   createDayOverrideProposal(
     householdId: string,
     proposerId: string,
     input: NewDayOverrideInput,
+    solo: boolean,
   ): Promise<void>;
   resolveProposal(
     householdId: string,
@@ -40,6 +43,8 @@ export interface CustodyRepository {
     decision: 'approved' | 'rejected',
   ): Promise<void>;
   cancelProposal(householdId: string, proposalId: string): Promise<void>;
+  /** Spec 015 — a newly-joined co-parent accepts a unilateral decision. */
+  acknowledgeProposal(householdId: string, proposalId: string, uid: string): Promise<void>;
 }
 
 function db() {
@@ -48,6 +53,14 @@ function db() {
 
 function proposalsCollection(householdId: string) {
   return collection(db(), 'households', householdId, 'proposals');
+}
+
+/** Spec 015 — resolution fields shared by every create call: pending for a
+ *  two-parent household, self-approved immediately for a solo one. */
+function resolutionFields(solo: boolean, proposerId: string) {
+  return solo
+    ? { status: 'approved' as const, resolvedAt: serverTimestamp(), resolvedBy: proposerId }
+    : { status: 'pending' as const, resolvedAt: null, resolvedBy: null };
 }
 
 function toMillis(value: unknown): number {
@@ -109,14 +122,13 @@ export const custodyRepository: CustodyRepository = {
     );
   },
 
-  async createPatternProposal(householdId, proposerId, input) {
+  async createPatternProposal(householdId, proposerId, input, solo) {
     await addDoc(proposalsCollection(householdId), {
       type: 'pattern',
       proposerId,
-      status: 'pending',
+      ...resolutionFields(solo, proposerId),
+      acknowledgedBy: null,
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       cycle: input.cycle,
       anchorDate: input.anchorDate,
       changeoverTime: input.changeoverTime,
@@ -125,14 +137,13 @@ export const custodyRepository: CustodyRepository = {
     });
   },
 
-  async createDayOverrideProposal(householdId, proposerId, input) {
+  async createDayOverrideProposal(householdId, proposerId, input, solo) {
     await addDoc(proposalsCollection(householdId), {
       type: 'day-override',
       proposerId,
-      status: 'pending',
+      ...resolutionFields(solo, proposerId),
+      acknowledgedBy: null,
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       date: input.date,
       assignedTo: input.assignedTo,
       startTime: input.startTime,
@@ -152,6 +163,12 @@ export const custodyRepository: CustodyRepository = {
     await updateDoc(doc(proposalsCollection(householdId), proposalId), {
       status: 'cancelled',
       resolvedAt: serverTimestamp(),
+    });
+  },
+
+  async acknowledgeProposal(householdId, proposalId, uid) {
+    await updateDoc(doc(proposalsCollection(householdId), proposalId), {
+      acknowledgedBy: uid,
     });
   },
 };

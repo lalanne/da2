@@ -30,7 +30,13 @@ export interface SplitRepository {
     cb: (settlements: Settlement[]) => void,
     onError?: (error: unknown) => void,
   ): Unsubscribe;
-  proposeSplit(householdId: string, proposerId: string, input: NewSplitProposalInput): Promise<void>;
+  /** `solo`: the household has one parent — spec 015 self-approves at creation. */
+  proposeSplit(
+    householdId: string,
+    proposerId: string,
+    input: NewSplitProposalInput,
+    solo: boolean,
+  ): Promise<void>;
   resolveSplitProposal(
     householdId: string,
     proposalId: string,
@@ -38,7 +44,16 @@ export interface SplitRepository {
     decision: 'approved' | 'rejected',
   ): Promise<void>;
   cancelSplitProposal(householdId: string, proposalId: string): Promise<void>;
-  recordSettlement(householdId: string, recordedBy: string, input: NewSettlementInput): Promise<void>;
+  /** Spec 015 — a newly-joined co-parent accepts a unilateral split table. */
+  acknowledgeSplitProposal(householdId: string, proposalId: string, uid: string): Promise<void>;
+  /** `solo`: self-confirmed immediately against the ABSENT_CO_PARENT sentinel
+   *  already present in `input.payerUid`/`payeeUid`. */
+  recordSettlement(
+    householdId: string,
+    recordedBy: string,
+    input: NewSettlementInput,
+    solo: boolean,
+  ): Promise<void>;
   resolveSettlement(
     householdId: string,
     settlementId: string,
@@ -53,6 +68,17 @@ function db() {
 }
 const proposalsCol = (hid: string) => collection(db(), 'households', hid, 'splitProposals');
 const settlementsCol = (hid: string) => collection(db(), 'households', hid, 'settlements');
+
+/** Spec 015 — shared by proposeSplit + recordSettlement. */
+function resolutionFields<Resolved extends string>(
+  solo: boolean,
+  resolvedStatus: Resolved,
+  proposerId: string,
+) {
+  return solo
+    ? { status: resolvedStatus, resolvedAt: serverTimestamp(), resolvedBy: proposerId }
+    : { status: 'pending' as const, resolvedAt: null, resolvedBy: null };
+}
 
 function toMillis(value: unknown): number {
   if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
@@ -126,13 +152,12 @@ export const splitRepository: SplitRepository = {
     );
   },
 
-  async proposeSplit(householdId, proposerId, input) {
+  async proposeSplit(householdId, proposerId, input, solo) {
     await addDoc(proposalsCol(householdId), {
       proposerId,
-      status: 'pending',
+      ...resolutionFields(solo, 'approved', proposerId),
+      acknowledgedBy: null,
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       defaultPercentA: input.defaultPercentA,
       overrides: input.overrides,
     });
@@ -153,13 +178,17 @@ export const splitRepository: SplitRepository = {
     });
   },
 
-  async recordSettlement(householdId, recordedBy, input) {
+  async acknowledgeSplitProposal(householdId, proposalId, uid) {
+    await updateDoc(doc(proposalsCol(householdId), proposalId), {
+      acknowledgedBy: uid,
+    });
+  },
+
+  async recordSettlement(householdId, recordedBy, input, solo) {
     await addDoc(settlementsCol(householdId), {
       recordedBy,
-      status: 'pending',
+      ...resolutionFields(solo, 'confirmed', recordedBy),
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       payerUid: input.payerUid,
       payeeUid: input.payeeUid,
       amount: input.amount,

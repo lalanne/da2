@@ -25,6 +25,13 @@ function proposalsCollection(householdId: string) {
   return collection(db(), 'households', householdId, 'proposals');
 }
 
+/** Spec 015 — see the native twin for the rationale. */
+function resolutionFields(solo: boolean, proposerId: string) {
+  return solo
+    ? { status: 'approved' as const, resolvedAt: serverTimestamp(), resolvedBy: proposerId }
+    : { status: 'pending' as const, resolvedAt: null, resolvedBy: null };
+}
+
 function toMillis(value: unknown): number {
   if (value && typeof (value as { toMillis?: () => number }).toMillis === 'function') {
     return (value as { toMillis: () => number }).toMillis();
@@ -82,14 +89,13 @@ export const custodyRepository: CustodyRepository = {
     );
   },
 
-  async createPatternProposal(householdId, proposerId, input: NewPatternInput) {
+  async createPatternProposal(householdId, proposerId, input: NewPatternInput, solo) {
     await addDoc(proposalsCollection(householdId), {
       type: 'pattern',
       proposerId,
-      status: 'pending',
+      ...resolutionFields(solo, proposerId),
+      acknowledgedBy: null,
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       cycle: input.cycle,
       anchorDate: input.anchorDate,
       changeoverTime: input.changeoverTime,
@@ -98,14 +104,13 @@ export const custodyRepository: CustodyRepository = {
     });
   },
 
-  async createDayOverrideProposal(householdId, proposerId, input: NewDayOverrideInput) {
+  async createDayOverrideProposal(householdId, proposerId, input: NewDayOverrideInput, solo) {
     await addDoc(proposalsCollection(householdId), {
       type: 'day-override',
       proposerId,
-      status: 'pending',
+      ...resolutionFields(solo, proposerId),
+      acknowledgedBy: null,
       createdAt: serverTimestamp(),
-      resolvedAt: null,
-      resolvedBy: null,
       date: input.date,
       assignedTo: input.assignedTo,
       startTime: input.startTime,
@@ -125,6 +130,12 @@ export const custodyRepository: CustodyRepository = {
     await updateDoc(doc(proposalsCollection(householdId), proposalId), {
       status: 'cancelled',
       resolvedAt: serverTimestamp(),
+    });
+  },
+
+  async acknowledgeProposal(householdId, proposalId, uid) {
+    await updateDoc(doc(proposalsCollection(householdId), proposalId), {
+      acknowledgedBy: uid,
     });
   },
 };
