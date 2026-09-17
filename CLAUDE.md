@@ -26,6 +26,37 @@ spec.** The process, defined in `specs/README.md`:
 Read `specs/000-overview.md` first — it holds the product vision, v1
 scope/out-of-scope table, and cross-cutting constraints.
 
+## Test-Driven Development — how every change is made
+
+This applies to **every** change — a new feature, a bug fix, a cosmetic
+fix, anything. Not optional, not just for "important" changes.
+
+1. **Write a failing test first, before any implementation code.** For a
+   bug fix, that test reproduces the bug — it fails against the current
+   code, for the same reason a real user hit it.
+2. Only then write the code to make it pass.
+3. **Every change ships with a regression test**, not just new-feature
+   coverage — a fix with no test guarding it can silently come back later
+   (this bit us for real: two production auth bugs each got fixed once on
+   native and, only on a second pass, discovered to have zero test
+   coverage on the web twin — exactly how a fix quietly stops holding on
+   the platform nobody's watching).
+4. This isn't only about unit tests. Reach for whichever layer actually
+   exercises the change: `firebase/tests/**` (Firestore/Storage rules —
+   the emulator, never a real project) for anything security-rule-shaped;
+   a mocked-SDK test asserting the *exact* call shape (arguments, not just
+   "was called") when the bug lives in how a third-party SDK is invoked,
+   the way both real production bugs above did; an end-to-end / acceptance
+   test when the change is best verified as a full user flow. There is no
+   Maestro/e2e harness in this repo yet (planned in spec 001, never
+   built) — if a change genuinely needs that layer to be trustworthy, that
+   infrastructure is part of the change, not something to skip past.
+5. When you can *prove* a regression test would have caught the bug (e.g.
+   by temporarily reverting the fix locally and watching it fail), that's
+   worth doing and saying so — it's the difference between a real
+   regression test and a tautological one. Never leave the revert in
+   place; it's a local sanity check, not part of the change.
+
 ## Commands
 
 - `npm start` / `npm run android` / `npm run ios` — Expo dev server. Note:
