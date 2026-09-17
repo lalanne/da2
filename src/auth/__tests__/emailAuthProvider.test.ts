@@ -43,7 +43,11 @@ describe('emailAuthProvider.signUp', () => {
 
     expect(mockCreateUser).toHaveBeenCalledWith(expect.anything(), 'ana@example.com', 'password123');
     expect(mockUpdateProfile).toHaveBeenCalledWith(rawUser, { displayName: 'Ana' });
-    expect(mockSendEmailVerification).toHaveBeenCalledWith(rawUser);
+    // Regression — see the sendPasswordReset test for why this matters.
+    expect(mockSendEmailVerification).toHaveBeenCalledWith(
+      rawUser,
+      expect.objectContaining({ url: expect.any(String) }),
+    );
     expect(user).toEqual({
       uid: 'uid-1',
       displayName: 'Ana',
@@ -88,6 +92,20 @@ describe('emailAuthProvider.sendPasswordReset', () => {
     await expect(emailAuthProvider.sendPasswordReset('ana@example.com')).resolves.toBeUndefined();
   });
 
+  // Regression: calling this with no actionCodeSettings throws inside the
+  // native SDK now that Dynamic Links (the old fallback) is shut down —
+  // surfaces to a real user as a mangled "Cannot read property 'replace' of
+  // undefined", not a real error code. Always pass an explicit continue URL.
+  it('always passes an explicit actionCodeSettings (regression)', async () => {
+    mockSendPasswordReset.mockResolvedValue(undefined);
+    await emailAuthProvider.sendPasswordReset('ana@example.com');
+    expect(mockSendPasswordReset).toHaveBeenCalledWith(
+      expect.anything(),
+      'ana@example.com',
+      expect.objectContaining({ url: expect.any(String) }),
+    );
+  });
+
   it('swallows a not-found error (never reveal account existence)', async () => {
     mockSendPasswordReset.mockRejectedValue({ code: 'auth/user-not-found' });
     await expect(emailAuthProvider.sendPasswordReset('nobody@example.com')).resolves.toBeUndefined();
@@ -110,7 +128,10 @@ describe('emailAuthProvider.resendVerificationEmail', () => {
     mockCurrentUser = rawUser;
     mockSendEmailVerification.mockResolvedValue(undefined);
     await emailAuthProvider.resendVerificationEmail();
-    expect(mockSendEmailVerification).toHaveBeenCalledWith(rawUser);
+    expect(mockSendEmailVerification).toHaveBeenCalledWith(rawUser, {
+      url: 'https://da2-coparenting.web.app',
+      handleCodeInApp: false,
+    });
   });
 });
 
