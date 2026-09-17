@@ -6,6 +6,7 @@ import {
   sendEmailVerification,
   updateProfile,
   reload,
+  getIdToken,
   browserLocalPersistence,
   setPersistence,
   type User,
@@ -82,6 +83,10 @@ export const emailAuthProvider: EmailAuthProvider = {
     const user = auth().currentUser;
     if (!user) return null;
     await reload(user);
+    // See the native twin — reload() alone leaves the cached ID token (and
+    // its stale email_verified claim) in place; force a fresh one so
+    // Firestore requests right after this stop failing signedIn().
+    await getIdToken(auth().currentUser ?? user, true);
     return toAuthUser(auth().currentUser ?? user);
   },
 };
