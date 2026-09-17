@@ -1,6 +1,6 @@
 # 015 — Solo parent (using the app without the co-parent)
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 002 (household), 004 (custody calendar), 010 (expense
 splitting). Touches 003 (receipts) only in how the balance is presented.
 
@@ -271,3 +271,43 @@ sentinel. No status enum changes.
   safety argument — changing it would require revisiting this spec.
 - Inviting a third participant (a lawyer, a mediator, a grandparent).
 - Any change to how receipts are shared or how `splitPercentA` freezes.
+
+## Verification results (2026-09-17)
+
+Implemented as designed, both native and web (same components via
+react-native-web, per spec 011/012 — no platform-specific work needed).
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | Solo custody pattern self-approves at creation | ✅ `firestore.rules — solo self-approval at create`; `createPatternProposal(..., solo)` |
+| 2 | Solo split table + settlement self-resolve against `ABSENT_CO_PARENT` | ✅ same rules suite; `BalanceCard`/`BalanceDetail` solo tests (previously these silently showed nothing while solo — fixed as part of this spec) |
+| 3 | Two-parent self-approval still rejected | ✅ `firestore.rules — self-approval is impossible with two parents (regression)`; full pre-existing 69-test rules suite re-passed unchanged |
+| 4 | `coParentName` shown everywhere the generic fallback used to be | ✅ centralized in `parentName()` (calendar), plus `BalanceCard`/`BalanceDetail`/`SplitProposeForm`/`SplitTableView` |
+| 5 | Newcomer lands normally, sees a review card, items marked provisional | ✅ `HouseholdTab` banner + `ReviewQueueScreen`; "aún no acordado" badge on the calendar base view and `SplitTableView` |
+| 6 | Accept sets `acknowledgedBy`, touches nothing else | ✅ rules `acknowledgeProposal()`/`acknowledgeSplit()` (`hasOnly(['acknowledgedBy'])`, pinned by tests); store + screen tests |
+| 7 | Counter-proposing uses the ordinary propose/approve flow | ✅ — with one honest caveat: the **inline** badges (calendar base view, `SplitTableView`) open the form directly in one tap; the **aggregated** `ReviewQueueScreen`'s "Proponer algo distinto" hands off to the owning tab (one extra tap to actually open the form there), not a deep link into it |
+| 8 | Two-segment balance, solo period never silently merged | ✅ `computeBalanceSegments()` (21 unit tests) + `BalanceDetail` rendering test |
+| 9 | Rules: append-only `parentIds`, sentinel rejected, `acknowledgeProposal` guarded | ✅ `firestore.rules — parentIds append-only`, `— setCoParentName`, `— acknowledging a unilateral decision` (17 tests total in `solo.rules.test.ts`) |
+| 10 | Historical records stay read-only | ✅ unchanged specs 003/010 rules, plus a spec-015-specific case (a solo-confirmed settlement can't be touched post-join) |
+
+**Automated:** `src/solo/__tests__/` (provisional.test.ts, segments.test.ts —
+21 tests); `firebase/tests/solo.rules.test.ts` (17 tests) plus updates to
+every existing rules test file that creates a household/proposal (new
+required fields — `authenticatedContext(...)` calls, seed payloads); screen
+tests across `split.smoke.test.tsx`, `screens.smoke.test.tsx`,
+`ReviewQueueScreen.test.tsx`, `calendarTab.wideWeb.test.tsx`. 47 unit suites
+/ 329 tests, 10 rules suites / 86 tests, `tsc --noEmit` clean.
+
+**Not done:**
+- **Manual walkthrough with a real third account** (the spec's own
+  Verification plan calls this out as the first spec needing one) — not
+  run. Everything above is automated (emulator rules tests + component
+  tests with mocked stores), not a live Firebase project.
+- **Not deployed.** Per the repo's branch+PR rule (adopted mid-session),
+  this ships as a PR for review rather than straight to `main`; the
+  rules changes here are more invasive than any prior spec's (they touch
+  the `create` path for every proposal/settlement collection), so — same
+  as spec 014's rules deploy — actually deploying to `firestore.rules` /
+  `storage.rules` on `da2-coparenting`, the OTA update, and the web
+  rebuild should wait for an explicit go-ahead after review, not happen
+  automatically on merge.

@@ -26,7 +26,7 @@ This project is built spec-first. Rules:
 | 012 | [Responsive web layout](012-responsive-web-layout.md) | implemented |
 | 013 | [Receipt auto-extraction](013-receipt-auto-extraction.md) | draft — **v2, deferred** |
 | 014 | [Email/password accounts](014-email-password-auth.md) | implemented |
-| 015 | [Solo parent (app without the co-parent)](015-solo-parent.md) | draft |
+| 015 | [Solo parent (app without the co-parent)](015-solo-parent.md) | implemented |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
