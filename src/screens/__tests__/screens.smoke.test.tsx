@@ -73,13 +73,14 @@ describe('screen smoke tests', () => {
   });
 
   it('HouseholdTab renders the greeting and sign-out', async () => {
-    mockedAuth.mockReturnValue({ user: { displayName: 'Javiera' }, signOut: jest.fn() });
+    mockedAuth.mockReturnValue({ user: { uid: 'u1', displayName: 'Javiera' }, signOut: jest.fn() });
     mockedHousehold.mockReturnValue({
       household: soleParentHousehold,
       members: [{ uid: 'u1', displayName: 'Javiera', isYou: true }],
       regenerateInviteCode: jest.fn(),
       isSubmitting: false,
     });
+    mockedCustody.mockImplementation(selectable({ proposals: [] }));
     await render(<HouseholdTab />);
 
     expect(screen.getByText('Hola, Javiera')).toBeTruthy();
