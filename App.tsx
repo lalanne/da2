@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './src/store/authStore';
 import { useHouseholdStore } from './src/store/householdStore';
@@ -41,10 +42,12 @@ export default function App() {
   }, [user]);
 
   return (
-    <View style={styles.container}>
-      {renderContent()}
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        {renderContent()}
+        <StatusBar style="auto" />
+      </View>
+    </SafeAreaProvider>
   );
 
   function renderContent() {

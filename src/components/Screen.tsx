@@ -2,17 +2,13 @@ import type { ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  // RN's built-in SafeAreaView is deprecated in favour of
-  // react-native-safe-area-context — but that's a native module and spec 007
-  // must stay OTA-deployable, so we use the built-in until the pilot next
-  // takes a native build.
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   View,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme';
 
 interface Props {
