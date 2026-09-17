@@ -18,6 +18,14 @@ function auth() {
   return getAuth(webApp());
 }
 
+// See the native twin for the full rationale — an explicit continue URL is
+// now required (Dynamic Links, the old fallback, is shut down). Kept here
+// too for parity even though the web SDK is less exposed to this failure.
+const ACTION_CODE_SETTINGS = {
+  url: 'https://da2-coparenting.web.app',
+  handleCodeInApp: false,
+};
+
 function toAuthUser(user: User): AuthUser {
   return {
     uid: user.uid,
@@ -34,7 +42,7 @@ export const emailAuthProvider: EmailAuthProvider = {
       await setPersistence(auth(), browserLocalPersistence);
       const { user } = await createUserWithEmailAndPassword(auth(), email, password);
       await updateProfile(user, { displayName: name });
-      await sendEmailVerification(user);
+      await sendEmailVerification(user, ACTION_CODE_SETTINGS);
       return { ...toAuthUser(user), displayName: name };
     } catch (error) {
       throw mapAuthError(error);
@@ -53,7 +61,7 @@ export const emailAuthProvider: EmailAuthProvider = {
 
   async sendPasswordReset(email) {
     try {
-      await sendPasswordResetEmail(auth(), email);
+      await sendPasswordResetEmail(auth(), email, ACTION_CODE_SETTINGS);
     } catch (error) {
       const kind = mapAuthError(error).kind;
       if (kind !== 'wrongCredentials') throw mapAuthError(error);
@@ -64,7 +72,7 @@ export const emailAuthProvider: EmailAuthProvider = {
     const user = auth().currentUser;
     if (!user) return;
     try {
-      await sendEmailVerification(user);
+      await sendEmailVerification(user, ACTION_CODE_SETTINGS);
     } catch (error) {
       throw mapAuthError(error);
     }

@@ -10,6 +10,19 @@ import {
 import { mapAuthError } from './mapAuthError';
 import type { AuthUser, EmailAuthProvider } from './AuthProvider';
 
+// Required as of 2026 — Firebase's action-link emails (verify/reset) used to
+// fall back to a Dynamic Link for the "continue" URL when none was given;
+// Dynamic Links has since been shut down, and calling sendEmailVerification /
+// sendPasswordResetEmail with no actionCodeSettings now throws inside the
+// native SDK on iOS (surfaces as a mangled "Cannot read property 'replace'
+// of undefined" — nothing to do with our own code). Always pass an explicit
+// continue URL; `handleCodeInApp: false` means Firebase's own hosted page
+// handles the link, then redirects here.
+const ACTION_CODE_SETTINGS = {
+  url: 'https://da2-coparenting.web.app',
+  handleCodeInApp: false,
+};
+
 function toAuthUser(user: {
   uid: string;
   displayName: string | null;
@@ -31,7 +44,7 @@ export const emailAuthProvider: EmailAuthProvider = {
     try {
       const { user } = await createUserWithEmailAndPassword(getAuth(), email, password);
       await updateProfile(user, { displayName: name });
-      await sendEmailVerification(user);
+      await sendEmailVerification(user, ACTION_CODE_SETTINGS);
       return toAuthUser({ ...user, displayName: name });
     } catch (error) {
       throw mapAuthError(error);
@@ -49,7 +62,7 @@ export const emailAuthProvider: EmailAuthProvider = {
 
   async sendPasswordReset(email) {
     try {
-      await sendPasswordResetEmail(getAuth(), email);
+      await sendPasswordResetEmail(getAuth(), email, ACTION_CODE_SETTINGS);
     } catch (error) {
       // Never let "no such account" leak — the store/UI shows the same
       // confirmation either way (spec 014), so a not-found here is a no-op.
@@ -62,7 +75,7 @@ export const emailAuthProvider: EmailAuthProvider = {
     const user = getAuth().currentUser;
     if (!user) return;
     try {
-      await sendEmailVerification(user);
+      await sendEmailVerification(user, ACTION_CODE_SETTINGS);
     } catch (error) {
       throw mapAuthError(error);
     }
