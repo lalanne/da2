@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme';
 import { Text } from './Text';
 
@@ -12,12 +13,19 @@ interface Props {
   items: TabItem[];
   active: string;
   onChange: (key: string) => void;
+  testID?: string;
 }
 
-/** Bottom tab bar. No navigator dependency — a controlled segmented switch. */
-export function TabBar({ items, active, onChange }: Props) {
+/**
+ * Bottom tab bar. No navigator dependency — a controlled segmented switch.
+ * Pads for the bottom safe-area inset itself (rather than relying on a
+ * parent) so an Android on-screen nav bar can't sit on top of the labels —
+ * that overlap made the bar untappable on a pilot phone in 3-button mode.
+ */
+export function TabBar({ items, active, onChange, testID }: Props) {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { paddingBottom: insets.bottom }]} testID={testID}>
       {items.map((item) => {
         const isActive = item.key === active;
         return (
