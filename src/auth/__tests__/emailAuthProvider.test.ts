@@ -4,6 +4,7 @@ const mockSendPasswordReset = jest.fn();
 const mockSendEmailVerification = jest.fn();
 const mockUpdateProfile = jest.fn();
 const mockReload = jest.fn();
+const mockGetIdToken = jest.fn();
 
 let mockCurrentUser: unknown = null;
 
@@ -15,6 +16,7 @@ jest.mock('@react-native-firebase/auth', () => ({
   sendEmailVerification: (...args: unknown[]) => mockSendEmailVerification(...args),
   updateProfile: (...args: unknown[]) => mockUpdateProfile(...args),
   reload: (...args: unknown[]) => mockReload(...args),
+  getIdToken: (...args: unknown[]) => mockGetIdToken(...args),
 }));
 
 import { emailAuthProvider } from '../emailAuthProvider';
@@ -150,6 +152,13 @@ describe('emailAuthProvider.reloadCurrentUser', () => {
     });
 
     const result = await emailAuthProvider.reloadCurrentUser();
+    // Regression: reload() alone leaves the cached ID token's
+    // email_verified claim stale — every Firestore request keeps failing
+    // signedIn() until the token is force-refreshed. This bit a real user
+    // in production: verification succeeded, but they were stuck on a
+    // permanently blank/loading screen afterward because every listener
+    // kept silently retrying against the stale claim.
+    expect(mockGetIdToken).toHaveBeenCalledWith(expect.anything(), true);
 
     expect(mockReload).toHaveBeenCalled();
     expect(result?.emailVerified).toBe(true);
