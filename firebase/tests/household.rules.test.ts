@@ -12,6 +12,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  serverTimestamp,
   setDoc,
   updateDoc,
   writeBatch,
@@ -63,6 +64,8 @@ async function seedOneParentHousehold() {
       parentIds: [CREATOR],
       children: [{ id: 'c1', name: 'Sofía', birthdate: null }],
       pendingInviteCode: CODE,
+      coParentName: null,
+      coParentJoinedAt: null,
       createdBy: CREATOR,
     });
     await setDoc(doc(db, 'inviteCodes', CODE), {
@@ -102,6 +105,8 @@ describe('firestore.rules — households / inviteCodes (spec 002)', () => {
           parentIds: [CREATOR],
           children: [{ id: 'c1', name: 'Sofía', birthdate: null }],
           pendingInviteCode: CODE,
+          coParentName: null,
+          coParentJoinedAt: null,
           createdBy: CREATOR,
         }),
       );
@@ -209,6 +214,7 @@ describe('firestore.rules — households / inviteCodes (spec 002)', () => {
         updateDoc(doc(db(JOINER), 'households', HID), {
           parentIds: arrayUnion(JOINER),
           pendingInviteCode: null,
+          coParentJoinedAt: serverTimestamp(),
         }),
       );
     });

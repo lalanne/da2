@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { HouseholdPanel } from '../HouseholdPanel';
 import { HouseholdTab } from '../HouseholdTab';
 import { MainScreen } from '../MainScreen';
@@ -73,13 +73,14 @@ describe('screen smoke tests', () => {
   });
 
   it('HouseholdTab renders the greeting and sign-out', async () => {
-    mockedAuth.mockReturnValue({ user: { displayName: 'Javiera' }, signOut: jest.fn() });
+    mockedAuth.mockReturnValue({ user: { uid: 'u1', displayName: 'Javiera' }, signOut: jest.fn() });
     mockedHousehold.mockReturnValue({
       household: soleParentHousehold,
       members: [{ uid: 'u1', displayName: 'Javiera', isYou: true }],
       regenerateInviteCode: jest.fn(),
       isSubmitting: false,
     });
+    mockedCustody.mockImplementation(selectable({ proposals: [] }));
     await render(<HouseholdTab />);
 
     expect(screen.getByText('Hola, Javiera')).toBeTruthy();
@@ -114,5 +115,63 @@ describe('screen smoke tests', () => {
 
     expect(screen.getByTestId('onboarding-create-button')).toBeTruthy();
     expect(screen.getByTestId('onboarding-join-button')).toBeTruthy();
+  });
+
+  // Spec 015 — solo parent.
+  describe('HouseholdPanel — co-parent naming', () => {
+    it('offers the name field only while solo, and saves it', async () => {
+      const setCoParentName = jest.fn(async () => true);
+      mockedHousehold.mockReturnValue({
+        household: { ...soleParentHousehold, coParentName: null, coParentJoinedAt: null },
+        members: [{ uid: 'u1', displayName: 'Javiera', isYou: true }],
+        regenerateInviteCode: jest.fn(),
+        setCoParentName,
+        isSubmitting: false,
+      });
+      await render(<HouseholdPanel />);
+
+      expect(screen.getByTestId('co-parent-name-box')).toBeTruthy();
+      await act(async () => {
+        fireEvent.changeText(screen.getByTestId('co-parent-name-field'), 'Cristián');
+      });
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('co-parent-name-save'));
+      });
+      expect(setCoParentName).toHaveBeenCalledWith('Cristián');
+    });
+
+    it('shows the saved name in the empty member slot', async () => {
+      mockedHousehold.mockReturnValue({
+        household: { ...soleParentHousehold, coParentName: 'Cristián', coParentJoinedAt: null },
+        members: [{ uid: 'u1', displayName: 'Javiera', isYou: true }],
+        regenerateInviteCode: jest.fn(),
+        setCoParentName: jest.fn(),
+        isSubmitting: false,
+      });
+      await render(<HouseholdPanel />);
+
+      expect(screen.getByText('Cristián')).toBeTruthy();
+    });
+
+    it('hides the name field once a second parent has joined', async () => {
+      mockedHousehold.mockReturnValue({
+        household: {
+          ...soleParentHousehold,
+          parentIds: ['u1', 'u2'],
+          pendingInviteCode: null,
+          coParentJoinedAt: 1,
+        },
+        members: [
+          { uid: 'u1', displayName: 'Javiera', isYou: true },
+          { uid: 'u2', displayName: 'Cristián', isYou: false },
+        ],
+        regenerateInviteCode: jest.fn(),
+        setCoParentName: jest.fn(),
+        isSubmitting: false,
+      });
+      await render(<HouseholdPanel />);
+
+      expect(screen.queryByTestId('co-parent-name-box')).toBeNull();
+    });
   });
 });

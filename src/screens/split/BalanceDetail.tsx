@@ -6,10 +6,11 @@ import { strings } from '../../i18n/strings';
 import { useReceiptsStore } from '../../store/receiptsStore';
 import { useSplitStore } from '../../store/splitStore';
 import { buildSettlementInput, receiptShares, type SettlementFormState } from '../../split';
+import { computeBalanceSegments } from '../../solo';
 import { formatAmount } from '../../receipts';
 import { DEFAULT_CURRENCY } from '../../models/Receipt';
 import type { Settlement } from '../../models/Split';
-import type { Household } from '../../models/Household';
+import { ABSENT_CO_PARENT, isSoloHousehold, type Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
 
 interface Props {
@@ -27,18 +28,59 @@ export function BalanceDetail({ household, members, currentUid, onBack, onSplitT
   const [recording, setRecording] = useState(false);
 
   const [a] = household.parentIds;
+  const solo = isSoloHousehold(household);
   const nameFor = (uid: string) =>
     uid === currentUid
       ? strings.household.settings.you
-      : members.find((m) => m.uid === uid)?.displayName ?? strings.custody.theOtherParent;
+      : uid === ABSENT_CO_PARENT
+        ? (household.coParentName ?? strings.custody.theOtherParent)
+        : (members.find((m) => m.uid === uid)?.displayName ?? strings.custody.theOtherParent);
+  // Spec 015 — while solo there is no second uid; settlements pair the
+  // sole parent with the ABSENT_CO_PARENT sentinel instead.
   const other =
-    members.find((m) => m.uid !== currentUid)?.uid ?? household.parentIds.find((x) => x !== currentUid) ?? '';
+    members.find((m) => m.uid !== currentUid)?.uid ??
+    household.parentIds.find((x) => x !== currentUid) ??
+    ABSENT_CO_PARENT;
+
+  // Spec 015 requirement 5 — the two-segment balance. Only meaningfully
+  // different from a single figure once there's been a solo period AND a
+  // join; computeBalanceSegments() itself collapses to one segment otherwise.
+  const segments = computeBalanceSegments(
+    shared,
+    store.settlements,
+    [a, other],
+    household.coParentJoinedAt,
+  );
+  const segmentLine = (net: number, otherLabel: string) => {
+    const mine = a === currentUid ? net : -net;
+    if (mine === 0) return strings.split.balance.settled;
+    return mine > 0
+      ? strings.split.balance.youOwe(otherLabel, formatAmount(mine, DEFAULT_CURRENCY))
+      : strings.split.balance.owes(otherLabel, formatAmount(-mine, DEFAULT_CURRENCY));
+  };
 
   return (
     <Screen scroll>
       <Text variant="title" style={styles.title}>
         {d.title}
       </Text>
+
+      {segments.solo ? (
+        <View style={styles.segments} testID="balance-segments">
+          <Card style={styles.segmentCard} testID="balance-segment-solo">
+            <Text variant="label" color="textSecondary">
+              {strings.solo.balance.soloSegment(nameFor(other))}
+            </Text>
+            <Text variant="body">{segmentLine(segments.solo.netAOwesB, nameFor(other))}</Text>
+          </Card>
+          <Card style={styles.segmentCard} testID="balance-segment-agreed">
+            <Text variant="label" color="textSecondary">
+              {strings.solo.balance.agreedSegment}
+            </Text>
+            <Text variant="body">{segmentLine(segments.agreed.netAOwesB, nameFor(other))}</Text>
+          </Card>
+        </View>
+      ) : null}
 
       <Pressable onPress={onSplitTable} style={styles.tableLink} testID="balance-to-split-table">
         <Text variant="label" color="accent">
@@ -54,6 +96,7 @@ export function BalanceDetail({ household, members, currentUid, onBack, onSplitT
           currentUid={currentUid}
           otherUid={other}
           otherName={nameFor(other)}
+          solo={solo}
           onDone={() => setRecording(false)}
           onCancel={() => setRecording(false)}
         />
@@ -213,12 +256,14 @@ function SettlementForm({
   currentUid,
   otherUid,
   otherName,
+  solo,
   onDone,
   onCancel,
 }: {
   currentUid: string;
   otherUid: string;
   otherName: string;
+  solo: boolean;
   onDone: () => void;
   onCancel: () => void;
 }) {
@@ -239,7 +284,7 @@ function SettlementForm({
       return;
     }
     setError(null);
-    const ok = await store.recordSettlement(result.value);
+    const ok = await store.recordSettlement(result.value, solo);
     if (ok) onDone();
   };
 
@@ -283,6 +328,8 @@ function SettlementForm({
 
 const styles = StyleSheet.create({
   title: { marginBottom: theme.spacing.sm },
+  segments: { gap: theme.spacing.sm, marginBottom: theme.spacing.md },
+  segmentCard: { gap: theme.spacing.xs },
   tableLink: {
     flexDirection: 'row',
     alignItems: 'center',

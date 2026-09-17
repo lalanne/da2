@@ -37,6 +37,8 @@ interface HouseholdState {
   createHousehold: (input: NewHouseholdInput) => Promise<boolean>;
   joinHousehold: (rawCode: string) => Promise<boolean>;
   regenerateInviteCode: () => Promise<void>;
+  /** Spec 015 — the solo parent names the absent co-parent. */
+  setCoParentName: (name: string) => Promise<boolean>;
   clearActionError: () => void;
 }
 
@@ -268,6 +270,21 @@ export function createHouseholdStore(repo: HouseholdRepository) {
           );
         } catch (error) {
           set({ actionError: messageFor(error, 'joinFailed') });
+        } finally {
+          set({ isSubmitting: false });
+        }
+      },
+
+      setCoParentName: async (name) => {
+        const { household, isSubmitting } = get();
+        if (!household || isSubmitting) return false;
+        set({ isSubmitting: true, actionError: null });
+        try {
+          await repo.setCoParentName(household.id, name.trim());
+          return true;
+        } catch {
+          set({ actionError: strings.common.genericError });
+          return false;
         } finally {
           set({ isSubmitting: false });
         }

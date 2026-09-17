@@ -257,3 +257,7 @@ spec 003 walkthrough).
 - Reminders / notifications about money owed (a spec 008 concern later).
 - Statements / PDF export of the ledger.
 - Splits other than between the two household parents.
+- Running the split table, balance and settlements with no co-parent in the
+  household → **spec 015** (self-approval while `parentIds.size() == 1`, an
+  `ABSENT_CO_PARENT` sentinel for settlement uids, and a two-segment balance
+  once a co-parent joins).

@@ -21,10 +21,14 @@ interface CustodyState {
 
   start: (householdId: string, uid: string) => void;
   stop: () => void;
-  proposePattern: (input: NewPatternInput) => Promise<boolean>;
-  proposeDayOverride: (input: NewDayOverrideInput) => Promise<boolean>;
+  /** `solo`: the caller's household currently has one parent (spec 015) —
+   *  the proposal self-approves instead of waiting on a co-parent. */
+  proposePattern: (input: NewPatternInput, solo: boolean) => Promise<boolean>;
+  proposeDayOverride: (input: NewDayOverrideInput, solo: boolean) => Promise<boolean>;
   resolve: (proposalId: string, decision: 'approved' | 'rejected') => Promise<boolean>;
   cancel: (proposalId: string) => Promise<boolean>;
+  /** Spec 015 — a newly-joined co-parent accepts a unilateral decision. */
+  acknowledge: (proposalId: string) => Promise<boolean>;
   clearActionError: () => void;
 }
 
@@ -80,22 +84,22 @@ export function createCustodyStore(repo: CustodyRepository) {
         set({ status: 'idle', proposals: [], isSubmitting: false, actionError: null });
       },
 
-      proposePattern: (input) => {
+      proposePattern: (input, solo) => {
         if (!householdId || !uid) return Promise.resolve(false);
         const hid = householdId;
         const me = uid;
         return run(
-          () => repo.createPatternProposal(hid, me, input),
+          () => repo.createPatternProposal(hid, me, input, solo),
           strings.custody.errors.proposeFailed,
         );
       },
 
-      proposeDayOverride: (input) => {
+      proposeDayOverride: (input, solo) => {
         if (!householdId || !uid) return Promise.resolve(false);
         const hid = householdId;
         const me = uid;
         return run(
-          () => repo.createDayOverrideProposal(hid, me, input),
+          () => repo.createDayOverrideProposal(hid, me, input, solo),
           strings.custody.errors.proposeFailed,
         );
       },
@@ -115,6 +119,16 @@ export function createCustodyStore(repo: CustodyRepository) {
         const hid = householdId;
         return run(
           () => repo.cancelProposal(hid, proposalId),
+          strings.custody.errors.resolveFailed,
+        );
+      },
+
+      acknowledge: (proposalId) => {
+        if (!householdId || !uid) return Promise.resolve(false);
+        const hid = householdId;
+        const me = uid;
+        return run(
+          () => repo.acknowledgeProposal(hid, proposalId, me),
           strings.custody.errors.resolveFailed,
         );
       },

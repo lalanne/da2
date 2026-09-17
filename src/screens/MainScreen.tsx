@@ -49,7 +49,7 @@ export function MainScreen() {
     ) : tab === 'receipts' ? (
       <ReceiptsScreen />
     ) : (
-      <HouseholdTab />
+      <HouseholdTab onOpenTab={(key) => setTab(key)} />
     );
 
   // Spec 012: a wide browser window gets a persistent sidebar instead of

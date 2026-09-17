@@ -13,6 +13,15 @@ service cloud.firestore {
     function uid() {
       return request.auth.uid;
     }
+    // Spec 015 — stands in for the co-parent's uid on solo-period records
+    // (settlements). Never a real uid, so it can never equal uid(); rejected
+    // below if it ever appears in parentIds.
+    function absentCoParent() {
+      return '__coparent__';
+    }
+    function solo(id) {
+      return household(id).parentIds.size() == 1;
+    }
     function inviteCode(code) {
       return get(/databases/$(database)/documents/inviteCodes/$(code)).data;
     }
@@ -117,10 +126,14 @@ service cloud.firestore {
         && request.resource.data.children is list
         && request.resource.data.children.size() >= 1
         && request.resource.data.pendingInviteCode is string
+        // Spec 015 fields start unset; set later via setCoParentName() /
+        // secondParentJoins() so there's exactly one place each is written.
+        && request.resource.data.coParentName == null
+        && request.resource.data.coParentJoinedAt == null
         && !inHousehold();
 
       allow update: if signedIn()
-        && (regenerateCode() || secondParentJoins() || setTimezone());
+        && (regenerateCode() || secondParentJoins() || setTimezone() || setCoParentName());
 
       allow delete: if false;
 
@@ -144,10 +157,23 @@ service cloud.firestore {
           && request.resource.data.parentIds.size() == 2
           && request.resource.data.parentIds[0] == resource.data.parentIds[0]
           && request.resource.data.parentIds[1] == uid()
+          && request.resource.data.parentIds[1] != absentCoParent() // spec 015, criterion 9
           && request.resource.data.pendingInviteCode == null
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentIds', 'pendingInviteCode'])
+          && request.resource.data.coParentJoinedAt is timestamp
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['parentIds', 'pendingInviteCode', 'coParentJoinedAt'])
           && resource.data.pendingInviteCode != null
           && inviteCode(resource.data.pendingInviteCode).redeemedBy == uid();
+      }
+
+      // Spec 015 — the solo parent names the absent side ("Cristián"); only
+      // while solo, so it can't be used to rewrite who the real co-parent is
+      // once one has joined.
+      function setCoParentName() {
+        return resource.data.parentIds.size() == 1
+          && resource.data.parentIds[0] == uid()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coParentName'])
+          && request.resource.data.coParentName is string;
       }
     }
 
@@ -189,8 +215,23 @@ service cloud.firestore {
 
       allow create: if member()
         && request.resource.data.proposerId == uid()
-        && request.resource.data.status == 'pending'
-        && request.resource.data.resolvedBy == null
+        && request.resource.data.acknowledgedBy == null
+        && (
+          // The normal, two-parent path: always starts pending.
+          (
+            request.resource.data.status == 'pending'
+            && request.resource.data.resolvedBy == null
+          )
+          ||
+          // Spec 015 — a solo household self-approves at creation; there is
+          // nobody else to wait on. Impossible once a second parent has
+          // joined (resolveProposal() below still requires a DIFFERENT uid).
+          (
+            solo(hid)
+            && request.resource.data.status == 'approved'
+            && request.resource.data.resolvedBy == uid()
+          )
+        )
         && (
           (
             request.resource.data.type == 'pattern'
@@ -208,10 +249,12 @@ service cloud.firestore {
           )
         );
 
-      allow update: if member() && (resolveProposal() || cancelProposal());
+      allow update: if member() && (resolveProposal() || cancelProposal() || acknowledgeProposal());
       allow delete: if false;
 
-      // Only the NON-proposing parent approves / rejects (criterion 5).
+      // Only the NON-proposing parent approves / rejects (criterion 5). Note
+      // this alone can never fire in a solo household — there is no second
+      // member() — so it can't be used to bypass the create-time rule above.
       function resolveProposal() {
         return resource.data.proposerId != uid()
           && resource.data.status == 'pending'
@@ -228,6 +271,19 @@ service cloud.firestore {
           && request.resource.data.status == 'cancelled'
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['status', 'resolvedAt']);
+      }
+
+      // Spec 015 — a newly-joined co-parent accepts a decision the solo
+      // parent made unilaterally (resolvedBy == proposerId is only possible
+      // via the solo create-time branch above). Only the OTHER parent can
+      // acknowledge — never the one who made it — and only once.
+      function acknowledgeProposal() {
+        return household(hid).parentIds.size() == 2
+          && resource.data.resolvedBy == resource.data.proposerId
+          && uid() != resource.data.proposerId
+          && resource.data.acknowledgedBy == null
+          && request.resource.data.acknowledgedBy == uid()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acknowledgedBy']);
       }
     }
 
@@ -324,14 +380,26 @@ service cloud.firestore {
 
       allow create: if member()
         && request.resource.data.proposerId == uid()
-        && request.resource.data.status == 'pending'
-        && request.resource.data.resolvedBy == null
+        && request.resource.data.acknowledgedBy == null
+        && (
+          (
+            request.resource.data.status == 'pending'
+            && request.resource.data.resolvedBy == null
+          )
+          ||
+          // Spec 015 — solo self-approval at creation, same as custody.
+          (
+            solo(hid)
+            && request.resource.data.status == 'approved'
+            && request.resource.data.resolvedBy == uid()
+          )
+        )
         && request.resource.data.defaultPercentA is number
         && request.resource.data.defaultPercentA >= 0
         && request.resource.data.defaultPercentA <= 100
         && request.resource.data.overrides is map;
 
-      allow update: if member() && (resolveSplit() || cancelSplit());
+      allow update: if member() && (resolveSplit() || cancelSplit() || acknowledgeSplit());
       allow delete: if false;
 
       // Only the NON-proposing parent approves / rejects.
@@ -350,6 +418,15 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['status', 'resolvedAt']);
       }
+      // Spec 015 — see acknowledgeProposal() on households/{hid}/proposals.
+      function acknowledgeSplit() {
+        return household(hid).parentIds.size() == 2
+          && resource.data.resolvedBy == resource.data.proposerId
+          && uid() != resource.data.proposerId
+          && resource.data.acknowledgedBy == null
+          && request.resource.data.acknowledgedBy == uid()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acknowledgedBy']);
+      }
     }
 
     // ---- households/{hid}/settlements/{settlementId} — spec 010 ----
@@ -363,11 +440,32 @@ service cloud.firestore {
 
       allow create: if member()
         && request.resource.data.recordedBy == uid()
-        && request.resource.data.status == 'pending'
-        && request.resource.data.resolvedBy == null
-        && request.resource.data.payerUid in household(hid).parentIds
-        && request.resource.data.payeeUid in household(hid).parentIds
         && request.resource.data.payerUid != request.resource.data.payeeUid
+        && (
+          // The normal, two-parent path: both real parents, starts pending.
+          (
+            request.resource.data.payerUid in household(hid).parentIds
+            && request.resource.data.payeeUid in household(hid).parentIds
+            && request.resource.data.status == 'pending'
+            && request.resource.data.resolvedBy == null
+          )
+          ||
+          // Spec 015 — solo: one side is the absent-co-parent sentinel (never
+          // a real parentIds member, so the branch above can't match it), and
+          // there's nobody else to confirm, so it's self-confirmed immediately.
+          (
+            solo(hid)
+            && request.resource.data.status == 'confirmed'
+            && request.resource.data.resolvedBy == uid()
+            && (
+              (request.resource.data.payerUid == uid()
+                && request.resource.data.payeeUid == absentCoParent())
+              ||
+              (request.resource.data.payerUid == absentCoParent()
+                && request.resource.data.payeeUid == uid())
+            )
+          )
+        )
         && request.resource.data.amount is number
         && request.resource.data.amount > 0
         && request.resource.data.currency is string;

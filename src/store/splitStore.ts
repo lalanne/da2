@@ -23,10 +23,13 @@ interface SplitState {
 
   start: (householdId: string, uid: string) => void;
   stop: () => void;
-  propose: (input: NewSplitProposalInput) => Promise<boolean>;
+  /** `solo`: spec 015 — self-approves / self-confirms instead of waiting. */
+  propose: (input: NewSplitProposalInput, solo: boolean) => Promise<boolean>;
   resolveProposal: (proposalId: string, decision: 'approved' | 'rejected') => Promise<boolean>;
   cancelProposal: (proposalId: string) => Promise<boolean>;
-  recordSettlement: (input: NewSettlementInput) => Promise<boolean>;
+  /** Spec 015 — a newly-joined co-parent accepts a unilateral split table. */
+  acknowledgeProposal: (proposalId: string) => Promise<boolean>;
+  recordSettlement: (input: NewSettlementInput, solo: boolean) => Promise<boolean>;
   resolveSettlement: (settlementId: string, decision: 'confirmed' | 'rejected') => Promise<boolean>;
   cancelSettlement: (settlementId: string) => Promise<boolean>;
   clearActionError: () => void;
@@ -112,11 +115,14 @@ export function createSplitStore(repo: SplitRepository) {
         });
       },
 
-      propose: (input) => {
+      propose: (input, solo) => {
         if (!householdId || !uid) return Promise.resolve(false);
         const hid = householdId;
         const me = uid;
-        return run(() => repo.proposeSplit(hid, me, input), strings.split.errors.proposeFailed);
+        return run(
+          () => repo.proposeSplit(hid, me, input, solo),
+          strings.split.errors.proposeFailed,
+        );
       },
 
       resolveProposal: (proposalId, decision) => {
@@ -138,12 +144,22 @@ export function createSplitStore(repo: SplitRepository) {
         );
       },
 
-      recordSettlement: (input) => {
+      acknowledgeProposal: (proposalId) => {
         if (!householdId || !uid) return Promise.resolve(false);
         const hid = householdId;
         const me = uid;
         return run(
-          () => repo.recordSettlement(hid, me, input),
+          () => repo.acknowledgeSplitProposal(hid, proposalId, me),
+          strings.split.errors.resolveFailed,
+        );
+      },
+
+      recordSettlement: (input, solo) => {
+        if (!householdId || !uid) return Promise.resolve(false);
+        const hid = householdId;
+        const me = uid;
+        return run(
+          () => repo.recordSettlement(hid, me, input, solo),
           strings.split.errors.settlementFailed,
         );
       },

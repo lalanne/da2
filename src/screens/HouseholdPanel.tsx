@@ -3,11 +3,13 @@ import { Alert, Share, StyleSheet, View } from 'react-native';
 import { useHouseholdStore } from '../store/householdStore';
 import { strings } from '../i18n/strings';
 import { theme } from '../theme';
-import { Avatar, Banner, Button, Card, CodeChip, ListRow, Text } from '../components';
+import { Avatar, Banner, Button, Card, CodeChip, ListRow, Text, TextField } from '../components';
 
 export function HouseholdPanel() {
-  const { household, members, regenerateInviteCode, isSubmitting } = useHouseholdStore();
+  const { household, members, regenerateInviteCode, setCoParentName, isSubmitting } =
+    useHouseholdStore();
   const [sharing, setSharing] = useState(false);
+  const [coParentNameDraft, setCoParentNameDraft] = useState(household?.coParentName ?? '');
 
   if (!household) return null;
 
@@ -33,6 +35,8 @@ export function HouseholdPanel() {
       { text: s.regenerate, onPress: () => void regenerateInviteCode() },
     ]);
   };
+
+  const onSaveCoParentName = () => void setCoParentName(coParentNameDraft);
 
   return (
     <View style={styles.container}>
@@ -64,6 +68,30 @@ export function HouseholdPanel() {
         </Card>
       ) : null}
 
+      {soleParent ? (
+        <Card style={styles.section} testID="co-parent-name-box">
+          <Text variant="label" color="textSecondary">
+            {strings.solo.coParent.nameLabel}
+          </Text>
+          <TextField
+            value={coParentNameDraft}
+            onChangeText={setCoParentNameDraft}
+            placeholder={strings.solo.coParent.namePlaceholder}
+            testID="co-parent-name-field"
+          />
+          <Text variant="caption" color="textFaint">
+            {strings.solo.coParent.nameHint}
+          </Text>
+          <Button
+            title={strings.solo.coParent.save}
+            onPress={onSaveCoParentName}
+            disabled={isSubmitting || coParentNameDraft.trim() === (household.coParentName ?? '')}
+            loading={isSubmitting}
+            testID="co-parent-name-save"
+          />
+        </Card>
+      ) : null}
+
       <View style={styles.section}>
         <Text variant="heading">{s.title}</Text>
         <Card flush>
@@ -81,7 +109,11 @@ export function HouseholdPanel() {
           {soleParent ? (
             <>
               <View style={styles.divider} />
-              <ListRow title={s.emptySlot} muted leading={<Avatar empty />} />
+              <ListRow
+                title={household.coParentName ?? s.emptySlot}
+                muted
+                leading={<Avatar empty />}
+              />
             </>
           ) : null}
         </Card>

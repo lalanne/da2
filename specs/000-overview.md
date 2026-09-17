@@ -55,6 +55,7 @@ Postgres. Revisit only if expense reporting outgrows it.
 | Custody calendar: recurring pattern + day overrides, propose/approve flow | In-app messaging |
 | Kid events (appointments, birthdays, tournaments, training) | External calendar sync (Google/Apple Calendar) |
 | Push notifications for proposals | Statement / PDF export of the expense ledger |
+| Full use without a participating co-parent — calendar and expenses self-approve solo, a review queue (not silent inheritance) once one joins (spec 015) | An in-app dispute mechanism for historical records; removing a parent from a household |
 
 ## Cross-cutting constraints
 

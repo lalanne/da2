@@ -19,10 +19,17 @@ shared place for:
 
 ## How it works
 
-Each parent signs in with their own Google account. The first parent creates
-a household and adds the kids; the second parent joins with a single-use
-invite code. From then on, both see the same calendar, events, and shared
-receipts in real time.
+Each parent signs in with their own Google account (or email/password — spec
+014). The first parent creates a household and adds the kids; the second
+parent joins with a single-use invite code. From then on, both see the same
+calendar, events, and shared receipts in real time.
+
+If the co-parent doesn't join right away — common when they're
+non-cooperative — the app still works fully: the calendar and expense
+splitting self-approve instead of waiting, and nothing is thrown away.
+Whenever the co-parent does join, they see exactly what was decided
+unilaterally, marked as such, and can accept it or propose something
+different — never silently bound (spec 015).
 
 The app's interface is in **Spanish (Latin American neutral)**. v1 is
 Spanish-only, with all copy routed through one strings module so other

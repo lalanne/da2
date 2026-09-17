@@ -26,6 +26,7 @@ This project is built spec-first. Rules:
 | 012 | [Responsive web layout](012-responsive-web-layout.md) | implemented |
 | 013 | [Receipt auto-extraction](013-receipt-auto-extraction.md) | draft — **v2, deferred** |
 | 014 | [Email/password accounts](014-email-password-auth.md) | implemented |
+| 015 | [Solo parent (app without the co-parent)](015-solo-parent.md) | implemented |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -72,3 +73,7 @@ are settled.
   pass. It extends 001 (auth) with a second, credential-based sign-in
   method; `AuthProvider` (Google/Apple) is untouched, a sibling
   `EmailAuthProvider` is added alongside it.
+- **015 (solo parent) relaxes a rules invariant that 004 and 010 rely on** —
+  self-approval, but only in a one-parent household. Its safety argument
+  rests on `parentIds` being append-only, so read it before touching the
+  household rules in `002`, `004` or `010`.

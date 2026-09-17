@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { BalanceCard } from '../BalanceCard';
 import { BalanceDetail } from '../BalanceDetail';
 import { SplitTableView } from '../SplitTableView';
@@ -49,6 +49,7 @@ function splitState(over: Record<string, unknown> = {}) {
     propose: jest.fn(),
     resolveProposal: jest.fn(),
     cancelProposal: jest.fn(),
+    acknowledgeProposal: jest.fn(),
     recordSettlement: jest.fn(),
     resolveSettlement: jest.fn(),
     cancelSettlement: jest.fn(),
@@ -159,4 +160,166 @@ it('BalanceDetail renders the record-payment entry and the empty states', async 
   );
   expect(screen.getByTestId('settlement-open')).toBeTruthy();
   expect(screen.getByText(strings.split.detail.noSettlements)).toBeTruthy();
+});
+
+// Spec 015 — solo parent.
+describe('solo parent', () => {
+  const soloHousehold: Household = {
+    ...household,
+    parentIds: ['u1'],
+    coParentName: 'Cristián',
+    coParentJoinedAt: null,
+  };
+  const joinedHousehold: Household = {
+    ...household,
+    coParentJoinedAt: 1_700_000_050_000,
+  };
+  const selfApproved: SplitProposal = {
+    ...approved,
+    id: 'solo-p1',
+    resolvedBy: 'u1', // == proposerId — self-approved while solo
+    acknowledgedBy: null,
+  };
+
+  it('BalanceCard shows a figure while solo, against the absent co-parent', async () => {
+    mockedSplit.mockImplementation(
+      pick(
+        splitState({
+          proposals: [selfApproved],
+          settlements: [
+            {
+              id: 's1',
+              recordedBy: 'u1',
+              status: 'confirmed',
+              payerUid: '__coparent__',
+              payeeUid: 'u1',
+              amount: 5000,
+              currency: 'CLP',
+              note: null,
+              createdAt: 1,
+              resolvedAt: 1,
+              resolvedBy: 'u1',
+            },
+          ],
+        }),
+      ),
+    );
+    await render(
+      <BalanceCard
+        household={soloHousehold}
+        members={[{ uid: 'u1', displayName: 'Javiera', isYou: true }]}
+        currentUid="u1"
+        onRecordPayment={cb}
+        onDetail={cb}
+        onDefineTable={cb}
+      />,
+    );
+    // The absent co-parent "paid" u1 5000 → u1 owes Cristián that much.
+    expect(screen.getByTestId('balance-line')).toHaveTextContent('$5.000');
+  });
+
+  it('SplitTableView shows the provisional badge and lets the newcomer accept', async () => {
+    const acknowledgeProposal = jest.fn();
+    mockedSplit.mockImplementation(
+      pick(splitState({ proposals: [selfApproved], acknowledgeProposal })),
+    );
+    await render(
+      <SplitTableView
+        household={joinedHousehold}
+        members={members}
+        currentUid="u2" // the newcomer, not the proposer
+        onPropose={cb}
+        onBack={cb}
+      />,
+    );
+
+    expect(screen.getByTestId('split-provisional-badge')).toBeTruthy();
+    expect(screen.getByTestId('split-acknowledge')).toBeTruthy();
+    expect(screen.getByTestId('split-propose-different')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('split-acknowledge'));
+    expect(acknowledgeProposal).toHaveBeenCalledWith('solo-p1');
+  });
+
+  it('SplitTableView hides the badge/actions for the proposer themselves', async () => {
+    mockedSplit.mockImplementation(pick(splitState({ proposals: [selfApproved] })));
+    await render(
+      <SplitTableView
+        household={joinedHousehold}
+        members={members}
+        currentUid="u1" // the proposer
+        onPropose={cb}
+        onBack={cb}
+      />,
+    );
+
+    expect(screen.getByTestId('split-provisional-badge')).toBeTruthy();
+    expect(screen.queryByTestId('split-acknowledge')).toBeNull();
+  });
+
+  it('SplitTableView shows no badge once acknowledged', async () => {
+    mockedSplit.mockImplementation(
+      pick(splitState({ proposals: [{ ...selfApproved, acknowledgedBy: 'u2' }] })),
+    );
+    await render(
+      <SplitTableView
+        household={joinedHousehold}
+        members={members}
+        currentUid="u2"
+        onPropose={cb}
+        onBack={cb}
+      />,
+    );
+    expect(screen.queryByTestId('split-provisional-badge')).toBeNull();
+  });
+
+  it('BalanceDetail renders two labelled segments once solo-period settlements meet a join', async () => {
+    mockedSplit.mockImplementation(
+      pick(
+        splitState({
+          proposals: [selfApproved],
+          settlements: [
+            {
+              id: 's1',
+              recordedBy: 'u1',
+              status: 'confirmed',
+              payerUid: '__coparent__',
+              payeeUid: 'u1',
+              amount: 3000,
+              currency: 'CLP',
+              note: null,
+              createdAt: 1,
+              resolvedAt: 1,
+              resolvedBy: 'u1',
+            },
+          ],
+        }),
+      ),
+    );
+    await render(
+      <BalanceDetail
+        household={joinedHousehold}
+        members={members}
+        currentUid="u1"
+        onBack={cb}
+        onSplitTable={cb}
+      />,
+    );
+    expect(screen.getByTestId('balance-segments')).toBeTruthy();
+    expect(screen.getByTestId('balance-segment-solo')).toBeTruthy();
+    expect(screen.getByTestId('balance-segment-agreed')).toBeTruthy();
+  });
+
+  it('BalanceDetail shows one figure (no segments) for an always-two-parent household', async () => {
+    await render(
+      <BalanceDetail
+        household={household}
+        members={members}
+        currentUid="u1"
+        onBack={cb}
+        onSplitTable={cb}
+      />,
+    );
+    expect(screen.queryByTestId('balance-segments')).toBeNull();
+  });
 });
