@@ -4,10 +4,11 @@ import { Button, Card, Text } from '../../components';
 import { strings } from '../../i18n/strings';
 import { useReceiptsStore } from '../../store/receiptsStore';
 import { useSplitStore } from '../../store/splitStore';
-import { activeSplit, computeBalance } from '../../split';
+import { activeSplit } from '../../split';
+import { computeBalanceSegments } from '../../solo';
 import { formatAmount } from '../../receipts';
 import { DEFAULT_CURRENCY } from '../../models/Receipt';
-import type { Household } from '../../models/Household';
+import { ABSENT_CO_PARENT, type Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
 
 interface Props {
@@ -35,9 +36,11 @@ export function BalanceCard({
 
   const [a, bId] = household.parentIds;
   const otherName =
-    members.find((m) => m.uid !== currentUid)?.displayName ?? strings.custody.theOtherParent;
+    members.find((m) => m.uid !== currentUid)?.displayName ??
+    household.coParentName ??
+    strings.custody.theOtherParent;
 
-  if (!table || !bId) {
+  if (!table) {
     return (
       <Card style={styles.card} testID="balance-card">
         <Text variant="body" color="textSecondary">
@@ -48,7 +51,17 @@ export function BalanceCard({
     );
   }
 
-  const { netAOwesB } = computeBalance(shared, settlements, [a, bId]);
+  // Spec 015: pair with the ABSENT_CO_PARENT sentinel while solo — the two
+  // segments collapse to one total here (the full breakdown lives in
+  // BalanceDetail); computeBalance() alone would drop solo-period
+  // settlements silently, since their payer/payee never matches `bId === undefined`.
+  const segments = computeBalanceSegments(
+    shared,
+    settlements,
+    [a, bId ?? ABSENT_CO_PARENT],
+    household.coParentJoinedAt,
+  );
+  const netAOwesB = (segments.solo?.netAOwesB ?? 0) + segments.agreed.netAOwesB;
   const iAmA = currentUid === a;
   const youOwe = iAmA ? netAOwesB : -netAOwesB; // > 0 → you owe the other
 

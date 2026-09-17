@@ -22,9 +22,10 @@ import {
   todayInTimezone,
 } from '../../custody';
 import { eventCountsByDate, eventsForDay, upcomingOccurrences } from '../../events';
-import { computeBalance } from '../../split';
 import { formatAmount } from '../../receipts';
 import { DEFAULT_CURRENCY } from '../../models/Receipt';
+import { ABSENT_CO_PARENT, isSoloHousehold } from '../../models/Household';
+import { computeBalanceSegments, isProvisional, needsReview } from '../../solo';
 import type { KidEvent } from '../../models/Event';
 import { MonthGrid } from './MonthGrid';
 import { DayDetail } from './DayDetail';
@@ -51,7 +52,7 @@ const RAIL_EVENT_LIMIT = 4;
 
 interface Props {
   /** Spec 012: lets the wide-web side rail jump to another tab. Unused on native/narrow. */
-  onOpenTab?: (tab: 'events' | 'receipts') => void;
+  onOpenTab?: (tab: 'events' | 'receipts' | 'household') => void;
 }
 
 export function CalendarTab({ onOpenTab }: Props) {
@@ -86,12 +87,29 @@ export function CalendarTab({ onOpenTab }: Props) {
     () => upcomingOccurrences(events, today, RAIL_HORIZON_DAYS, RAIL_EVENT_LIMIT),
     [events, today],
   );
-  const balance = useMemo(
-    () =>
-      household && household.parentIds[1]
-        ? computeBalance(shared, settlements, household.parentIds as [string, string])
-        : null,
-    [shared, settlements, household],
+  // Spec 015: pairs the sole parent's uid with the ABSENT_CO_PARENT sentinel
+  // while solo, so solo-period settlements are counted — computeBalance()
+  // alone would silently drop them (their payer/payee never matches
+  // `parentIds[1] === undefined`).
+  const balanceSegments = useMemo(() => {
+    if (!household || !household.parentIds[0]) return null;
+    const [a, b] = household.parentIds;
+    return computeBalanceSegments(
+      shared,
+      settlements,
+      [a, b ?? ABSENT_CO_PARENT],
+      household.coParentJoinedAt,
+    );
+  }, [shared, settlements, household]);
+  const balance = balanceSegments
+    ? {
+        netAOwesB:
+          (balanceSegments.solo?.netAOwesB ?? 0) + balanceSegments.agreed.netAOwesB,
+      }
+    : null;
+  const reviewQueue = useMemo(
+    () => (uid ? needsReview(proposals, uid) : []),
+    [proposals, uid],
   );
 
   if (!household || !uid) return null;
@@ -127,7 +145,7 @@ export function CalendarTab({ onOpenTab }: Props) {
           members={members}
           isSubmitting={custody.isSubmitting}
           onSubmit={async (input) => {
-            const ok = await custody.proposePattern(input);
+            const ok = await custody.proposePattern(input, isSoloHousehold(household!));
             if (ok) setView({ name: 'calendar' });
             return ok;
           }}
@@ -195,7 +213,7 @@ export function CalendarTab({ onOpenTab }: Props) {
           members={members}
           isSubmitting={custody.isSubmitting}
           onSubmit={async (input) => {
-            const ok = await custody.proposeDayOverride(input);
+            const ok = await custody.proposeDayOverride(input, isSoloHousehold(household!));
             if (ok) setView({ name: 'calendar' });
             return ok;
           }}
@@ -214,6 +232,12 @@ export function CalendarTab({ onOpenTab }: Props) {
   }
 
   const hasPattern = patterns.length > 0;
+  // Spec 015 — the pattern currently governing the calendar, and whether
+  // it's a self-approved decision from the solo period the co-parent (now
+  // present) hasn't accepted yet.
+  const activePattern = [...patterns].sort((x, y) => y.createdAt - x.createdAt)[0] ?? null;
+  const patternProvisional = activePattern ? isProvisional(activePattern) : false;
+  const canReviewPattern = patternProvisional && activePattern?.proposerId !== uid;
 
   const base = (
     <Screen scroll>
@@ -300,6 +324,32 @@ export function CalendarTab({ onOpenTab }: Props) {
               </Text>
             </View>
           ))}
+        </View>
+      ) : null}
+
+      {patternProvisional ? (
+        <View style={styles.provisionalRow} testID="calendar-provisional-badge">
+          <Text variant="caption" color="warning">
+            {strings.solo.provisionalBadge}
+          </Text>
+        </View>
+      ) : null}
+
+      {canReviewPattern ? (
+        <View style={styles.provisionalActions}>
+          <Button
+            title={strings.solo.review.accept}
+            variant="secondary"
+            onPress={() => void custody.acknowledge(activePattern!.id)}
+            disabled={custody.isSubmitting}
+            testID="calendar-acknowledge-pattern"
+          />
+          <Button
+            title={strings.solo.review.proposeDifferent}
+            variant="ghost"
+            onPress={() => setView({ name: 'pattern-setup' })}
+            testID="calendar-propose-different-pattern"
+          />
         </View>
       ) : null}
 
@@ -393,7 +443,7 @@ export function CalendarTab({ onOpenTab }: Props) {
           />
         </Card>
 
-        {parentBId && balance ? (
+        {balance ? (
           <Card style={styles.railCard} testID="calendar-rail-balance">
             <Text variant="display" align="center" testID="calendar-rail-balance-line">
               {youOwe === 0 ? b.settled : formatAmount(Math.abs(youOwe), DEFAULT_CURRENCY)}
@@ -408,6 +458,21 @@ export function CalendarTab({ onOpenTab }: Props) {
               variant="ghost"
               onPress={() => onOpenTab?.('receipts')}
               testID="calendar-rail-view-receipts"
+            />
+          </Card>
+        ) : null}
+
+        {reviewQueue.length > 0 ? (
+          <Card style={styles.railCard} testID="calendar-rail-review">
+            <Text variant="heading">{strings.solo.review.title}</Text>
+            <Text variant="body" color="textSecondary">
+              {strings.solo.review.count(reviewQueue.length)}
+            </Text>
+            <Button
+              title={strings.solo.review.title}
+              variant="ghost"
+              onPress={() => onOpenTab?.('household')}
+              testID="calendar-rail-view-review"
             />
           </Card>
         ) : null}
@@ -466,5 +531,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.md,
   },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  provisionalRow: { marginTop: theme.spacing.sm },
+  provisionalActions: { gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   legendDot: { width: 12, height: 12, borderRadius: theme.radius.sm },
 });

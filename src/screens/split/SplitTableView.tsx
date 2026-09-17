@@ -4,6 +4,7 @@ import { Banner, Button, Card, Screen, Text } from '../../components';
 import { strings } from '../../i18n/strings';
 import { useSplitStore } from '../../store/splitStore';
 import { activeSplit, pendingSplitProposal } from '../../split';
+import { isProvisional } from '../../solo';
 import { formatCivilDate } from '../../i18n/dates';
 import { fromDayNumber } from '../../custody';
 import { RECEIPT_TAGS } from '../../models/Receipt';
@@ -26,7 +27,9 @@ export function SplitTableView({ household, members, currentUid, onPropose, onBa
   const pending = pendingSplitProposal(store.proposals);
 
   const nameFor = (uid: string | null) =>
-    members.find((m) => m.uid === uid)?.displayName ?? strings.custody.theOtherParent;
+    members.find((m) => m.uid === uid)?.displayName ??
+    household.coParentName ??
+    strings.custody.theOtherParent;
   const nameA = nameFor(household.parentIds[0]);
   const nameB = nameFor(household.parentIds[1] ?? null);
 
@@ -35,6 +38,10 @@ export function SplitTableView({ household, members, currentUid, onPropose, onBa
     .sort((a, b) => b.createdAt - a.createdAt)[0];
 
   const mineIsPending = pending?.proposerId === currentUid;
+  // Spec 015 — a self-approved table from the solo period, not yet accepted
+  // by the co-parent who has since joined.
+  const provisional = activeProposal ? isProvisional(activeProposal) : false;
+  const canReviewProvisional = provisional && activeProposal?.proposerId !== currentUid;
 
   return (
     <Screen scroll>
@@ -85,7 +92,30 @@ export function SplitTableView({ household, members, currentUid, onPropose, onBa
 
       {table ? (
         <Card style={styles.card}>
+          {provisional ? (
+            <View style={styles.provisionalBadge} testID="split-provisional-badge">
+              <Text variant="caption" color="warning">
+                {strings.solo.provisionalBadge}
+              </Text>
+            </View>
+          ) : null}
           <SplitRows table={table} nameA={nameA} nameB={nameB} showAllTags />
+          {canReviewProvisional ? (
+            <View style={styles.actions}>
+              <Button
+                title={strings.solo.review.accept}
+                onPress={() => void store.acknowledgeProposal(activeProposal!.id)}
+                disabled={store.isSubmitting}
+                testID="split-acknowledge"
+              />
+              <Button
+                title={strings.solo.review.proposeDifferent}
+                variant="ghost"
+                onPress={onPropose}
+                testID="split-propose-different"
+              />
+            </View>
+          ) : null}
         </Card>
       ) : (
         <Banner tone="info">{t.notSet}</Banner>
@@ -173,6 +203,7 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: theme.radius.pill },
   pending: { gap: theme.spacing.md, marginBottom: theme.spacing.md },
   card: { gap: theme.spacing.sm },
+  provisionalBadge: { alignSelf: 'flex-start' },
   rows: { gap: theme.spacing.sm },
   splitRow: { gap: 2 },
   actions: { gap: theme.spacing.sm },

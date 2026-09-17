@@ -7,7 +7,7 @@ import { useSplitStore } from '../../store/splitStore';
 import { buildSplitProposalInput, stepPercent, type SplitFormState } from '../../split';
 import { RECEIPT_TAGS, type ReceiptTag } from '../../models/Receipt';
 import type { SplitTable } from '../../models/Split';
-import type { Household } from '../../models/Household';
+import { isSoloHousehold, type Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
 import { tagLabel } from '../receipts/labels';
 
@@ -32,7 +32,9 @@ export function SplitProposeForm({ household, members, currentUid, initial, onDo
 
   const nameA = members.find((m) => m.uid === household.parentIds[0])?.displayName ?? 'A';
   const otherName =
-    members.find((m) => m.uid !== currentUid)?.displayName ?? strings.custody.theOtherParent;
+    members.find((m) => m.uid !== currentUid)?.displayName ??
+    household.coParentName ??
+    strings.custody.theOtherParent;
 
   const setDefault = (delta: number) =>
     setState((s) => ({ ...s, defaultPercentA: stepPercent(s.defaultPercentA, delta) }));
@@ -63,7 +65,7 @@ export function SplitProposeForm({ household, members, currentUid, initial, onDo
       return;
     }
     setFormError(null);
-    const ok = await store.propose(result.value);
+    const ok = await store.propose(result.value, isSoloHousehold(household));
     if (ok) onDone();
   };
 

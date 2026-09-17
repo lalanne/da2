@@ -483,4 +483,38 @@ export const strings = {
       settlementFailed: 'No se pudo registrar el pago. Inténtalo de nuevo.',
     },
   },
+
+  // Spec 015 — using the app without the co-parent.
+  solo: {
+    provisionalBadge: 'Aún no acordado',
+    review: {
+      title: 'Revisar decisiones',
+      count: (n: number) =>
+        n === 1 ? 'Tienes 1 decisión por revisar' : `Tienes ${n} decisiones por revisar`,
+      empty: 'No hay nada pendiente de revisar.',
+      intro:
+        'Mientras usaba la app sin ti, la otra persona tomó estas decisiones por su cuenta. ' +
+        'Puedes aceptarlas o proponer algo distinto.',
+      pattern: 'Patrón de custodia',
+      dayOverride: 'Cambio de un día',
+      splitTable: 'Reparto de gastos',
+      decidedBy: (name: string) => `Decidido por ${name} mientras estaba sola/o`,
+      accept: 'Aceptar',
+      acceptHint: 'Queda vigente tal como está, ahora acordado por ambos.',
+      proposeDifferent: 'Proponer algo distinto',
+    },
+    balance: {
+      soloSegment: (name: string) => `Antes de que ${name} se uniera`,
+      agreedSegment: 'Desde que están de acuerdo',
+      recordOf: (name: string) => `Registro de ${name}`,
+    },
+    coParent: {
+      nameLabel: 'Nombre de la otra persona',
+      namePlaceholder: 'Ej: Cristián',
+      nameHint:
+        'Todavía no se ha unido — este nombre es solo para ti, y se reemplaza por el suyo ' +
+        'apenas se una con el código de invitación.',
+      save: 'Guardar',
+    },
+  },
 } as const;
