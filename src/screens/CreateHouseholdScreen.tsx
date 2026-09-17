@@ -8,7 +8,7 @@ import { todayInTimezone } from '../custody';
 import { validateNewHousehold, type ChildRow } from './createHouseholdForm';
 
 export function CreateHouseholdScreen({ onBack }: { onBack: () => void }) {
-  const { createHousehold, isSubmitting } = useHouseholdStore();
+  const { createHousehold, isSubmitting, actionError } = useHouseholdStore();
   const todayIso = todayInTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [name, setName] = useState('');
   const [children, setChildren] = useState<ChildRow[]>([{ name: '', birthdate: '' }]);
@@ -88,6 +88,11 @@ export function CreateHouseholdScreen({ onBack }: { onBack: () => void }) {
         {error ? (
           <Banner tone="danger" testID="create-household-error">
             {error}
+          </Banner>
+        ) : null}
+        {actionError ? (
+          <Banner tone="danger" testID="create-household-server-error">
+            {actionError}
           </Banner>
         ) : null}
       </View>
