@@ -34,11 +34,12 @@ export function MainScreen() {
     {
       key: 'calendar',
       label: strings.nav.calendar,
+      icon: 'calendar' as const,
       badge: toRespond || undefined,
     },
-    { key: 'events', label: strings.nav.events },
-    { key: 'receipts', label: strings.nav.receipts },
-    { key: 'household', label: strings.nav.household },
+    { key: 'events', label: strings.nav.events, icon: 'events' as const },
+    { key: 'receipts', label: strings.nav.receipts, icon: 'receipts' as const },
+    { key: 'household', label: strings.nav.household, icon: 'household' as const },
   ];
 
   const activeScreen =

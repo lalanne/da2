@@ -23,6 +23,7 @@ const palette = {
   accent: '#46617E',
   accentSoft: '#ECF1F5',
   accentPressed: '#33485F',
+  accentTint: '#E7EAEE', // accent at ~13% over `surface` — active-tab highlight
   accentText: '#FFFFFF',
 
   danger: '#9E4430',
