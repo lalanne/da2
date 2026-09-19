@@ -71,6 +71,7 @@ No raw hex, no raw pixel spacing, no bare `fontSize` anywhere else in the app.
 | `Chip` | Small pill for **multi-select and static display** (the receipt-upload tag / child pickers; tags shown on the detail screen). Interactive: unselected = `surface` + `border`, selected = `accentSoft` fill + `accent` border + `accent` text. Static (no `onPress`) = `accentSoft` + `accent` text, no border. ≥ 44 pt target when interactive | `label`, `selected`, `onPress?` |
 | `FilterTabs` | **Single-select** filter row — scrollable underline tabs on a hairline baseline (the receipt list's tag and month filters). Selected = `accent` text + 2 pt `accent` underline; rest `textSecondary`. Touch target extended with `hitSlop`. Generic over a primitive value type | `options` (`{value, label}[]`), `value`, `onChange` |
 | `CodeChip` | The invite code: large, `selectable`, monospace-ish, copy affordance | `code` |
+| `TabBar` | Bottom navigation — a floating pill (`surface`, hairline `border`, soft shadow) inset from the screen edges and clear of the bottom safe-area inset. Each tab = a 24 pt icon over a label; the active tab gets an `accentTint` rounded highlight with `accent` icon + label, the rest `textSecondary`. Pending badge rides the icon's top-right corner | `items` (`{key, label, icon?, badge?}[]`), `active`, `onChange` |
 
 Primitives compose only tokens + other primitives. Screens compose only
 primitives (no bare `View`/`Text`/`Button` for anything a primitive covers).
@@ -188,11 +189,24 @@ Both pure-JS (reuse `src/custody/dates.ts`), no native dependency
 (criterion 6 holds). They replace the free-text `AAAA-MM-DD` / `HH:MM` inputs
 across specs 002–005 — see `009-date-time-input.md`.
 
+**2026-09-18 — `TabBar` floating pill + tab icons.** The bottom bar changes
+from a flat full-width strip of text tabs with an underline to a floating pill
+with an icon above each label (pilot preference, from two reference apps using
+the iOS 26 floating tab bar). The pill sits in flow above the bottom safe area,
+so screen content is never hidden behind it (no per-screen bottom padding).
+Icons are the first icon set, and follow `Emblem`'s precedent: drawn from
+plain `View`s (borders, radii, a rotation) in `src/components/TabIcon.tsx` —
+no `react-native-svg` / font dependency, so criterion 6 holds and it ships OTA.
+Not done: a translucent blur behind the pill (needs `expo-blur`, a native
+module); the pill is opaque `surface`. New token `accentTint` (accent at ~13%)
+for the active-tab highlight. `WebShell` (spec 012) is unchanged.
+
 ## Out of scope
 
 - Dark mode (token structure allows it; not built in v1).
-- A custom typeface or icon set (system font in v1; icon approach is its own
-  later decision).
+- A custom typeface or a general icon set (system font in v1). The four
+  bottom-tab icons are the only icons, drawn from `View`s — see the 2026-09-18
+  amendment; any wider icon approach is its own later decision.
 - Motion / animation system.
 - Information-architecture or flow changes — this spec only changes how
   existing screens look and what they're built from.

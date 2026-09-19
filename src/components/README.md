@@ -16,6 +16,7 @@ padding/margin outside `src/theme/` and this folder.
 | `CodeChip` | The invite code — large, `selectable`, on a sunken well | `code` |
 | `Avatar` | Member initial in a circle, or an empty dashed slot | `name`, `empty` |
 | `Emblem` | The app's only brand mark — two overlapping rings | `size` |
+| `TabBar` | Bottom navigation: floating pill, icon over label, active tab highlighted `accentTint`; icons are View-drawn (`TabIcon`), no svg/font dependency | `items` (`{key, label, icon?, badge?}[]`), `active`, `onChange` |
 
 Contrast (AA) is asserted in `src/theme/__tests__/contrast.test.ts`; token
 discipline in `src/theme/__tests__/tokenDiscipline.test.ts`.

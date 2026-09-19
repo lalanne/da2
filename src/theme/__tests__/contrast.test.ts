@@ -38,6 +38,7 @@ describe('theme contrast (spec 007 criterion 3)', () => {
     ['accentText', 'accent', c.accentText],
     ['accentText', 'accentPressed', c.accentText],
     ['accentPressed', 'accentSoft', c.accentPressed], // Banner info
+    ['accent', 'accentTint', c.accent], // active tab icon + label
     ['danger', 'dangerBg', c.danger], // Banner danger
     ['success', 'successBg', c.success],
     ['warning', 'warningBg', c.warning],
