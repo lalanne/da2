@@ -34,6 +34,8 @@ export const strings = {
       signInCancelled: 'Se canceló el inicio de sesión.',
       networkError: 'Error de conexión. Inténtalo de nuevo.',
       playServicesUnavailable: 'Necesitas Google Play Services para iniciar sesión.',
+      popupBlocked:
+        'El navegador bloqueó la ventana de Google. Permite ventanas emergentes para este sitio e inténtalo de nuevo.',
       wrongCredentials: 'Correo o contraseña incorrectos.',
       emailInUse: 'Ya existe una cuenta con este correo. Intenta iniciar sesión.',
       weakPassword: 'Elige una contraseña de al menos 8 caracteres.',
