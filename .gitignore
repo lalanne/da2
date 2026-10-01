@@ -53,3 +53,8 @@ ui-debug.log
 
 # Seeded design-canvas payload (regenerated from design/canvas/*.dc.html)
 design/canvas/da2-app-design.html
+
+# Spec 016 — Playwright e2e output
+/test-results/
+/playwright-report/
+/blob-report/

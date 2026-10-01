@@ -3,5 +3,5 @@
   "compilerOptions": {
     "strict": true
   },
-  "exclude": ["node_modules", "**/__tests__/**", "firebase/tests/**"]
+  "exclude": ["node_modules", "**/__tests__/**", "firebase/tests/**", "e2e/**"]
 }

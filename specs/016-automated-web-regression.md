@@ -1,6 +1,6 @@
 # 016 — Automated web regression suite
 
-**Status:** draft
+**Status:** approved
 **Depends on:** 006 (deployment pipeline — this becomes one of its gates),
 011 (web platform — the thing under test), 014 (email/password — the
 sign-in path the suite drives, instead of Google OAuth)
@@ -180,25 +180,62 @@ tests) and are presentation/input concerns, not full-flow ones.
    the main screen, and signs out — without ever exercising the Google
    popup path.
 4. **Given** the smoke test is green, **when** a developer deliberately
-   reintroduces a known-fixed bug (e.g. the `auth/popup-blocked` regression
-   from `specs/011-web-platform.md`'s 2026-09-30 amendment, done once
-   locally as proof, then reverted — never left in place), **then** the e2e
-   job fails red, demonstrating the suite actually catches the class of bug
-   that motivated it.
+   breaks something the test actually exercises (done once locally as
+   proof, then reverted — never left in place), **then** the e2e job fails
+   red, demonstrating the suite catches a real regression and not just its
+   own happy path. Note: this can only prove the suite catches bugs in the
+   path it automates (email/password + Firestore/Storage wiring) — the
+   `auth/popup-blocked` bug specifically lived in the Google OAuth path,
+   which is structurally outside this suite's reach (see Non-goals); that
+   bug class stays a manual-checklist risk forever, same as spec 001
+   already decided for Google sign-in generally.
 5. **Given** a later spec's flow is added to the suite (see Coverage),
    **then** it drives the real UI (not repository functions called
    directly) and asserts both the UI's resulting state and the emulator's
    Firestore/Storage data — catching rendering bugs and wiring bugs alike,
    the two kinds of bug that separately broke production once each.
 
+## Progress
+
+**2026-10-01 — harness built, criteria 1–4 proven locally.** `firebaseWebApp.ts`
+gained the emulator-connect branch (unit-tested); `firebase.json` gained a
+hosting emulator port; `e2e/` holds the Playwright config, an Admin-SDK
+`globalSetup` that seeds a pre-verified parent + one-parent household, and
+the smoke test itself; `.github/workflows/ci.yml` adds unit/typecheck,
+rules, and e2e as three CI jobs. `npm run test:e2e` passes locally. Found
+along the way, both now reflected above: (1) `expo export` force-overrides
+`NODE_ENV` to `production` and ignores an invoking shell's `NODE_ENV=test`,
+so the e2e build sources `.env.test` into the shell directly instead of
+relying on Expo's own mode-file loading (`@expo/env` never overrides an
+already-set process env var, so this can't leak into a real deploy, which
+never sources that file). (2) Playwright's default desktop viewport
+triggers spec 012's wide-web `WebShell` layout, not the phone-width
+`TabBar` — the smoke test asserts on `web-nav-*` testIDs accordingly; a
+narrow-viewport variant is part of Coverage item 8 (012), not this one.
+Criterion 4 proven using an argument-order swap in
+`emailAuthProvider.web.ts`'s `signInWithEmailAndPassword` call (reverted
+immediately after confirming red).
+
+**2026-10-01 — CI confirmed, verified.** First real CI run (on the harness
+PR, same commit landing on `main`) caught a real pre-existing bug on its
+very first try: `calendarTab.wideWeb`/`eventsTab.wideWeb` fixed a kid event
+to a hardcoded `date: '2026-09-20'`, which `upcomingOccurrences()` correctly
+dropped once real time passed it — nothing to do with this harness, fixed
+separately (PR #14, relative dates via `addDays(todayInTimezone(...), 2)`).
+With that merged in, all three jobs (unit/typecheck, rules, e2e) passed in
+GitHub Actions: <https://github.com/lalanne/da2/actions/runs/36807294160>.
+Criteria 1–4 verified. Coverage items 2–8 remain open follow-ups.
+
 ## Verification plan
 
 - Build the harness against criterion 1–3 first (the smoke test), confirm
   it runs locally (`npm run test:e2e`) and in a CI run on a draft PR.
-- Prove criterion 4 once, by hand, during that same PR: temporarily
-  reintroduce the `setPersistence`-before-`signInWithPopup` bug, watch the
-  e2e job go red, then revert — documented in the PR description, not left
-  in the codebase.
+- Prove criterion 4 once, by hand, during that same PR: swap the argument
+  order in `emailAuthProvider.web.ts`'s `signInWithEmailAndPassword(auth(),
+  email, password)` call — a real call-shape bug, the same class as
+  `auth/popup-blocked`, just in the path this suite actually drives — watch
+  the e2e job go red, then revert and confirm green again. Documented in
+  the PR description, not left in the codebase.
 - Each Coverage item (2 onward) ships as its own PR: the new e2e test is
   written first and fails against current `main` only if a real gap exists
   (most of these flows already work — the test proves the *harness* exercises
