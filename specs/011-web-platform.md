@@ -86,8 +86,9 @@ extension, same as today.
 
 - `googleAuthProvider.web.ts`: Firebase Auth's `GoogleAuthProvider` +
   `signInWithPopup` (simplest, standard, keeps app state across sign-in — no
-  full-page navigation). Session persistence: `browserLocalPersistence`
-  (the web SDK default).
+  full-page navigation). Session persistence: `browserLocalPersistence`, the
+  web SDK's default with no explicit `setPersistence` call needed — see the
+  2026-09-30 amendment below for why calling it is actively harmful.
 - Same `AuthProvider` interface (`signIn`, `signOut`, `onAuthStateChanged`,
   the mapped `AuthError` codes) — `authStore` doesn't change.
 
@@ -204,7 +205,10 @@ Implemented 2026-09-12. Live at <https://da2-coparenting.web.app>.
   native file in each pair, `firebase` web SDK instead of
   `@react-native-firebase/*`. Confirmed by grepping the exported web bundle:
   zero references to `react-native-firebase` / `google-signin`.
-- `googleAuthProvider.web.ts`: `signInWithPopup` + `browserLocalPersistence`.
+- `googleAuthProvider.web.ts`: `signInWithPopup`, relying on
+  `browserLocalPersistence` as the web SDK default (see the 2026-09-30
+  amendment: the original code also called `setPersistence` explicitly,
+  which turned out to break the popup).
 - `receiptsRepository.web.ts`: upload reads the picker's `blob:` URI via
   `fetch().blob()` then `uploadBytes`; display returns `getDownloadURL()`
   directly (no local-file cache step). `ReceiptDetail`'s "Abrir PDF" branches
@@ -230,6 +234,24 @@ upload/share, split propose/approve, settlements, and a cross-check against
 a phone for real-time sync — folded into 012's verification pass instead of
 re-testing the unstyled shell twice. As expected, the mobile layout renders
 **unscaled and oversized on a wide window** — spec 012 (next) fixes that.
+
+**2026-09-30 amendment — `auth/popup-blocked` on every web sign-in, fixed.**
+Reported by the user clicking "Continuar con Google" on
+`da2-coparenting.web.app`: a red `auth/popup-blocked` banner, every time.
+Root cause: `signIn()` called `await setPersistence(auth(),
+browserLocalPersistence)` *before* `signInWithPopup`. That `await` does an
+IndexedDB round-trip, which was enough of a gap between the click and the
+`window.open` call for Safari — and some Chromium popup-blocker
+configurations — to stop treating the popup as a direct result of the user's
+gesture. `browserLocalPersistence` is already the web SDK's default, so the
+call was redundant as well as the cause; removed. Also mapped
+`auth/popup-blocked` to a new `AuthError` kind (`popupBlocked`, a friendly
+Spanish message) as defense in depth for a real browser-level block, instead
+of surfacing the raw Firebase error text. `googleAuthProvider.web.ts` had
+zero test coverage before this (the existing `googleAuthProvider.test.ts`
+only ever exercised the native twin) — new
+`googleAuthProvider.web.test.ts` reproduces the bug and covers both
+providers now. Fixed on `fix/web-google-signin-popup-blocked` (PR #11).
 
 ## Out of scope
 
