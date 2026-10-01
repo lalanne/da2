@@ -4,8 +4,6 @@ import {
   onAuthStateChanged as onFirebaseAuthStateChanged,
   signInWithPopup,
   signOut as firebaseSignOut,
-  browserLocalPersistence,
-  setPersistence,
   type User,
 } from 'firebase/auth';
 import { webApp } from '../data/firebaseWebApp';
@@ -27,8 +25,12 @@ function toAuthUser(user: User): AuthUser {
 }
 
 export const googleAuthProvider: AuthProvider = {
+  // No `setPersistence` call here on purpose: the web SDK already defaults
+  // to local persistence, and an `await` before `signInWithPopup` is enough
+  // of a gap for Safari (and some Chromium popup-blocker configurations) to
+  // stop treating the popup as a direct result of the click, which failed
+  // every web sign-in with `auth/popup-blocked`.
   async signIn() {
-    await setPersistence(auth(), browserLocalPersistence);
     try {
       const credential = await signInWithPopup(auth(), new FirebaseGoogleAuthProvider());
       return toAuthUser(credential.user);
@@ -36,6 +38,9 @@ export const googleAuthProvider: AuthProvider = {
       const code = (error as { code?: string })?.code;
       if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
         throw new AuthError('signInCancelled');
+      }
+      if (code === 'auth/popup-blocked') {
+        throw new AuthError('popupBlocked');
       }
       if (code === 'auth/network-request-failed') {
         throw new AuthError('networkError');

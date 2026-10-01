@@ -4,6 +4,7 @@ export type AuthErrorKind =
   | 'signInCancelled'
   | 'networkError'
   | 'playServicesUnavailable'
+  | 'popupBlocked' // web only — browser blocked the Google sign-in popup
   // Spec 014 — email/password:
   | 'wrongCredentials' // wrong password OR unknown email, deliberately merged
   | 'emailInUse'
@@ -16,6 +17,7 @@ const AUTH_ERROR_MESSAGES: Record<AuthErrorKind, string> = {
   signInCancelled: strings.auth.errors.signInCancelled,
   networkError: strings.auth.errors.networkError,
   playServicesUnavailable: strings.auth.errors.playServicesUnavailable,
+  popupBlocked: strings.auth.errors.popupBlocked,
   wrongCredentials: strings.auth.errors.wrongCredentials,
   emailInUse: strings.auth.errors.emailInUse,
   weakPassword: strings.auth.errors.weakPassword,
