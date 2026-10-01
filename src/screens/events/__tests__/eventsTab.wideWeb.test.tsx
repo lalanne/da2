@@ -4,6 +4,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { useHouseholdStore } from '../../../store/householdStore';
 import { useEventsStore } from '../../../store/eventsStore';
 import { useWideWeb } from '../../../web/useWideWeb';
+import { addDays, todayInTimezone } from '../../../custody';
 import type { Household } from '../../../models/Household';
 import type { KidEvent } from '../../../models/Event';
 
@@ -39,11 +40,16 @@ const members = [
   { uid: 'u1', displayName: 'Javiera', isYou: true },
   { uid: 'u2', displayName: 'Cristián', isYou: false },
 ];
+// Relative to "today" (not a hardcoded date) so this stays within the
+// upcoming-events horizon no matter when the suite runs — a fixed past date
+// here silently drops out of `upcomingOccurrences()` once real time passes
+// it, which looks like an app bug but isn't one.
+const TODAY = todayInTimezone('America/Santiago');
 const event: KidEvent = {
   id: 'e1',
   title: 'Dentista',
   type: 'doctor',
-  date: '2026-09-20',
+  date: addDays(TODAY, 2),
   startTime: null,
   endTime: null,
   allDay: true,
