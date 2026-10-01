@@ -26,11 +26,13 @@
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
+    "@playwright/test": "^1.63.0",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.4.0",
     "@types/react": "~19.2.2",
     "firebase": "^12.18.0",
+    "firebase-admin": "^14.5.0",
     "firebase-tools": "^15.28.2",
     "jest": "^29.7.0",
     "jest-expo": "^57.0.5",
@@ -44,7 +46,9 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:rules": "firebase emulators:exec --only firestore,auth,storage --project demo-da2 \"jest --config jest.rules.config.js\""
+    "test:rules": "firebase emulators:exec --only firestore,auth,storage --project demo-da2 \"jest --config jest.rules.config.js\"",
+    "test:e2e:build": "bash -c 'set -a; source .env.test; set +a; npx expo export -p web --clear'",
+    "test:e2e": "npm run test:e2e:build && firebase emulators:exec --only auth,firestore,storage,hosting --project demo-da2 \"playwright test --config e2e/playwright.config.ts\""
   },
   "private": true
 }
