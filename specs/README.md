@@ -27,6 +27,7 @@ This project is built spec-first. Rules:
 | 013 | [Receipt auto-extraction](013-receipt-auto-extraction.md) | draft — **v2, deferred** |
 | 014 | [Email/password accounts](014-email-password-auth.md) | implemented |
 | 015 | [Solo parent (app without the co-parent)](015-solo-parent.md) | implemented |
+| 016 | [Automated web regression suite](016-automated-web-regression.md) | draft |
 
 Status values: `draft` → `approved` → `implemented` → `verified`.
 
@@ -77,3 +78,8 @@ are settled.
   self-approval, but only in a one-parent household. Its safety argument
   rests on `parentIds` being append-only, so read it before touching the
   household rules in `002`, `004` or `010`.
+- **016 (automated web regression suite) is cross-cutting like 006/007/009**
+  — a CI/testing gate exercised alongside every other spec rather than built
+  once and left, and its coverage plan explicitly builds out one already-
+  shipped spec's flow at a time (002, 004, 005, 003, 010, 015, 012) rather
+  than landing all at once.
