@@ -214,9 +214,17 @@ triggers spec 012's wide-web `WebShell` layout, not the phone-width
 narrow-viewport variant is part of Coverage item 8 (012), not this one.
 Criterion 4 proven using an argument-order swap in
 `emailAuthProvider.web.ts`'s `signInWithEmailAndPassword` call (reverted
-immediately after confirming red). Not yet true per this spec's own
-definition of "verified": that requires this green in **CI on `main`**,
-which happens once the harness PR merges.
+immediately after confirming red).
+
+**2026-10-01 — CI confirmed, verified.** First real CI run (on the harness
+PR, same commit landing on `main`) caught a real pre-existing bug on its
+very first try: `calendarTab.wideWeb`/`eventsTab.wideWeb` fixed a kid event
+to a hardcoded `date: '2026-09-20'`, which `upcomingOccurrences()` correctly
+dropped once real time passed it — nothing to do with this harness, fixed
+separately (PR #14, relative dates via `addDays(todayInTimezone(...), 2)`).
+With that merged in, all three jobs (unit/typecheck, rules, e2e) passed in
+GitHub Actions: <https://github.com/lalanne/da2/actions/runs/36807294160>.
+Criteria 1–4 verified. Coverage items 2–8 remain open follow-ups.
 
 ## Verification plan
 
