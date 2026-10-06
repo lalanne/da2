@@ -135,6 +135,26 @@ this one's Firebase-emulator and test-account groundwork.
   once the suite has run green for a while and they're ready to make it a
   hard gate rather than an informational one.
 
+### Code coverage reporting (planned, not yet built — 2026-10-06)
+
+The user asked for this as a "next time" follow-up, not part of the current
+CI PR. Not to be confused with the "Coverage" section below, which tracks
+which *specs/flows* the e2e suite exercises — this is code coverage
+*percentage*, surfaced on the **unit** job (`npm test`, which already runs
+on `jest`/`jest-expo`, Istanbul-based coverage built in via `--coverage`,
+no new dependency). Sketch, to firm up when this is actually picked up:
+- `npm test -- --coverage` in the unit job; write the summary to
+  `$GITHUB_STEP_SUMMARY` so it shows directly on the job's Actions page —
+  no new third-party service (Codecov etc.) unless a stronger reason shows
+  up later for wanting historical trend tracking across runs.
+- Whether `test:rules` (the integration job) also gets a coverage report is
+  an open question — Firestore/Storage rules coverage is a different shape
+  (rule-path hits, not line coverage) and may want its own approach rather
+  than reusing Istanbul's.
+- Decide then whether this becomes a hard gate (fail under some %) or
+  purely informational, same open-question shape as the branch-protection
+  decision above.
+
 ### Coverage — built incrementally, one spec per follow-up change
 
 This spec's own acceptance criteria (below) cover only the harness itself —
