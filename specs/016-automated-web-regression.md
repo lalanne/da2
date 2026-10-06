@@ -116,11 +116,19 @@ this one's Firebase-emulator and test-account groundwork.
 ### CI
 
 - New `.github/workflows/ci.yml`, triggered on `push` and `pull_request`.
-  Jobs: **unit** (`npm test`, `npm run typecheck`), **rules**
-  (`npm run test:rules`), **e2e** (`npm run test:e2e`) — the first two
-  formalize gates that already exist as manual habit; the third is new.
-  The e2e job needs Java (a `firebase-tools` emulator requirement) via
-  `actions/setup-java`.
+  Four jobs, in a **strict sequential pipeline** (`needs:`), cheapest/fastest
+  first, each gating the next — no point booting a browser and the Firebase
+  emulators for e2e if the code doesn't even typecheck:
+  1. **static-analysis** (`npm run typecheck`) — no linter exists in this
+     repo yet, so this is typecheck alone for now; a future `npm run lint`
+     slots in here unchanged.
+  2. **unit** (`npm test`) — needs static-analysis.
+  3. **integration** (`npm run test:rules`, Firestore/Storage rules against
+     the real emulator) — needs unit.
+  4. **e2e** (`npm run test:e2e`, acceptance-level — the real UI driven
+     against the real emulators) — needs integration.
+  The integration and e2e jobs need Java (a `firebase-tools` emulator
+  requirement) via `actions/setup-java`.
 - This spec does **not** turn on branch-protection "required checks" in the
   GitHub repo settings — that's a repo-admin action with its own blast
   radius (it changes who can merge what), left for the user to flip on

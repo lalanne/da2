@@ -7,9 +7,13 @@ on:
 
 # Spec 016. This repo is public, so GitHub-hosted Linux runners are free and
 # unlimited here — no minute budget to manage.
+#
+# Four stages, cheapest/fastest first, each gating the next via `needs:` —
+# no point booting a browser and the Firebase emulators for e2e if the code
+# doesn't even typecheck.
 jobs:
-  unit:
-    name: Unit tests + typecheck
+  static-analysis:
+    name: 1. Static analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,10 +23,23 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+
+  unit:
+    name: 2. Unit tests
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
       - run: npm test
 
-  rules:
-    name: Firestore/Storage rules tests
+  integration:
+    name: 3. Integration tests (Firestore/Storage rules)
+    needs: unit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +55,8 @@ jobs:
       - run: npm run test:rules
 
   e2e:
-    name: Web e2e (Playwright + Firebase emulators)
+    name: 4. Acceptance / e2e (Playwright + Firebase emulators)
+    needs: integration
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
