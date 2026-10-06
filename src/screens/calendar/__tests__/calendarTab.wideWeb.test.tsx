@@ -135,14 +135,18 @@ describe('CalendarTab — wide web (spec 012)', () => {
     setup(true);
     await render(<CalendarTab />);
 
-    // Base calendar month grid should already be visible.
-    expect(screen.getByTestId('day-2026-09-15')).toBeTruthy();
+    // Base calendar month grid should already be visible. The grid always
+    // opens on the current month (CalendarTab's initial state is
+    // `startOfMonth(today)`), so `TODAY` itself is always a rendered cell —
+    // a hardcoded day here goes stale the moment the real month rolls over
+    // (exactly what broke this test once already).
+    expect(screen.getByTestId(`day-${TODAY}`)).toBeTruthy();
 
-    fireEvent.press(screen.getByTestId('day-2026-09-15'));
+    fireEvent.press(screen.getByTestId(`day-${TODAY}`));
 
     // The dialog now hosts the day detail, while the calendar stays mounted.
     expect(await screen.findByTestId('calendar-dialog')).toBeTruthy();
-    expect(screen.getByTestId('day-2026-09-15')).toBeTruthy();
+    expect(screen.getByTestId(`day-${TODAY}`)).toBeTruthy();
   });
 
   it('calls onOpenTab when the rail links to Eventos or Recibos', async () => {
