@@ -164,9 +164,13 @@ driving the UI for a spec that's already `implemented`/`verified`, in this
 order:
 
 1. **001 + 014** (this spec) — sign in with email/password, reach the main
-   screen, sign out.
+   screen, sign out. **Done**, `e2e/tests/smoke.spec.ts`.
 2. **002** — household create, invite code join as a second browser context
-   (second parent).
+   (second parent). **Done** (2026-10-08), `e2e/tests/household.spec.ts`.
+   Found and fixed a real app bug along the way: a race condition in
+   `createHousehold`/`joinHousehold` could permanently clobber `status:
+   'active'` back to `'activating'`, hanging the spinner forever — see
+   `specs/002-household.md`'s 2026-10-08 amendment for the full writeup.
 3. **004** — custody propose (parent A) → approve (parent B), two browser
    contexts, asserting the calendar updates for both.
 4. **005** — create/edit a kid event, visible to both parents.

@@ -212,7 +212,13 @@ export function createHouseholdStore(repo: HouseholdRepository) {
           await repo.createHousehold(user, input);
           // Hold a spinner until the household listener goes active — the
           // onboarding form must not reappear (a re-tap would duplicate it).
-          set({ status: 'activating' });
+          // Guarded: Firestore can deliver this same write to the already-
+          // subscribed profile/household listeners optimistically, *before*
+          // this promise resolves — if that already flipped status to
+          // 'active', this must not clobber it back to 'activating' with
+          // nothing left to ever correct it (a permanent stuck spinner,
+          // found via spec 016 e2e coverage).
+          set((state) => (state.status === 'active' ? {} : { status: 'activating' }));
           return true;
         } catch (error) {
           set({ actionError: messageFor(error, 'createFailed') });
@@ -246,7 +252,8 @@ export function createHouseholdStore(repo: HouseholdRepository) {
           // propagates to the rules engine — one retry clears it.
           step = 'link';
           await withRetry(() => repo.linkJoin(user!.uid, code, existing.householdId));
-          set({ status: 'activating' });
+          // Same race guard as createHousehold — see its comment above.
+          set((state) => (state.status === 'active' ? {} : { status: 'activating' }));
           return true;
         } catch (error) {
           console.warn('[household] join failed', code, step, error);
