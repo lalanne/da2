@@ -82,4 +82,53 @@ export default async function globalSetup(): Promise<void> {
   process.env.E2E_JOINER_EMAIL = joiner.email!;
   process.env.E2E_JOINER_PASSWORD = 'E2eHouseholdTest123!';
   process.env.E2E_JOINER_NAME = 'Cristián E2E';
+
+  // Coverage item 3 (spec 016, spec 004): two accounts already sharing a
+  // household — household linking has its own coverage above, so this skips
+  // straight to a two-parent household with no custody pattern yet, the
+  // real starting point for propose/approve.
+  const custodyA = await auth.createUser({
+    email: `custody-a-${runId}@example.com`,
+    password: 'E2eCustodyTest123!',
+    emailVerified: true,
+    displayName: 'Javiera Custody E2E',
+  });
+  const custodyB = await auth.createUser({
+    email: `custody-b-${runId}@example.com`,
+    password: 'E2eCustodyTest123!',
+    emailVerified: true,
+    displayName: 'Cristián Custody E2E',
+  });
+  const custodyHouseholdRef = db.collection('households').doc();
+  await custodyHouseholdRef.set({
+    name: 'Hogar Custodia E2E',
+    parentIds: [custodyA.uid, custodyB.uid],
+    children: [{ id: `${custodyHouseholdRef.id}-c0`, name: 'Sofía E2E', birthdate: null }],
+    pendingInviteCode: null,
+    timezone: 'America/Santiago',
+    coParentName: null,
+    coParentJoinedAt: Date.now(),
+    createdBy: custodyA.uid,
+    createdAt: Date.now(),
+  });
+  await db.collection('users').doc(custodyA.uid).set({
+    displayName: 'Javiera Custody E2E',
+    email: custodyA.email,
+    photoUrl: null,
+    householdId: custodyHouseholdRef.id,
+    joinedVia: 'created',
+    createdAt: Date.now(),
+  });
+  await db.collection('users').doc(custodyB.uid).set({
+    displayName: 'Cristián Custody E2E',
+    email: custodyB.email,
+    photoUrl: null,
+    householdId: custodyHouseholdRef.id,
+    joinedVia: 'linked',
+    createdAt: Date.now(),
+  });
+  process.env.E2E_CUSTODY_A_EMAIL = custodyA.email!;
+  process.env.E2E_CUSTODY_A_PASSWORD = 'E2eCustodyTest123!';
+  process.env.E2E_CUSTODY_B_EMAIL = custodyB.email!;
+  process.env.E2E_CUSTODY_B_PASSWORD = 'E2eCustodyTest123!';
 }
