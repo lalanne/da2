@@ -59,4 +59,27 @@ export default async function globalSetup(): Promise<void> {
   // forks worker processes, so every worker inherits it.
   process.env.E2E_SMOKE_EMAIL = email;
   process.env.E2E_SMOKE_PASSWORD = password;
+
+  // Phase 2 (spec 016 Coverage item 2, spec 002): two accounts with NO
+  // household yet — unlike the smoke account above, nothing is pre-seeded
+  // in Firestore for these. The whole point of this coverage item is
+  // driving the real create/join UI, not bypassing it.
+  const creator = await auth.createUser({
+    email: `household-creator-${runId}@example.com`,
+    password: 'E2eHouseholdTest123!',
+    emailVerified: true,
+    displayName: 'Javiera E2E',
+  });
+  const joiner = await auth.createUser({
+    email: `household-joiner-${runId}@example.com`,
+    password: 'E2eHouseholdTest123!',
+    emailVerified: true,
+    displayName: 'Cristián E2E',
+  });
+  process.env.E2E_CREATOR_EMAIL = creator.email!;
+  process.env.E2E_CREATOR_PASSWORD = 'E2eHouseholdTest123!';
+  process.env.E2E_CREATOR_NAME = 'Javiera E2E';
+  process.env.E2E_JOINER_EMAIL = joiner.email!;
+  process.env.E2E_JOINER_PASSWORD = 'E2eHouseholdTest123!';
+  process.env.E2E_JOINER_NAME = 'Cristián E2E';
 }

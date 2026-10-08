@@ -213,6 +213,72 @@ describe('householdStore', () => {
     expect(useStore.getState().status).toBe('active');
   });
 
+  it('does not clobber an already-active status when the listener wins the race against createHousehold\'s own promise', async () => {
+    // Found via spec 016 e2e (the household create/join coverage): Firestore
+    // delivers a write to an already-subscribed listener optimistically,
+    // from the local cache, often *before* the write's own promise settles
+    // — not after, which `createHousehold`/`joinHousehold` implicitly
+    // assumed. In the real app this raced the profile listener -> household
+    // listener chain ahead of `repo.createHousehold`'s own
+    // `updateDoc(users/{uid})` await, so `set({ status: 'activating' })`
+    // fired *after* the listener had already set `status: 'active'`, and
+    // nothing ever corrected it — a permanent stuck spinner. 100%
+    // reproducible against the real Firebase emulator (near-zero listener
+    // latency), occasional in production.
+    const { repo, emitProfile } = makeRepo();
+    const useStore = createHouseholdStore(repo);
+    useStore.getState().start(me);
+    emitProfile(profile());
+    await flush();
+    expect(useStore.getState().status).toBe('noHousehold');
+
+    (repo.createHousehold as jest.Mock).mockImplementation(async () => {
+      emitProfile(profile({ householdId: 'h1' }));
+      await flush();
+      (repo.subscribeToHousehold as jest.Mock).mock.calls.at(-1)?.[1](household());
+      await flush();
+    });
+
+    const input = { name: 'Los García', children: [{ name: 'Sofía', birthdate: null }] };
+    await useStore.getState().createHousehold(input);
+
+    expect(useStore.getState().status).toBe('active');
+    expect(useStore.getState().household?.id).toBe('h1');
+  });
+
+  it('does not clobber an already-active status when the listener wins the race against joinHousehold\'s own promise', async () => {
+    const { repo, emitProfile } = makeRepo();
+    const useStore = createHouseholdStore(repo);
+    useStore.getState().start(me);
+    emitProfile(profile());
+    await flush();
+
+    (repo.fetchInviteCode as jest.Mock).mockResolvedValueOnce({
+      code: 'ABCD2345',
+      householdId: 'h2',
+      createdBy: 'u2',
+      createdAt: 0,
+      redeemedBy: null,
+    });
+    // linkJoin's real write batches the household update AND users/{uid}
+    // together — the profile listener (already subscribed) sees it first,
+    // subscribes to the household, and that too resolves before linkJoin's
+    // own promise does.
+    (repo.linkJoin as jest.Mock).mockImplementation(async () => {
+      emitProfile(profile({ householdId: 'h2' }));
+      await flush();
+      (repo.subscribeToHousehold as jest.Mock).mock.calls.at(-1)?.[1](
+        household({ id: 'h2', parentIds: ['u1', 'u2'], pendingInviteCode: null }),
+      );
+      await flush();
+    });
+
+    await useStore.getState().joinHousehold('ABCD2345');
+
+    expect(useStore.getState().status).toBe('active');
+    expect(useStore.getState().household?.id).toBe('h2');
+  });
+
   it('createHousehold forwards to the repository and reports success', async () => {
     const { repo } = makeRepo();
     const useStore = createHouseholdStore(repo);

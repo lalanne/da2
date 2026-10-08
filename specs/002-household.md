@@ -216,6 +216,27 @@ fixed before verification:
   briefly reappeared (the `users/{uid}` snapshot lags the write) and a re-tap
   created another household. Fixed with an `activating` status that holds a
   spinner until the household goes live.
+  **2026-10-08 amendment — that fix had a race condition, permanently
+  stuck spinner, found via spec 016's e2e coverage.** `createHousehold`/
+  `joinHousehold` set `status: 'activating'` *after* awaiting their own
+  write, on the assumption the household listener could only resolve
+  later. But Firestore delivers a write to an already-subscribed listener
+  optimistically, from the local cache — often *before* the write's own
+  promise resolves, not after. When the listener won that race (setting
+  `status: 'active'` with the real household data), the subsequent
+  `set({ status: 'activating' })` clobbered it back, with nothing left to
+  ever correct it — not a brief flash this time, a permanent hang. 100%
+  reproducible against the real Firebase emulator (near-zero listener
+  latency); likely the exact cause of the "7+ seconds, possibly more, user
+  gives up and force-restarts" report in the pilot's deferred known-issues
+  list. Fixed by guarding both call sites:
+  `set((state) => (state.status === 'active' ? {} : { status:
+  'activating' }))` — a no-op if the listener already won. Two new unit
+  tests in `householdStore.test.ts` reproduce the exact race
+  deterministically (fail against the old code); confirmed end-to-end
+  against the real emulator via
+  `e2e/tests/household.spec.ts` (hung indefinitely before, resolves in
+  ~3s after).
 - **Blank-screen flash on resume** — RNFB auth re-emits `null` on app resume;
   the household store was torn down on it. Fixed with a sign-out grace delay.
 - iOS build required `disableSPM` + `useFrameworks: static` for RNFB 26;
