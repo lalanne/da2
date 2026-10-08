@@ -172,7 +172,13 @@ order:
    'active'` back to `'activating'`, hanging the spinner forever — see
    `specs/002-household.md`'s 2026-10-08 amendment for the full writeup.
 3. **004** — custody propose (parent A) → approve (parent B), two browser
-   contexts, asserting the calendar updates for both.
+   contexts, asserting the calendar updates for both. **Done** (2026-10-08),
+   `e2e/tests/custody.spec.ts`. Pre-seeds a two-parent household directly
+   (household linking already covered by item 2) and drives a real pattern
+   proposal + approval through the UI. No app bug found this time — unlike
+   `createHousehold`/`joinHousehold`, `custodyStore`'s `resolve()` doesn't
+   set a competing "holding" status after its own write, so it isn't
+   exposed to the same race.
 4. **005** — create/edit a kid event, visible to both parents.
 5. **003** — upload a receipt, confirm it's visible and tagged correctly.
 6. **010** — propose a split, approve, record a settlement, confirm the
