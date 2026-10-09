@@ -155,6 +155,15 @@ rules tests.
 | 7 immutable `createdBy` / `createdAt` on edit | ✅ | Rules reject an update that changes `createdBy`/`createdAt` or sets `updatedBy` to anyone but the editor. |
 | 8 recurrence only on training | ✅ | The form hides the recurrence toggle for non-training; the rules reject a `recurrence` value on a non-training event. |
 
+### Pilot notes
+
+- **2026-10-09 — deleting an event did nothing at all on web, found via
+  spec 016 e2e coverage.** `EventDetail`'s confirm goes through RN's
+  `Alert.alert`, and react-native-web's `Alert.alert` is a documented
+  no-op — it does literally nothing, no error, no effect. Same root cause
+  and fix as specs 002 (regenerate invite code) and 003 (receipt
+  share/delete) — see `src/web/confirmAlert.ts`.
+
 ## Out of scope
 
 - Per-occurrence exceptions / "this and following" edits.

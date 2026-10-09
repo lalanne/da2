@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Alert, Share, StyleSheet, View } from 'react-native';
+import { Share, StyleSheet, View } from 'react-native';
 import { useHouseholdStore } from '../store/householdStore';
 import { strings } from '../i18n/strings';
 import { theme } from '../theme';
 import { Avatar, Banner, Button, Card, CodeChip, ListRow, Text, TextField } from '../components';
+import { confirmAlert } from '../web/confirmAlert';
 
 export function HouseholdPanel() {
   const { household, members, regenerateInviteCode, setCoParentName, isSubmitting } =
@@ -30,7 +31,7 @@ export function HouseholdPanel() {
   };
 
   const onRegenerate = () => {
-    Alert.alert(s.regenerate, s.regenerateConfirm, [
+    confirmAlert(s.regenerate, s.regenerateConfirm, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: s.regenerate, onPress: () => void regenerateInviteCode() },
     ]);
