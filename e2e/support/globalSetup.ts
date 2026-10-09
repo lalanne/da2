@@ -182,4 +182,37 @@ export default async function globalSetup(): Promise<void> {
   process.env.E2E_SPLIT_A_PASSWORD = 'E2eSplitTest123!';
   process.env.E2E_SPLIT_B_EMAIL = splitB.email!;
   process.env.E2E_SPLIT_B_PASSWORD = 'E2eSplitTest123!';
+
+  // Coverage item 7 (spec 016, spec 015): a genuinely solo household
+  // (parentIds.length === 1, no second parent ever joined) — distinct from
+  // every fixture above, none of which stay solo by the time their test
+  // finishes.
+  const solo = await auth.createUser({
+    email: `solo-${runId}@example.com`,
+    password: 'E2eSoloTest123!',
+    emailVerified: true,
+    displayName: 'Javiera Solo E2E',
+  });
+  const soloHouseholdRef = db.collection('households').doc();
+  await soloHouseholdRef.set({
+    name: 'Hogar Solo E2E',
+    parentIds: [solo.uid],
+    children: [{ id: `${soloHouseholdRef.id}-c0`, name: 'Lucía E2E', birthdate: null }],
+    pendingInviteCode: null,
+    timezone: 'America/Santiago',
+    coParentName: null,
+    coParentJoinedAt: null,
+    createdBy: solo.uid,
+    createdAt: Date.now(),
+  });
+  await db.collection('users').doc(solo.uid).set({
+    displayName: 'Javiera Solo E2E',
+    email: solo.email,
+    photoUrl: null,
+    householdId: soloHouseholdRef.id,
+    joinedVia: 'created',
+    createdAt: Date.now(),
+  });
+  process.env.E2E_SOLO_EMAIL = solo.email!;
+  process.env.E2E_SOLO_PASSWORD = 'E2eSoloTest123!';
 }

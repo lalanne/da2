@@ -214,6 +214,13 @@ order:
    inside the same dialog rather than closing it, so the list behind it
    isn't interactable until the dialog is explicitly dismissed.
 7. **015** — solo-parent self-approval before a second parent has joined.
+   **Done** (2026-10-09), `e2e/tests/solo.spec.ts`. Its own fixture — a
+   genuinely solo household (`parentIds.length === 1`), unlike every other
+   fixture by the time its own test finishes. Single session: proposing a
+   custody pattern and a split table both resolve immediately, no second
+   party required; both still show the provisional badge (a unilateral
+   decision is flagged regardless of who's looking), with no review/accept
+   action offered to the proposer themselves. No app bug found.
 8. **012** — the wide-web layout: sidebar nav + master-detail list behavior
    at a wide viewport.
 
