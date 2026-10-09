@@ -179,7 +179,14 @@ order:
    `createHousehold`/`joinHousehold`, `custodyStore`'s `resolve()` doesn't
    set a competing "holding" status after its own write, so it isn't
    exposed to the same race.
-4. **005** — create/edit a kid event, visible to both parents.
+4. **005** — create/edit a kid event, visible to both parents. **Done**
+   (2026-10-08), `e2e/tests/events.spec.ts`. Reuses the custody fixture's
+   two-parent household (events don't depend on a custody pattern). No
+   propose/approve — covers real-time create + edit-by-the-other-parent.
+   No app bug found; the only wrinkle was a strict-mode locator issue in
+   the *test* itself (wide-web master-detail shows the edited title in
+   both the list row and the still-open detail pane at once — scoped the
+   assertion to the pane).
 5. **003** — upload a receipt, confirm it's visible and tagged correctly.
 6. **010** — propose a split, approve, record a settlement, confirm the
    balance.
