@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Platform, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Platform, StyleSheet, View } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { theme } from '../../theme';
 import { Banner, Button, Card, Chip, Screen, Text } from '../../components';
@@ -12,6 +12,7 @@ import type { Receipt } from '../../models/Receipt';
 import type { Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
 import { receiptAmountLabel, receiptChildLabel, tagLabel } from './labels';
+import { confirmAlert } from '../../web/confirmAlert';
 
 interface Props {
   receipt: Receipt;
@@ -63,7 +64,7 @@ export function ReceiptDetail({
     members.find((m) => m.uid !== currentUid)?.displayName ?? strings.custody.theOtherParent;
 
   const doShare = (percentA: number) => {
-    Alert.alert(d.share, d.shareConfirm, [
+    confirmAlert(d.share, d.shareConfirm, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: d.share, onPress: () => void store.share(receipt.id, percentA) },
     ]);
@@ -83,7 +84,7 @@ export function ReceiptDetail({
   };
 
   const onDelete = () => {
-    Alert.alert(d.delete, d.deleteConfirm, [
+    confirmAlert(d.delete, d.deleteConfirm, [
       { text: strings.common.cancel, style: 'cancel' },
       {
         text: d.delete,

@@ -241,6 +241,12 @@ fixed before verification:
   the household store was torn down on it. Fixed with a sign-out grace delay.
 - iOS build required `disableSPM` + `useFrameworks: static` for RNFB 26;
   export-compliance and TestFlight onboarding — all in spec 006.
+- **2026-10-09 — regenerating the invite code did nothing at all on web,
+  found via spec 016 e2e coverage.** `HouseholdPanel`'s confirm goes
+  through RN's `Alert.alert`, and react-native-web's `Alert.alert` is a
+  documented no-op. Same root cause and fix as specs 003 (receipt
+  share/delete) and 005 (delete an event) — see
+  `src/web/confirmAlert.ts`.
 
 ## Out of scope
 

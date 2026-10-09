@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { theme } from '../../theme';
 import { Button, Card, Screen, Text } from '../../components';
 import { strings } from '../../i18n/strings';
@@ -7,6 +7,7 @@ import type { Household } from '../../models/Household';
 import type { HouseholdMember } from '../../store/householdStore';
 import { dayLabel } from '../calendar/labels';
 import { childrenLabel, eventTimeLabel, eventTypeLabel } from './labels';
+import { confirmAlert } from '../../web/confirmAlert';
 
 interface Props {
   event: KidEvent;
@@ -22,7 +23,7 @@ export function EventDetail({ event, household, members, onEdit, onDelete, onBac
   const editor = members.find((m) => m.uid === event.updatedBy);
 
   const confirmDelete = () => {
-    Alert.alert(d.delete, d.deleteConfirm, [
+    confirmAlert(d.delete, d.deleteConfirm, [
       { text: strings.common.cancel, style: 'cancel' },
       { text: d.delete, style: 'destructive', onPress: onDelete },
     ]);

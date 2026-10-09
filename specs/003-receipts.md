@@ -237,6 +237,16 @@ usage-description strings; `firebase.json` gains the `storage` emulator; the
   `versionCode 1` from `1.1.0`, so phones ignored the "update". `app.json`
   now carries explicit `ios.buildNumber` / `android.versionCode`; bump both
   every native release (spec 006 Notes).
+- **2026-10-09 — sharing a receipt did nothing at all on web, found via
+  spec 016 e2e coverage.** `ReceiptDetail`'s share/delete confirm both go
+  through RN's `Alert.alert(title, message, buttons)`, and
+  react-native-web's `Alert.alert` is a documented no-op — it does
+  literally nothing. Clicking "Compartir" or "Eliminar" produced no error,
+  no console warning, no effect of any kind; only an e2e test driving the
+  real button (rather than calling the store directly) could have caught
+  it. Same root cause, and same fix, in specs 002 (regenerate invite code)
+  and 005 (delete an event) — see `src/web/confirmAlert.ts`'s own
+  doc-comment for the full writeup.
 
 ## Out of scope
 
