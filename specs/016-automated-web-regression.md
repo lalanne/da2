@@ -1,6 +1,6 @@
 # 016 — Automated web regression suite
 
-**Status:** approved
+**Status:** implemented
 **Depends on:** 006 (deployment pipeline — this becomes one of its gates),
 011 (web platform — the thing under test), 014 (email/password — the
 sign-in path the suite drives, instead of Google OAuth)
@@ -222,7 +222,26 @@ order:
    decision is flagged regardless of who's looking), with no review/accept
    action offered to the proposer themselves. No app bug found.
 8. **012** — the wide-web layout: sidebar nav + master-detail list behavior
-   at a wide viewport.
+   at a wide viewport. **Done** (2026-10-09), `e2e/tests/wideWeb.spec.ts`.
+   The wide path is already implicitly covered many times over — every
+   other spec here runs at Playwright's default desktop viewport. This
+   item's real value is the *narrow* fallback and the live, reactive
+   breakpoint switch (spec 012's own Verification plan listed "resize
+   across the breakpoint" as a manual step; this automates it). Reuses the
+   smoke fixture (a solo household, no pattern yet). One finding, judged a
+   test-assumption error rather than an app bug: resizing across the
+   breakpoint mid-flow swaps `MainScreen`'s top-level JSX between two
+   structurally different trees (`WebShell` vs. `TabBar` wrapping), so
+   React unmounts/remounts the active tab and any in-progress local view
+   state (an open form) resets. Spec 012 never claims otherwise — only
+   that the breakpoint *detection* is reactive, not that mid-form state
+   survives a resize — so the test verifies each viewport's behavior
+   independently instead of expecting one open dialog to carry across the
+   resize.
+
+All eight coverage items are now built. `e2e/tests/` holds smoke,
+household, custody, events, receipts, split, solo, and wideWeb specs — 8
+tests, all green on `main`'s CI.
 
 Specs 007/009 (design system, date/time input) are exercised incidentally by
 the above rather than getting dedicated e2e tests — they're already fully
