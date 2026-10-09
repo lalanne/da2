@@ -199,7 +199,20 @@ order:
    anyway.
 6. **010** — propose a split, approve, record a settlement, confirm the
    balance. Also covers cross-parent visibility of a *shared* receipt
-   (deferred from item 5 above, since both need a split table).
+   (deferred from item 5 above, since both need a split table). **Done**
+   (2026-10-09), `e2e/tests/split.spec.ts`. Own two-parent household
+   fixture (separate from the custody one) — it uploads a receipt, same as
+   `receipts.spec.ts`, and two e2e files sharing an account that both
+   create receipts collide when run in the same parallel suite. This test
+   is also what surfaced the `Alert.alert`-is-a-no-op-on-web bug (fixed
+   separately, see PR #21/specs 002+003+005) — sharing a receipt did
+   nothing until that landed. Two UI wrinkles in the test itself, not app
+   bugs: (1) `WebDialog`'s backdrop is full-screen, so a default `.click()`
+   lands on its own bounding-box center — exactly where the dialog card
+   sits on top of it; fixed with an explicit off-center `position`. (2)
+   proposing a split table returns to the (still-open) `split-table` view
+   inside the same dialog rather than closing it, so the list behind it
+   isn't interactable until the dialog is explicitly dismissed.
 7. **015** — solo-parent self-approval before a second parent has joined.
 8. **012** — the wide-web layout: sidebar nav + master-detail list behavior
    at a wide viewport.
