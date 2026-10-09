@@ -188,8 +188,18 @@ order:
    both the list row and the still-open detail pane at once — scoped the
    assertion to the pane).
 5. **003** — upload a receipt, confirm it's visible and tagged correctly.
+   **Done** (2026-10-08), `e2e/tests/receipts.spec.ts`. Scoped to upload →
+   tag → private listing on one session (reuses the custody fixture's
+   parent A). Real file upload via Playwright's `filechooser` interception
+   against a tiny fixture PNG (`e2e/fixtures/receipt.png`) — Storage
+   emulator, no shortcuts. **Does not** cover sharing: `ReceiptDetail`'s
+   share button is gated on an agreed split table (`activeSplit`, spec
+   010's own machinery) and goes through a native `Alert.alert` confirm —
+   both push that into item 6 below, where a split table has to exist
+   anyway.
 6. **010** — propose a split, approve, record a settlement, confirm the
-   balance.
+   balance. Also covers cross-parent visibility of a *shared* receipt
+   (deferred from item 5 above, since both need a split table).
 7. **015** — solo-parent self-approval before a second parent has joined.
 8. **012** — the wide-web layout: sidebar nav + master-detail list behavior
    at a wide viewport.
