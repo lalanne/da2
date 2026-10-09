@@ -131,4 +131,55 @@ export default async function globalSetup(): Promise<void> {
   process.env.E2E_CUSTODY_A_PASSWORD = 'E2eCustodyTest123!';
   process.env.E2E_CUSTODY_B_EMAIL = custodyB.email!;
   process.env.E2E_CUSTODY_B_PASSWORD = 'E2eCustodyTest123!';
+
+  // Coverage item 6 (spec 016, spec 010): its own two-parent household,
+  // separate from the custody fixture above. split.spec.ts uploads a
+  // receipt under this account, same as receipts.spec.ts does under the
+  // custody fixture — sharing one account between two receipt-creating
+  // specs collides when they run in parallel (both see each other's
+  // receipt, `[data-testid^="receipt-row-"]` resolves to more than one).
+  const splitA = await auth.createUser({
+    email: `split-a-${runId}@example.com`,
+    password: 'E2eSplitTest123!',
+    emailVerified: true,
+    displayName: 'Javiera Split E2E',
+  });
+  const splitB = await auth.createUser({
+    email: `split-b-${runId}@example.com`,
+    password: 'E2eSplitTest123!',
+    emailVerified: true,
+    displayName: 'Cristián Split E2E',
+  });
+  const splitHouseholdRef = db.collection('households').doc();
+  await splitHouseholdRef.set({
+    name: 'Hogar Reparto E2E',
+    parentIds: [splitA.uid, splitB.uid],
+    children: [{ id: `${splitHouseholdRef.id}-c0`, name: 'Mateo E2E', birthdate: null }],
+    pendingInviteCode: null,
+    timezone: 'America/Santiago',
+    coParentName: null,
+    coParentJoinedAt: Date.now(),
+    createdBy: splitA.uid,
+    createdAt: Date.now(),
+  });
+  await db.collection('users').doc(splitA.uid).set({
+    displayName: 'Javiera Split E2E',
+    email: splitA.email,
+    photoUrl: null,
+    householdId: splitHouseholdRef.id,
+    joinedVia: 'created',
+    createdAt: Date.now(),
+  });
+  await db.collection('users').doc(splitB.uid).set({
+    displayName: 'Cristián Split E2E',
+    email: splitB.email,
+    photoUrl: null,
+    householdId: splitHouseholdRef.id,
+    joinedVia: 'linked',
+    createdAt: Date.now(),
+  });
+  process.env.E2E_SPLIT_A_EMAIL = splitA.email!;
+  process.env.E2E_SPLIT_A_PASSWORD = 'E2eSplitTest123!';
+  process.env.E2E_SPLIT_B_EMAIL = splitB.email!;
+  process.env.E2E_SPLIT_B_PASSWORD = 'E2eSplitTest123!';
 }
