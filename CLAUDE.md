@@ -9,49 +9,51 @@ custody calendar with propose/approve changes, kid events, and receipt/invoice
 sharing. Two parents per household, linked by invite code, each signing in with
 their own Google account.
 
+## Shared engineering practices
+
+This repo is wired to the private `eng-standards` marketplace's
+`core-practices` plugin (`.claude/settings.json`, pinned to
+`core-practices--v0.3.0`): skills `spec-first`, `tdd-change`, `open-pr`, plus
+a branch-guard hook that blocks commits/pushes to `main` regardless of what
+the skills decide. Those skills carry the generic discipline; the sections
+below are what's specific to da2 on top of them.
+
 ## Spec-Driven Development — the core rule
 
-This repo follows SDD strictly. **Do not write feature code without an approved
-spec.** The process, defined in `specs/README.md`:
+No feature code without an approved spec, specs are the source of truth —
+edit the spec first when requirements change. Generic discipline enforced by
+the `spec-first` skill; da2-specific process, defined in `specs/README.md`:
 
 1. Every feature has a numbered spec in `specs/` (user stories, requirements,
    data model, Given/When/Then acceptance criteria).
-2. Specs are the source of truth — when requirements change, edit the spec
-   first, then the code.
-3. A feature is done only when all its acceptance criteria pass; specs move
+2. A feature is done only when all its acceptance criteria pass; specs move
    `draft → approved → implemented → verified`, tracked in the index table in
    `specs/README.md` (keep it updated).
-4. Implement one spec at a time, in numbered order (they declare dependencies).
+3. Implement one spec at a time, in numbered order (they declare dependencies).
 
 Read `specs/000-overview.md` first — it holds the product vision, v1
 scope/out-of-scope table, and cross-cutting constraints.
 
 ## Test-Driven Development — how every change is made
 
-This applies to **every** change — a new feature, a bug fix, a cosmetic
-fix, anything. Not optional, not just for "important" changes.
+Every change — feature, bug fix, or cosmetic fix — is test-first with a
+regression test. Generic discipline enforced by the `tdd-change` skill;
+what's specific to da2:
 
-1. **Write a failing test first, before any implementation code.** For a
-   bug fix, that test reproduces the bug — it fails against the current
-   code, for the same reason a real user hit it.
-2. Only then write the code to make it pass.
-3. **Every change ships with a regression test**, not just new-feature
-   coverage — a fix with no test guarding it can silently come back later
-   (this bit us for real: two production auth bugs each got fixed once on
-   native and, only on a second pass, discovered to have zero test
-   coverage on the web twin — exactly how a fix quietly stops holding on
-   the platform nobody's watching).
-4. This isn't only about unit tests. Reach for whichever layer actually
+1. This isn't only about unit tests. Reach for whichever layer actually
    exercises the change: `firebase/tests/**` (Firestore/Storage rules —
    the emulator, never a real project) for anything security-rule-shaped;
    a mocked-SDK test asserting the *exact* call shape (arguments, not just
-   "was called") when the bug lives in how a third-party SDK is invoked,
-   the way both real production bugs above did; an end-to-end / acceptance
-   test when the change is best verified as a full user flow. There is no
-   Maestro/e2e harness in this repo yet (planned in spec 001, never
-   built) — if a change genuinely needs that layer to be trustworthy, that
-   infrastructure is part of the change, not something to skip past.
-5. When you can *prove* a regression test would have caught the bug (e.g.
+   "was called") when the bug lives in how a third-party SDK is invoked —
+   two real production auth bugs lived exactly there, each fixed once on
+   native and only later discovered to have zero test coverage on the web
+   twin, exactly how a fix quietly stops holding on the platform nobody's
+   watching; an end-to-end / acceptance test when the change is best
+   verified as a full user flow. There is no Maestro/e2e harness in this
+   repo yet (planned in spec 001, never built) — if a change genuinely
+   needs that layer to be trustworthy, that infrastructure is part of the
+   change, not something to skip past.
+2. When you can *prove* a regression test would have caught the bug (e.g.
    by temporarily reverting the fix locally and watching it fail), that's
    worth doing and saying so — it's the difference between a real
    regression test and a tautological one. Never leave the revert in
@@ -122,7 +124,6 @@ instead of guessing.
   `git@github-lalanne:lalanne/da2.git`). Plain `github.com` authenticates as
   the author's work account (`clalanne-enghouse`), which has no access to this
   repo — do not "fix" the remote back to `github.com`.
-- **Never commit a new feature or bug fix directly to `main`.** Create a
-  branch, push it, and open a PR (`gh pr create`) for the user to review and
-  merge — a safety rail against unreviewed changes landing on `main`. Don't
-  merge the PR yourself unless explicitly told to.
+- Never commit directly to `main` — branch + PR (`gh pr create`) for every
+  change. Generic discipline enforced by the `open-pr` skill and the
+  branch-guard hook. Don't merge the PR yourself unless explicitly told to.
