@@ -1,0 +1,14 @@
+{
+  "enabledPlugins": {
+    "core-practices@eng-standards": true
+  },
+  "extraKnownMarketplaces": {
+    "eng-standards": {
+      "source": {
+        "source": "git",
+        "url": "git@github-lalanne:lalanne/eng-standards.git",
+        "ref": "core-practices--v0.3.0"
+      }
+    }
+  }
+}
