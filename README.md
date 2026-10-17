@@ -39,7 +39,7 @@ languages can be added later.
 
 | Layer | Choice |
 |-------|--------|
-| App | Expo (React Native) + TypeScript, one codebase — current focus is web, live at [da2-coparenting.web.app](https://da2-coparenting.web.app) (specs 011 + 012, with a desktop layout), and iOS via TestFlight; Android is paused as a pilot target; public launch order not yet re-decided |
+| App | Expo (React Native) + TypeScript, one codebase — priority order iOS (TestFlight) → web, live at [da2-coparenting.web.app](https://da2-coparenting.web.app) (specs 011 + 012, with a desktop layout) → Android (paused, pending) |
 | Auth | Firebase Auth — Google Sign-In, email/password (spec 014); Sign in with Apple before iOS launch |
 | Data | Cloud Firestore (real-time sync between parents) |
 | Files | Firebase Storage (receipt images/PDFs) |

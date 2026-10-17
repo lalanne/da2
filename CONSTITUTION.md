@@ -1,6 +1,6 @@
 # da2 Constitution — Product, Scope & Stack
 
-**Version:** 1.1.0 · **Ratified:** 2026-10-17 · **Last amended:** 2026-10-17
+**Version:** 1.2.0 · **Ratified:** 2026-10-17 · **Last amended:** 2026-10-17
 
 The ground truth every spec in [`specs/`](specs/) must agree with. Not a spec
 itself: no acceptance criteria, no `draft → verified` lifecycle. It changes
@@ -23,14 +23,14 @@ usable that way (spec 015).
 
 ## Platform strategy
 
-- **Current focus: web + iOS.** Web is live at
+- **Priority order: iOS → web → Android (pending).** iOS ships via
+  TestFlight (spec 006). Web is live at
   [da2-coparenting.web.app](https://da2-coparenting.web.app) (specs 011 +
-  012, full feature parity, desktop layout); iOS ships via TestFlight (spec
-  006). Android builds from the same codebase but is paused as a pilot
-  target since 2026-09-30.
-- **Public launch order:** not yet re-decided. The original plan was Android
-  (Google Play) first, then the iOS App Store, then web; the current web +
-  iOS focus supersedes it until a new order is set here.
+  012, full feature parity, desktop layout). Android builds from the same
+  codebase but is paused as a pilot target since 2026-09-30; it has no
+  launch slot until it's picked back up.
+- This order governs both the pilot and the public launch. It replaces the
+  original plan (Android on Google Play first, then iOS, then web).
 - Framework: **Expo (React Native) + TypeScript**, one codebase for all three
   platforms; EAS Build/Submit/Update for native delivery, Firebase Hosting
   for web.
@@ -108,5 +108,6 @@ Postgres. Revisit only if expense reporting outgrows it.
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.2.0 | 2026-10-17 | Platform order set: iOS → web → Android (pending), for pilot and public launch. Spec 006 amended to match (iPhone + web are the pilot's verification surfaces; Android paused). |
 | 1.1.0 | 2026-10-17 | Moved out of `specs/` (was `000-overview.md`, status `draft`) and ratified. Synced with shipped specs: email/password sign-in (014), web + iOS as current focus with Android paused, single-parent households (015), push marked deferred to 008, security-in-rules and e2e regression gate added as constraints. |
 | 1.0.0 | — | Pre-ratification history as `specs/000-overview.md`, amended informally by specs 006, 007, 010, 011/012, 013 and 015 (see git history). |
