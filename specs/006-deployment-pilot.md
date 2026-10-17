@@ -41,8 +41,15 @@ three layers must pass:
    automated tests never touch pilot data.
 3. **Manual pass (the developer).** The developer signs in on the live site
    and walks the spec's new or changed flow once with real data. This is
-   what catches what the first two can't: real Google sign-in in a real
-   browser (e.g. `auth/popup-blocked`) and whether the flow makes sense.
+   what catches what the first two can't: the real Google account picker,
+   and whether the flow makes sense. **2026-10-17 note:** the popup
+   *mechanics* (`signInWithPopup` against the Auth emulator's fake widget)
+   now have e2e coverage (spec 016 Coverage item 9,
+   `e2e/tests/googleSignIn.spec.ts`) — but confirmed, honestly, not to
+   reproduce `auth/popup-blocked` itself on headless Chromium (that bug is
+   Safari/some-Chromium-configs-specific). Until a WebKit project exists
+   (issue #54), this manual pass is still what would catch that bug class
+   recurring.
 
 ## Distribution decisions
 

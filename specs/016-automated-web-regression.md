@@ -239,9 +239,29 @@ order:
    independently instead of expecting one open dialog to carry across the
    resize.
 
-All eight coverage items are now built. `e2e/tests/` holds smoke,
-household, custody, events, receipts, split, solo, and wideWeb specs — 8
-tests, all green on `main`'s CI.
+9. **001 + 011, Google popup** — drive the real `signInWithPopup` path,
+   not email/password, through the Firebase Auth emulator's own fake IDP
+   widget. **Done** (2026-10-17), `e2e/tests/googleSignIn.spec.ts`. Every
+   other coverage item above deliberately avoids this path — item 1's own
+   note names it as the bug this suite exists to catch, then routes
+   around it. Covers spec 001 criterion 1 (profile doc created, asserted
+   against the Firestore emulator) and spec 011 criterion 1, through to a
+   real household creation (the literal "main screen" — a brand-new
+   account actually lands on spec 002's onboarding first). Proven to be a
+   real regression test, not a tautological one: temporarily reintroduced
+   the exact `auth/popup-blocked` bug (the `setPersistence` await PR #11
+   removed) and re-ran it. **Honest result: it still passed.** That bug
+   only reproduces on Safari and some Chromium popup-blocker
+   configurations, not headless Chromium's defaults — this suite runs
+   Chromium only (see issue #54). So this test proves the popup chain
+   works end to end; it cannot yet catch a recurrence of that specific
+   historical bug. A genuine break (disabling the sign-in button) was
+   confirmed to fail it, so the test isn't vacuous — the gap is engine
+   coverage, not test design.
+
+All nine coverage items are now built. `e2e/tests/` holds smoke,
+household, custody, events, receipts, split, solo, wideWeb, and
+googleSignIn specs — 9 tests, all green on `main`'s CI.
 
 Specs 007/009 (design system, date/time input) are exercised incidentally by
 the above rather than getting dedicated e2e tests — they're already fully
@@ -252,7 +272,11 @@ tests) and are presentation/input concerns, not full-flow ones.
 
 - Native (Android/iOS) E2E — stays "planned, not built" per spec 001; a
   separate spec if ever prioritized again.
-- Automating real Google OAuth sign-in — stays a manual checklist item.
+- Automating the *real* Google OAuth sign-in (an actual Google account,
+  the real account picker) — stays a manual checklist item. **2026-10-17:**
+  the web popup *mechanics* against the Auth emulator's substitute widget
+  are now automated (Coverage item 9) — this non-goal is about the real
+  device/account flow, not the popup code path.
 - Visual/pixel regression testing.
 - Turning on GitHub branch-protection required-checks (see CI, above) — a
   deliberate follow-up decision, not part of this spec.

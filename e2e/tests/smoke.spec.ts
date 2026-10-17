@@ -27,9 +27,10 @@ test('signs in with email/password, reaches the main screen, and signs out', asy
   // desktop browser gets by default.
   await expect(page.getByTestId('web-nav-calendar')).toBeVisible({ timeout: 15_000 });
 
-  // Google's popup path must never be exercised by this flow — the bug this
-  // whole suite exists to catch (specs/011's 2026-09-30 amendment) only ever
-  // showed up there.
+  // This flow deliberately uses email/password, not Google — the harness's
+  // own smoke test should stay minimal. The Google popup path itself (the
+  // bug specs/011's 2026-09-30 amendment fixed) now has its own coverage:
+  // `googleSignIn.spec.ts`.
   await expect(page.getByTestId('sign-in-error')).toHaveCount(0);
 
   await page.getByTestId('web-nav-sign-out').click();
