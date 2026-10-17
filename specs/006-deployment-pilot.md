@@ -6,16 +6,22 @@
 ## Purpose
 
 Every spec, feature, and bug fix — once local tests pass — is deployed to the
-two real pilot phones:
+pilot's surfaces:
 
-| Device | User | Role |
-|--------|------|------|
-| Android phone | Mother | Parent A |
-| iPhone | Father | Parent B |
+| Surface | User | Role | Pilot status |
+|---------|------|------|--------------|
+| iPhone (TestFlight) | Father | Parent B | **active** |
+| Web — <https://da2-coparenting.web.app> | either parent | — | **active** |
+| Android phone (EAS internal) | Mother | Parent A | **paused** since 2026-09-30 |
+
+Platform priority follows `CONSTITUTION.md`: **iOS, then web; Android
+pending.** The Android pilot is paused because the mother couldn't run the
+current build; it resumes when Android is picked back up, and nothing here
+removes the Android path — it just isn't a gate while paused.
 
 One real household with **3 children**. This pilot household is the final
 manual-verification environment: a spec is only marked `verified` after its
-acceptance criteria pass on these phones.
+acceptance criteria pass on the **active** surfaces (iPhone + web).
 
 ## Distribution decisions
 
@@ -24,9 +30,11 @@ acceptance criteria pass on these phones.
   binaries arrive automatically with a notification. First binary (and each
   new binary) passes Apple's light beta review (~1 day). JS-only updates
   bypass review entirely via EAS Update.
-- **Android delivery: EAS internal distribution.** EAS builds an APK and
-  produces an install link; mother taps the link to install/update. No Play
-  Console until public launch.
+- **Android delivery: EAS internal distribution** *(paused)*. EAS builds an
+  APK and produces an install link; mother taps the link to install/update.
+  No Play Console until Android's public launch.
+- **Web delivery: Firebase Hosting** (Path C below). No install step; a
+  redeploy is the update.
 
 ## Three deployment paths
 
@@ -39,8 +47,8 @@ binaries. Spec 011 adds a third, independent path for the web build.
 npm test && eas update --channel pilot --message "<spec/fix description>"
 ```
 
-Both phones download the update on next app launch (second launch runs the
-new code). No review, no reinstall. Minutes end-to-end.
+Native installs download the update on next app launch (second launch runs
+the new code). No review, no reinstall. Minutes end-to-end.
 
 ### Path B — New binaries (native changes)
 
@@ -51,9 +59,9 @@ SDK / runtime version.
 ```
 # bump expo.version AND ios.buildNumber + android.versionCode first
 # (see "Choosing the path" and Notes — same versionCode = phones ignore the update)
-eas build --profile pilot --platform all
+eas build --profile pilot --platform ios   # `--platform all` once Android resumes
 eas submit --platform ios          # → TestFlight (beta review ~1 day)
-# Android: send the EAS install link to the mother's phone
+# Android (paused): build with --platform android and send the EAS install link
 ```
 
 **Native releases so far:**
@@ -127,11 +135,14 @@ so it doesn't hit this.)
 
 ## Standard per-change flow
 
-1. Local gates: unit tests, rules tests (emulator), Maestro E2E — all green.
-2. Deploy via Path A (default) or Path B (native change).
-3. Confirm both phones run the new version (in-app version/update indicator —
-   see requirements below).
-4. Run the spec's manual checklist on both phones (both parent roles).
+1. Local gates: unit tests, rules tests (emulator), web e2e
+   (`npm run test:e2e`, spec 016) — all green.
+2. Deploy native via Path A (default) or Path B (native change), and web via
+   Path C.
+3. Confirm the iPhone runs the new version (in-app version/update indicator —
+   see requirements below) and the web build is the fresh one.
+4. Run the spec's manual checklist on the active surfaces, covering both
+   parent roles (iPhone as Parent B, web as Parent A).
 5. Update the spec's status to `verified` in `specs/README.md`.
 
 ## Requirements
@@ -158,23 +169,29 @@ so it doesn't hit this.)
 ## Acceptance criteria
 
 1. **Given** a merged JS-only change, **when** `eas update --channel pilot`
-   runs, **then** both phones run the new code after two app launches, and
-   the about screen shows the new update id on both.
+   runs, **then** the iPhone runs the new code after two app launches, and
+   the about screen shows the new update id.
 2. **Given** a native change, **when** Path B completes, **then** the
-   Android phone installs from the EAS link and the iPhone updates via
-   TestFlight, both on the same runtime version.
+   iPhone updates via TestFlight on the new runtime version. *(While Android
+   is paused this criterion covers iOS only; when it resumes, the Android
+   phone must also install from the EAS link on the same runtime version.)*
 3. **Given** an OTA update targeted at an incompatible runtime (a phone on
    an older `expo.version` than the update's), **then** it doesn't receive
    the update (runtime version mismatch blocks delivery).
-4. **Given** the pilot household (2 parents, 3 children) on both phones,
-   **then** a change made on one phone is visible on the other within
-   seconds (end-to-end smoke test, repeated after every deployment).
+4. **Given** the pilot household (2 parents, 3 children) signed in on the
+   iPhone and on web, **then** a change made on one surface is visible on
+   the other within seconds (end-to-end smoke test, repeated after every
+   deployment).
 5. Automated tests never touch the pilot Firebase project (verified by
    emulator-only test configuration).
+6. **Given** a web deploy via Path C, **then** the live site serves a bundle
+   with the Firebase config baked in (the `--clear` + key `grep` check
+   above) and sign-in works on it.
 
 ## iOS pilot onboarding (one-time runbook)
 
-The Android phone is live. This brings the father's iPhone onto the pilot.
+Written when the Android phone was live (it's paused since 2026-09-30).
+This brings the father's iPhone onto the pilot.
 Steps marked **(interactive)** need an Apple ID login and can't be scripted.
 
 ### Pre-checks (done)

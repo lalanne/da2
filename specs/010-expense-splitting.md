@@ -7,7 +7,7 @@ Built on top of 003 while 003's own pilot sign-off is still pending; nothing
 here blocks that sign-off.
 
 Moves "expense-splitting math, balances, settlement" from **out** to **in**
-in `000-overview.md`'s v1 scope table, and removes the matching line from
+in `CONSTITUTION.md`'s v1 scope table, and removes the matching line from
 spec 003's Out of scope.
 
 ## User stories

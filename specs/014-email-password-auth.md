@@ -185,7 +185,7 @@ verification state; it's read live off the Firebase Auth token
 - Linking an email/password credential to an existing Google account (or
   vice versa) — a sign-up with an email that already has a Google account
   is blocked (criterion 7), not merged.
-- Sign in with Apple — still tracked separately in `000`/`001`; unaffected
+- Sign in with Apple — still tracked separately in `CONSTITUTION.md`/`001`; unaffected
   by this spec either way (Apple's App Store Guideline 4.8 is triggered by
   offering third-party/social login, i.e. Google, not by also offering
   email/password).

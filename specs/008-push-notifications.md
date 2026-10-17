@@ -15,7 +15,7 @@ feature spec should carry:
 - iOS needs an **APNs authentication key** wired into EAS.
 - A **sender**: a client can't reliably push to the other device, so this
   needs a **Firebase Cloud Function** triggered on Firestore writes that
-  calls the Expo Push API. This amends spec 000's "no custom API server" —
+  calls the Expo Push API. This amends `CONSTITUTION.md`'s "no custom API server" —
   Cloud Functions are serverless (nothing to operate) but are a new
   deployable surface.
 

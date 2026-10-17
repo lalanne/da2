@@ -39,21 +39,24 @@ languages can be added later.
 
 | Layer | Choice |
 |-------|--------|
-| App | Expo (React Native) + TypeScript — pilot on Android + iOS (TestFlight); web live at [da2-coparenting.web.app](https://da2-coparenting.web.app) (spec 011, same mobile layout — spec 012 does the desktop redesign), same codebase; public launch Android first, then iOS |
+| App | Expo (React Native) + TypeScript, one codebase — priority order iOS (TestFlight) → web, live at [da2-coparenting.web.app](https://da2-coparenting.web.app) (specs 011 + 012, with a desktop layout) → Android (paused, pending) |
 | Auth | Firebase Auth — Google Sign-In, email/password (spec 014); Sign in with Apple before iOS launch |
 | Data | Cloud Firestore (real-time sync between parents) |
 | Files | Firebase Storage (receipt images/PDFs) |
 | Push | Firebase Cloud Messaging (proposal & event notifications) |
 | Delivery | EAS Build / Submit |
 
-Full rationale in [specs/000-overview.md](specs/000-overview.md).
+Full rationale in [CONSTITUTION.md](CONSTITUTION.md) — the product
+constitution every spec must agree with.
 
 ## Development process
 
 This project uses **Spec-Driven Development (SDD)**: every feature has a spec
 in [`specs/`](specs/) with user stories, data model, and Given/When/Then
 acceptance criteria. No code is written without an approved spec, and a
-feature is done only when all its acceptance criteria pass.
+feature is done only when all its acceptance criteria pass. Specs sit under
+[`CONSTITUTION.md`](CONSTITUTION.md), which holds the vision, scope and
+constraints they must all agree with.
 
 See [specs/README.md](specs/README.md) for the spec index and process rules.
 

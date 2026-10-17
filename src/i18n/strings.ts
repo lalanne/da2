@@ -1,5 +1,5 @@
 /**
- * Single source of user-facing copy. Spec 000 constraint: the app is
+ * Single source of user-facing copy. CONSTITUTION.md constraint: the app is
  * Spanish (Latin American neutral), v1 Spanish-only. No i18n library and no
  * language picker yet — every screen imports from here so another locale can
  * be slotted in later without touching call sites.
