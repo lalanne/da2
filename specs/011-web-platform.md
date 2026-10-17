@@ -193,7 +193,7 @@ Implemented 2026-09-12. Live at <https://da2-coparenting.web.app>.
 
 | Criterion | Result | Evidence |
 |-----------|--------|----------|
-| 1–4 (sign-in, feature parity, receipt files, real-time cross-platform sync) | ⏳ | Deployed; **pending a manual pass signed in as each parent** — see below. |
+| 1–4 (sign-in, feature parity, receipt files, real-time cross-platform sync) | ⏳ | Deployed; **pending a manual pass signed in as each parent** — see below. **2026-10-17:** criterion 1's popup path now has e2e coverage via the real `signInWithPopup` flow (spec 016 Coverage item 9) — see spec 006's "What 'verified on web' means" for how that combines with the manual pass. |
 | 5 no rules/data-model change, no native dependency added | ✅ | `firestore.rules` / `storage.rules` untouched; `firebase` web SDK was already a dependency — only `react-native-web` + `react-dom` added (`expo install`), both web-only, never bundled into the native app. |
 | 6 `npm test` / `npm run typecheck` stay green | ✅ | 213 unit tests + typecheck pass unchanged; jest-expo resolves the native `*.ts` files, never the `*.web.ts` twins. |
 

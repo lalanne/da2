@@ -110,12 +110,20 @@ what's specific to da2:
 - `e2e/` — Playwright web end-to-end suite (spec 016), run by
   `npm run test:e2e`, never by Jest. `e2e/tests/*.spec.ts` is one file per
   spec-level flow (smoke → 001+014, household → 002, custody → 004,
-  events → 005, receipts → 003, split → 010, solo → 015, wideWeb → 012);
-  `e2e/support/globalSetup.ts` seeds accounts and households straight into
-  the emulator; `e2e/fixtures/` holds upload fixtures. Multi-parent flows
-  use a second browser context as the co-parent. Note two files must not
-  share a seeded account if both create receipts — they collide under
-  `fullyParallel`.
+  events → 005, receipts → 003, split → 010, solo → 015, wideWeb → 012,
+  googleSignIn → 001+011); `e2e/support/globalSetup.ts` seeds accounts and
+  households straight into the emulator; `e2e/fixtures/` holds upload
+  fixtures. Multi-parent flows use a second browser context as the
+  co-parent. Note two files must not share a seeded account if both create
+  receipts — they collide under `fullyParallel`.
+- `googleSignIn.spec.ts` drives the Firebase Auth emulator's own fake IDP
+  popup widget (not app code — a Firebase-owned page with its own DOM;
+  `#add-account-button` / `#email-input` / `#sign-in`, found by inspecting
+  the emulator directly), confirmed by temporarily reintroducing the real
+  `auth/popup-blocked` bug and watching it still pass — it only reproduces
+  on Safari/some Chromium configs, not headless Chromium's defaults, so
+  this test proves the popup chain works but can't catch a recurrence of
+  that specific bug until a WebKit project exists (issue #54).
 - `__mocks__/@react-native-firebase/*`, `__mocks__/@react-native-google-signin/*`
   — root-level manual mocks Jest auto-applies to any test importing these
   native packages, since their real native modules don't exist under Jest.
