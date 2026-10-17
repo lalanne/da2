@@ -49,10 +49,13 @@ what's specific to da2:
    native and only later discovered to have zero test coverage on the web
    twin, exactly how a fix quietly stops holding on the platform nobody's
    watching; an end-to-end / acceptance test when the change is best
-   verified as a full user flow. There is no Maestro/e2e harness in this
-   repo yet (planned in spec 001, never built) — if a change genuinely
-   needs that layer to be trustworthy, that infrastructure is part of the
-   change, not something to skip past.
+   verified as a full user flow. Web e2e exists — a Playwright suite in
+   `e2e/` driving the real web build against the emulators (spec 016,
+   `npm run test:e2e`); reach for it when a change is only trustworthy as
+   a full flow. Native (Android/iOS) e2e is still "planned, not built"
+   (spec 001, a 016 non-goal), so a native-only flow has no harness yet —
+   if a change genuinely needs that layer to be trustworthy, that
+   infrastructure is part of the change, not something to skip past.
 2. When you can *prove* a regression test would have caught the bug (e.g.
    by temporarily reverting the fix locally and watching it fail), that's
    worth doing and saying so — it's the difference between a real
@@ -75,6 +78,25 @@ what's specific to da2:
   id and runs `firebase/tests/**` with `jest.rules.config.js`. No login or
   real Firebase project needed — emulator-only, `demo-`-prefixed project ids
   never touch real infrastructure.
+- `npm run test:e2e` — Playwright end-to-end suite against the real web
+  build. Exports the web bundle with `.env.test` (emulator-pointed config)
+  via `npm run test:e2e:build`, then runs `e2e/playwright.config.ts` inside
+  `firebase emulators:exec` (auth, firestore, storage, hosting) on
+  `demo-da2`. Same emulator-only guarantee as `test:rules`. Run a single
+  file by wrapping it the same way (the config's `globalSetup` seeds via the
+  `*_EMULATOR_HOST` vars that `emulators:exec` sets, and `baseURL` is the
+  hosting emulator serving `dist/`, so neither works outside that wrapper —
+  and `test:e2e:build` must have run at least once):
+  `npx firebase emulators:exec --only auth,firestore,storage,hosting
+  --project demo-da2 "npx playwright test --config e2e/playwright.config.ts
+  e2e/tests/split.spec.ts"` (`npx` matters outside the npm scripts —
+  neither binary is on `PATH` on its own). The config is `fullyParallel`
+  with 8 specs, which on a loaded dev machine starves them into
+  `toHaveCount`/visibility timeouts (observed: `receipts`, `custody`,
+  `events` failing at ~20s each, each passing alone in ~3s, and the whole
+  suite green under `--workers=1`). Re-check a red full-suite run with
+  `--workers=1` before treating it as a real regression; CI masks this with
+  `retries: 1`.
 
 ## Test layout
 
@@ -85,6 +107,15 @@ what's specific to da2:
   project. Kept in a separate Jest project (different `testEnvironment` and
   `tsconfig`) because they use the `firebase` web SDK against the emulator,
   not the React Native app code.
+- `e2e/` — Playwright web end-to-end suite (spec 016), run by
+  `npm run test:e2e`, never by Jest. `e2e/tests/*.spec.ts` is one file per
+  spec-level flow (smoke → 001+014, household → 002, custody → 004,
+  events → 005, receipts → 003, split → 010, solo → 015, wideWeb → 012);
+  `e2e/support/globalSetup.ts` seeds accounts and households straight into
+  the emulator; `e2e/fixtures/` holds upload fixtures. Multi-parent flows
+  use a second browser context as the co-parent. Note two files must not
+  share a seeded account if both create receipts — they collide under
+  `fullyParallel`.
 - `__mocks__/@react-native-firebase/*`, `__mocks__/@react-native-google-signin/*`
   — root-level manual mocks Jest auto-applies to any test importing these
   native packages, since their real native modules don't exist under Jest.
