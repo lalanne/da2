@@ -11,7 +11,7 @@ pilot's surfaces:
 | Surface | User | Role | Pilot status |
 |---------|------|------|--------------|
 | iPhone (TestFlight) | Father | Parent B | **active** |
-| Web — <https://da2-coparenting.web.app> | either parent | — | **active** |
+| Web — <https://da2-coparenting.web.app> | Developer (verifier) | both, via e2e | **active** |
 | Android phone (EAS internal) | Mother | Parent A | **paused** since 2026-09-30 |
 
 Platform priority follows `CONSTITUTION.md`: **iOS, then web; Android
@@ -22,6 +22,27 @@ removes the Android path — it just isn't a gate while paused.
 One real household with **3 children**. This pilot household is the final
 manual-verification environment: a spec is only marked `verified` after its
 acceptance criteria pass on the **active** surfaces (iPhone + web).
+
+### What "verified on web" means
+
+Web verification is automated first, with one short manual pass on top. All
+three layers must pass:
+
+1. **Spec e2e coverage (automated).** Every acceptance criterion in the
+   spec that a browser can exercise is covered by the spec 016 Playwright
+   suite (`npm run test:e2e`, emulators, both parent roles via two browser
+   contexts), and the suite is green. A criterion without e2e coverage
+   blocks web verification — close the gap (issues #40–#51) rather than
+   checking it by hand.
+2. **Live smoke (automated, read-only).** After every Path C deploy, a
+   Playwright smoke run against the live site confirms the bundle loads
+   with the Firebase config baked in and the sign-in screen renders. It
+   never signs in and never reads or writes data, so criterion 5 holds:
+   automated tests never touch pilot data.
+3. **Manual pass (the developer).** The developer signs in on the live site
+   and walks the spec's new or changed flow once with real data. This is
+   what catches what the first two can't: real Google sign-in in a real
+   browser (e.g. `auth/popup-blocked`) and whether the flow makes sense.
 
 ## Distribution decisions
 
@@ -141,14 +162,18 @@ so it doesn't hit this.)
    Path C.
 3. Confirm the iPhone runs the new version (in-app version/update indicator —
    see requirements below) and the web build is the fresh one.
-4. Run the spec's manual checklist on the active surfaces, covering both
-   parent roles (iPhone as Parent B, web as Parent A).
+4. Verify: the spec's manual checklist on the iPhone (Parent B), and on web
+   the three layers in "What 'verified on web' means" — e2e coverage, live
+   smoke, the developer's manual pass.
 5. Update the spec's status to `verified` in `specs/README.md`.
 
 ## Requirements
 
 - EAS project configured with a `pilot` build profile (internal distribution,
   Android APK, iOS release build) and a `pilot` update channel.
+- A live-smoke Playwright config (separate from `e2e/playwright.config.ts`,
+  pointed at <https://da2-coparenting.web.app>, no emulators, no sign-in)
+  run after every Path C deploy. *Not built yet.*
 - The app shows its version + update id on the settings/about screen, so
   each phone can confirm "am I on the latest?" without guesswork.
 - One Firebase project serves the pilot; it becomes production at public
@@ -184,9 +209,13 @@ so it doesn't hit this.)
    deployment).
 5. Automated tests never touch the pilot Firebase project (verified by
    emulator-only test configuration).
-6. **Given** a web deploy via Path C, **then** the live site serves a bundle
-   with the Firebase config baked in (the `--clear` + key `grep` check
-   above) and sign-in works on it.
+6. **Given** a web deploy via Path C, **when** the live smoke runs, **then**
+   it confirms the live site serves a bundle with the Firebase config baked
+   in and renders the sign-in screen — without signing in or touching
+   pilot data.
+7. **Given** a spec to be marked `verified`, **then** every
+   browser-exercisable acceptance criterion in it has a green spec 016 e2e
+   test, and the developer's manual pass on the live site has succeeded.
 
 ## iOS pilot onboarding (one-time runbook)
 
