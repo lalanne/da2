@@ -173,7 +173,7 @@ While solo, there is only one segment, so it renders exactly as today.
 
 ### 6. Framing
 
-No user-facing "modo solo" label. Spec 000 commits to the app being neutral
+No user-facing "modo solo" label. `CONSTITUTION.md` commits to the app being neutral
 ground between two co-parents; a mode named after one parent's absence reads
 as taking a side. The app simply works, the invite code stays available, and
 nothing nags about the empty second seat.
@@ -260,7 +260,7 @@ sentinel. No status enum changes.
 ## Out of scope
 
 - **PDF / statement export of the ledger.** In a non-cooperative situation the
-  real prize is a credible timestamped record for a lawyer — but `000` already
+  real prize is a credible timestamped record for a lawyer — but `CONSTITUTION.md` already
   lists this as v1-out and it deserves its own spec rather than swelling this
   one.
 - A dispute mechanism for historical records. The honest answer is that a

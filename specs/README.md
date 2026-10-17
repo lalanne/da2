@@ -7,11 +7,22 @@ This project is built spec-first. Rules:
 3. **Acceptance criteria are the definition of done.** A feature ships only when every criterion in its spec passes.
 4. **One spec at a time.** Implement, verify against criteria, then move to the next.
 
+## The constitution
+
+[`CONSTITUTION.md`](../CONSTITUTION.md) (repo root) holds the product vision,
+v1 scope, platform strategy, stack decision and cross-cutting constraints
+that every spec here must agree with. It is not a spec: it has no acceptance
+criteria and does not follow the `draft → verified` lifecycle. It was
+`000-overview.md` until 2026-10-17; the number 000 is retired.
+
+**Amendment rule:** a spec that changes v1 scope, platform strategy, the
+stack, or a cross-cutting constraint amends `CONSTITUTION.md` in the same PR
+— bump its version and add a line to its amendment log.
+
 ## Spec index
 
 | # | Spec | Status |
 |---|------|--------|
-| 000 | [Product overview & stack](000-overview.md) | draft |
 | 001 | [Authentication (Google Sign-In)](001-auth.md) | verified |
 | 002 | [Household linking (invite code)](002-household.md) | verified |
 | 003 | [Receipts & invoices](003-receipts.md) | implemented |
@@ -51,9 +62,9 @@ The number is *mostly* the build order, with two deliberate exceptions:
   OTA; no data or rules change.
 - **010 (expense splitting)** builds on 003 (receipts) and reuses 004's
   propose/approve machinery. It pulls "splitting math / balances /
-  settlement" from `000`'s v1 *out* column into scope.
+  settlement" from `CONSTITUTION.md`'s v1 *out* column into scope.
 - **011 (web platform) + 012 (responsive web layout)** move web ahead of the
-  public launch (`000`'s original order was Android → iOS → web), at the
+  public launch (`CONSTITUTION.md`'s original order was Android → iOS → web), at the
   pilot's request, with full feature parity as the goal. 011 is
   infrastructure only — the same mobile UI running in a browser via the
   `firebase` web SDK, no rules or data changes. 012 is the desktop redesign
@@ -65,7 +76,7 @@ running throughout and 011/012 following once the mobile pilot's core specs
 are settled.
 
 - **013 (receipt auto-extraction) is v2 — not in the build order at all.**
-  `000`'s v1 scope table already lists "OCR of receipts" as out of scope.
+  `CONSTITUTION.md`'s v1 scope table already lists "OCR of receipts" as out of scope.
   013 is written ahead of time so the shape is ready, but is not scheduled
   and should not be implemented without an explicit decision to start v2
   work.

@@ -46,7 +46,7 @@ languages can be added later.
 | Push | Firebase Cloud Messaging (proposal & event notifications) |
 | Delivery | EAS Build / Submit |
 
-Full rationale in [specs/000-overview.md](specs/000-overview.md).
+Full rationale in [CONSTITUTION.md](CONSTITUTION.md).
 
 ## Development process
 

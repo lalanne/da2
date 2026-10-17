@@ -31,7 +31,7 @@ the `spec-first` skill; da2-specific process, defined in `specs/README.md`:
    `specs/README.md` (keep it updated).
 3. Implement one spec at a time, in numbered order (they declare dependencies).
 
-Read `specs/000-overview.md` first — it holds the product vision, v1
+Read `CONSTITUTION.md` first — it holds the product vision, v1
 scope/out-of-scope table, and cross-cutting constraints.
 
 ## Test-Driven Development — how every change is made
@@ -122,7 +122,7 @@ what's specific to da2:
   Override per-test with `jest.mock(...)` when a test needs specific
   request/response behavior (see `googleAuthProvider.test.ts`).
 
-## Locked-in stack decisions (rationale in specs/000-overview.md)
+## Locked-in stack decisions (rationale in CONSTITUTION.md)
 
 - **Expo (React Native) + TypeScript** — Android first; iOS and web later from
   the same codebase. Delivery via EAS Build/Submit.

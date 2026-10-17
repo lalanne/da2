@@ -3,7 +3,7 @@
 **Status:** draft
 **Depends on:** 003 (receipts — this extends the upload form only)
 
-> **This is a v2 feature.** `specs/000-overview.md`'s v1 scope table
+> **This is a v2 feature.** `CONSTITUTION.md`'s v1 scope table
 > already lists "OCR of receipts" under **Out (later)**. This spec is not
 > part of the current pilot build order (001 → 002 → 007 → 004 → 005 → 003
 > → 008, with 006/009/010/011/012 cross-cutting) and is not scheduled —
