@@ -122,17 +122,20 @@ what's specific to da2:
   Override per-test with `jest.mock(...)` when a test needs specific
   request/response behavior (see `googleAuthProvider.test.ts`).
 
-## Locked-in stack decisions (rationale in CONSTITUTION.md)
+## Non-negotiables (full detail in CONSTITUTION.md)
 
-- **Expo (React Native) + TypeScript** — Android first; iOS and web later from
-  the same codebase. Delivery via EAS Build/Submit.
-- **Firebase**: Auth (Google Sign-In), Firestore (real-time sync), Storage
-  (receipt files), Cloud Messaging (notifications). No custom API server.
-- Auth must stay behind a provider-agnostic wrapper — Sign in with Apple is
-  required before iOS launch (App Store Guideline 4.8).
-- Security is enforced in Firestore/Storage **rules**, not just UI — several
-  acceptance criteria explicitly test rules (co-parents may be adversarial;
-  e.g. a proposer must not be able to approve their own custody proposal).
+`CONSTITUTION.md` is the single source for stack, platforms, scope and
+constraints — don't restate it here. The rules most easily broken by a code
+change:
+
+- Security is enforced in Firestore/Storage **rules**, not just UI — co-parents
+  may be adversarial; e.g. a proposer must not be able to approve their own
+  custody proposal (the one-parent household of spec 015 is the only
+  exception).
+- Auth stays behind the provider-agnostic wrappers — Sign in with Apple is
+  required before iOS App Store launch (Guideline 4.8).
+- All user-facing copy goes through `src/i18n/`; all styling through
+  `src/theme/` tokens and `src/components/` primitives.
 
 ## Reference project
 
