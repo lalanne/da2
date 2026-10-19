@@ -141,6 +141,16 @@ jobs:
           # project actually needs during the build itself.
           packages: ''
       - run: npm ci
+      # google-services.json is .gitignore'd (not committed — its presence
+      # was wrongly assumed in an earlier commit here) and is needed by
+      # `expo prebuild` to wire the native Firebase/Google Sign-In config.
+      # Not meaningfully secret (its API key is the same kind of client
+      # identifier already public in the deployed web bundle), but kept
+      # out of git history via a repo secret rather than overriding the
+      # existing .gitignore policy unilaterally.
+      - run: echo "$GOOGLE_SERVICES_JSON" > google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
       - run: npx expo prebuild -p android --no-install
       - run: cp android-ci-debug.keystore android/app/debug.keystore
       - run: cd android && ./gradlew assembleRelease
