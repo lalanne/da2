@@ -48,7 +48,9 @@
     "test": "jest",
     "test:rules": "firebase emulators:exec --only firestore,auth,storage --project demo-da2 \"jest --config jest.rules.config.js\"",
     "test:e2e:build": "bash -c 'set -a; source .env.test; set +a; npx expo export -p web --clear'",
-    "test:e2e": "npm run test:e2e:build && firebase emulators:exec --only auth,firestore,storage,hosting --project demo-da2 \"playwright test --config e2e/playwright.config.ts\""
+    "test:e2e": "npm run test:e2e:build && firebase emulators:exec --only auth,firestore,storage,hosting --project demo-da2 \"playwright test --config e2e/playwright.config.ts\"",
+    "test:e2e:chromium": "npm run test:e2e:build && firebase emulators:exec --only auth,firestore,storage,hosting --project demo-da2 \"playwright test --config e2e/playwright.config.ts --project=chromium\"",
+    "test:e2e:webkit": "npm run test:e2e:build && firebase emulators:exec --only auth,firestore,storage,hosting --project demo-da2 \"playwright test --config e2e/playwright.config.ts --project=webkit\""
   },
   "private": true
 }
