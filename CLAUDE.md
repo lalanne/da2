@@ -91,12 +91,14 @@ what's specific to da2:
   --project demo-da2 "npx playwright test --config e2e/playwright.config.ts
   e2e/tests/split.spec.ts"` (`npx` matters outside the npm scripts —
   neither binary is on `PATH` on its own). The config is `fullyParallel`
-  with 8 specs, which on a loaded dev machine starves them into
-  `toHaveCount`/visibility timeouts (observed: `receipts`, `custody`,
-  `events` failing at ~20s each, each passing alone in ~3s, and the whole
-  suite green under `--workers=1`). Re-check a red full-suite run with
-  `--workers=1` before treating it as a real regression; CI masks this with
-  `retries: 1`.
+  with 9 specs (11 test executions — 2 of them, `smoke` and
+  `googleSignIn`, also run under a `webkit` project, issue #54), which on a
+  loaded dev machine starves them into `toHaveCount`/visibility timeouts
+  (observed: `receipts`, `custody`, `events` failing at ~20s each, each
+  passing alone in ~3s, and the whole suite green under `--workers=1`).
+  Re-check a red full-suite run with `--workers=1` before treating it as a
+  real regression; CI masks this with `retries: 1`. (Issue #51 tracks
+  fixing this properly rather than living with the workaround.)
 
 ## Test layout
 
@@ -120,10 +122,15 @@ what's specific to da2:
   popup widget (not app code — a Firebase-owned page with its own DOM;
   `#add-account-button` / `#email-input` / `#sign-in`, found by inspecting
   the emulator directly), confirmed by temporarily reintroducing the real
-  `auth/popup-blocked` bug and watching it still pass — it only reproduces
-  on Safari/some Chromium configs, not headless Chromium's defaults, so
-  this test proves the popup chain works but can't catch a recurrence of
-  that specific bug until a WebKit project exists (issue #54).
+  `auth/popup-blocked` bug and watching it still pass under Chromium — it
+  only reproduces on Safari/some Chromium configs, not headless Chromium's
+  defaults. That's why it (and `smoke.spec.ts`) also run under a `webkit`
+  project (issue #54) — the closest proxy this suite has for Safari, and
+  for the pilot's iOS platform, until native e2e exists (#56). The other
+  specs stay Chromium-only: engine-specific breakage here has only ever
+  been popup/gesture/storage territory, not Firestore listeners, and
+  doubling every spec risks #51's worker-starvation problem instead of
+  waiting on it.
 - `__mocks__/@react-native-firebase/*`, `__mocks__/@react-native-google-signin/*`
   — root-level manual mocks Jest auto-applies to any test importing these
   native packages, since their real native modules don't exist under Jest.

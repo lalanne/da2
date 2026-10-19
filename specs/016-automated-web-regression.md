@@ -31,6 +31,10 @@ this one's Firebase-emulator and test-account groundwork.
   headless in CI), runs the same JS/CSS the user gets, supports multiple
   independent browser contexts in one test — needed for two-parent flows
   (one parent proposes, the other approves) without faking it.
+  **2026-10-18 amendment:** a second `webkit` project was added (issue
+  #54), scoped to the auth-shaped specs only (`smoke`, `googleSignIn`) via
+  `testMatch` rather than every file — see Coverage item 9 below for why.
+  Every other spec stays Chromium-only.
 - **Firebase Local Emulator Suite** (Auth + Firestore + Storage), not a
   staging Firebase project: fast, free, deterministic, and — same guarantee
   `firebase/tests/**` already has — **automated tests can never touch the
@@ -252,12 +256,18 @@ order:
    the exact `auth/popup-blocked` bug (the `setPersistence` await PR #11
    removed) and re-ran it. **Honest result: it still passed.** That bug
    only reproduces on Safari and some Chromium popup-blocker
-   configurations, not headless Chromium's defaults — this suite runs
-   Chromium only (see issue #54). So this test proves the popup chain
-   works end to end; it cannot yet catch a recurrence of that specific
-   historical bug. A genuine break (disabling the sign-in button) was
-   confirmed to fail it, so the test isn't vacuous — the gap is engine
-   coverage, not test design.
+   configurations, not headless Chromium's defaults. A genuine break
+   (disabling the sign-in button) was confirmed to fail it, so the test
+   isn't vacuous — the gap was engine coverage, not test design.
+   **2026-10-18 — closed by issue #54.** This spec (and `smoke.spec.ts`)
+   now also run under a `webkit` project — the closest proxy this suite
+   has for Safari, and for the pilot's iOS platform, until native e2e
+   exists (#56). Scoped to just these two files via `testMatch`, not every
+   spec: engine-specific breakage in this app has only ever been
+   popup/gesture/storage territory, not Firestore listeners, and doubling
+   every file would collide with #51's worker-starvation problem rather
+   than wait on it. Confirmed locally, both in default parallel and under
+   `--workers=1`: 11/11 passing (9 Chromium + 2 WebKit).
 
 All nine coverage items are now built. `e2e/tests/` holds smoke,
 household, custody, events, receipts, split, solo, wideWeb, and
