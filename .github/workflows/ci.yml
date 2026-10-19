@@ -132,6 +132,14 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          # The action's default package list includes `tools`, a legacy
+          # SDK package Google stopped serving years ago — its own
+          # sdkmanager install step fails immediately on it ("Failed to
+          # find package 'tools'"). Skip the default list; the Android
+          # Gradle Plugin auto-downloads whatever platform/build-tools the
+          # project actually needs during the build itself.
+          packages: ''
       - run: npm ci
       - run: npx expo prebuild -p android --no-install
       - run: cp android-ci-debug.keystore android/app/debug.keystore
