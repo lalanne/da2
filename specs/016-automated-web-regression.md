@@ -120,18 +120,27 @@ this one's Firebase-emulator and test-account groundwork.
 ### CI
 
 - New `.github/workflows/ci.yml`, triggered on `push` and `pull_request`.
-  Four jobs, in a **strict sequential pipeline** (`needs:`), cheapest/fastest
-  first, each gating the next — no point booting a browser and the Firebase
-  emulators for e2e if the code doesn't even typecheck:
+  Four stages, in a **strict sequential pipeline** (`needs:`), cheapest/
+  fastest first, each gating the next — no point booting a browser and the
+  Firebase emulators for e2e if the code doesn't even typecheck:
   1. **static-analysis** (`npm run typecheck`) — no linter exists in this
      repo yet, so this is typecheck alone for now; a future `npm run lint`
      slots in here unchanged.
   2. **unit** (`npm test`) — needs static-analysis.
   3. **integration** (`npm run test:rules`, Firestore/Storage rules against
      the real emulator) — needs unit.
-  4. **e2e** (`npm run test:e2e`, acceptance-level — the real UI driven
-     against the real emulators) — needs integration.
-  The integration and e2e jobs need Java (a `firebase-tools` emulator
+  4. **e2e** (acceptance-level — the real UI driven against the real
+     emulators) — needs integration. **2026-10-19 amendment:** this stage
+     is two parallel jobs, not one — `e2e-chromium` (`npm run
+     test:e2e:chromium`) and `e2e-webkit` (`npm run test:e2e:webkit`), both
+     gated on `integration` and running concurrently rather than one job
+     driving both engines sequentially. Each installs only the browser it
+     needs. This is a speed/isolation win (free on GitHub-hosted runners
+     for a public repo) and does **not** address issue #51 — the 9
+     Chromium specs still share one worker pool and can still starve each
+     other; splitting by engine only removes WebKit's 2 specs from that
+     contention, it doesn't resolve it.
+  The integration and both e2e jobs need Java (a `firebase-tools` emulator
   requirement) via `actions/setup-java`.
 - This spec does **not** turn on branch-protection "required checks" in the
   GitHub repo settings — that's a repo-admin action with its own blast

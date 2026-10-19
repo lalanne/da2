@@ -10,7 +10,11 @@ on:
 #
 # Four stages, cheapest/fastest first, each gating the next via `needs:` —
 # no point booting a browser and the Firebase emulators for e2e if the code
-# doesn't even typecheck.
+# doesn't even typecheck. Stage 4 fans out into two parallel jobs, one per
+# browser engine, both gated on `integration` and run concurrently rather
+# than one job driving both engines sequentially — see
+# e2e/playwright.config.ts for which specs each engine actually covers
+# (webkit is scoped to the auth-shaped specs only, issue #54).
 jobs:
   static-analysis:
     name: 1. Static analysis
@@ -54,8 +58,8 @@ jobs:
       - run: npm ci
       - run: npm run test:rules
 
-  e2e:
-    name: 4. Acceptance / e2e (Playwright + Firebase emulators)
+  e2e-chromium:
+    name: 4a. Acceptance / e2e — Chromium
     needs: integration
     runs-on: ubuntu-latest
     steps:
@@ -69,11 +73,35 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
-      - run: npm run test:e2e
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:chromium
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-chromium
+          path: test-results/
+          retention-days: 7
+
+  e2e-webkit:
+    name: 4b. Acceptance / e2e — WebKit
+    needs: integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npm run test:e2e:webkit
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-webkit
           path: test-results/
           retention-days: 7

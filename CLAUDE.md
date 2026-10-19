@@ -79,14 +79,17 @@ what's specific to da2:
   real Firebase project needed — emulator-only, `demo-`-prefixed project ids
   never touch real infrastructure.
 - `npm run test:e2e` — Playwright end-to-end suite against the real web
-  build. Exports the web bundle with `.env.test` (emulator-pointed config)
-  via `npm run test:e2e:build`, then runs `e2e/playwright.config.ts` inside
-  `firebase emulators:exec` (auth, firestore, storage, hosting) on
-  `demo-da2`. Same emulator-only guarantee as `test:rules`. Run a single
-  file by wrapping it the same way (the config's `globalSetup` seeds via the
-  `*_EMULATOR_HOST` vars that `emulators:exec` sets, and `baseURL` is the
-  hosting emulator serving `dist/`, so neither works outside that wrapper —
-  and `test:e2e:build` must have run at least once):
+  build, **both** browser projects. Exports the web bundle with `.env.test`
+  (emulator-pointed config) via `npm run test:e2e:build`, then runs
+  `e2e/playwright.config.ts` inside `firebase emulators:exec` (auth,
+  firestore, storage, hosting) on `demo-da2`. Same emulator-only guarantee
+  as `test:rules`. `npm run test:e2e:chromium` / `test:e2e:webkit` run just
+  one engine (same wrapper, `--project=chromium`/`webkit` appended) — what
+  CI's two parallel e2e jobs actually run. Run a single file by wrapping it
+  the same way (the config's `globalSetup` seeds via the `*_EMULATOR_HOST`
+  vars that `emulators:exec` sets, and `baseURL` is the hosting emulator
+  serving `dist/`, so neither works outside that wrapper — and
+  `test:e2e:build` must have run at least once):
   `npx firebase emulators:exec --only auth,firestore,storage,hosting
   --project demo-da2 "npx playwright test --config e2e/playwright.config.ts
   e2e/tests/split.spec.ts"` (`npx` matters outside the npm scripts —
