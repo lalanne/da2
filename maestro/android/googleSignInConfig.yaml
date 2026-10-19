@@ -1,0 +1,26 @@
+# Row 1 of spec 001 criterion 1's platform matrix, Android: "tap the Google
+# button, the chooser/picker appears" — proof the native Google Sign-In
+# wiring (webClientId, Android SHA-1 fingerprint in the Firebase/Google
+# Cloud console) is actually live in the built APK, without needing a real
+# Google account or completing a sign-in (rows 2-4). A config error
+# (DEVELOPER_ERROR / SIGN_IN_FAILED) surfaces as this app's own
+# `sign-in-error` banner — see src/auth/googleAuthProvider.ts — so its
+# *absence* a few seconds after tapping is the signal: Play Services took
+# the request and is doing something (showing an account chooser, an "Add
+# account" flow, a consent screen — whatever a real device/emulator state
+# produces), rather than rejecting it immediately.
+#
+# No real Google account is used or needed. The screenshot is for a human
+# to glance at via the CI artifact, not asserted on — Play Services' own UI
+# text varies by version and by what accounts (if any) exist on the image.
+appId: com.lalanne.da2
+---
+- launchApp
+- assertVisible:
+    id: "google-sign-in-button"
+- tapOn:
+    id: "google-sign-in-button"
+- takeScreenshot: after-tap
+- assertNotVisible:
+    id: "sign-in-error"
+    timeout: 8000

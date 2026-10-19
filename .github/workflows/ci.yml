@@ -105,3 +105,60 @@ jobs:
           name: playwright-report-webkit
           path: test-results/
           retention-days: 7
+
+  android-config-check:
+    # Spec 001 criterion 1, Android: proves the native Google Sign-In
+    # wiring (webClientId + the registered SHA-1 fingerprint) is live in a
+    # real built APK, without a real Google account — tap the button,
+    # assert this app's own `sign-in-error` banner does NOT appear (that's
+    # what a config error surfaces as; see googleAuthProvider.ts). Signs
+    # with a fixed, committed debug keystore (android-ci-debug.keystore,
+    # NOT sensitive — standard practice) rather than a fresh one generated
+    # per run, so its SHA-1 is stable and registerable once in the
+    # Firebase console. Exploratory first build: several specifics below
+    # (JDK version, APK output path, emulator image) are best-guess,
+    # expected to need adjusting from the real log.
+    name: 4c. Native config check — Android Google Sign-In
+    needs: integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npx expo prebuild -p android --no-install
+      - run: cp android-ci-debug.keystore android/app/debug.keystore
+      - run: cd android && ./gradlew assembleRelease
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            adb install -r android/app/build/outputs/apk/release/app-release.apk
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+            export PATH="$PATH:$HOME/.maestro/bin"
+            adb logcat -c
+            maestro test maestro/android/googleSignInConfig.yaml
+            adb logcat -d > logcat.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-config-check
+          path: |
+            logcat.txt
+            ~/.maestro/tests/
+          retention-days: 7
