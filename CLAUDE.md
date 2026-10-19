@@ -52,10 +52,12 @@ what's specific to da2:
    verified as a full user flow. Web e2e exists — a Playwright suite in
    `e2e/` driving the real web build against the emulators (spec 016,
    `npm run test:e2e`); reach for it when a change is only trustworthy as
-   a full flow. Native (Android/iOS) e2e is still "planned, not built"
-   (spec 001, a 016 non-goal), so a native-only flow has no harness yet —
-   if a change genuinely needs that layer to be trustworthy, that
-   infrastructure is part of the change, not something to skip past.
+   a full flow. Native (Android/iOS) e2e does not exist — a 016 non-goal,
+   and whether to build it at all is an open decision (issue #56, proposed
+   as spec 017; spec 001's old Maestro plan is no longer standing). So a
+   native-only flow has no harness yet — if a change genuinely needs that
+   layer to be trustworthy, that infrastructure is part of the change, not
+   something to skip past.
 2. When you can *prove* a regression test would have caught the bug (e.g.
    by temporarily reverting the fix locally and watching it fail), that's
    worth doing and saying so — it's the difference between a real

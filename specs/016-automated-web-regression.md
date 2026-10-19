@@ -289,8 +289,11 @@ tests) and are presentation/input concerns, not full-flow ones.
 
 ## Non-goals
 
-- Native (Android/iOS) E2E — stays "planned, not built" per spec 001; a
-  separate spec if ever prioritized again.
+- Native (Android/iOS) E2E — out of scope here; a separate spec if ever
+  prioritized again. **2026-10-17:** spec 001's Maestro plan is no longer a
+  standing decision (see its amendment) — whether to build native E2E at
+  all, and with what harness, is now an open question in
+  [#56](https://github.com/lalanne/da2/issues/56), proposed as spec 017.
 - Automating the *real* Google OAuth sign-in (an actual Google account,
   the real account picker) — stays a manual checklist item. **2026-10-17:**
   the web popup *mechanics* against the Auth emulator's substitute widget
