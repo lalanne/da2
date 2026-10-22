@@ -105,3 +105,132 @@ jobs:
           name: playwright-report-webkit
           path: test-results/
           retention-days: 7
+
+  android-config-check:
+    # Spec 001 criterion 1, Android: proves the native Google Sign-In
+    # wiring (webClientId + the registered SHA-1 fingerprint) is live in a
+    # real built APK, without a real Google account — tap the button,
+    # assert this app's own `sign-in-error` banner does NOT appear (that's
+    # what a config error surfaces as; see googleAuthProvider.ts). Signs
+    # with a fixed, committed debug keystore (android-ci-debug.keystore,
+    # NOT sensitive — standard practice) rather than a fresh one generated
+    # per run, so its SHA-1 is stable and registerable once in the
+    # Firebase console. Exploratory first build: several specifics below
+    # (JDK version, APK output path, emulator image) are best-guess,
+    # expected to need adjusting from the real log.
+    name: 4c. Native config check — Android Google Sign-In
+    needs: integration
+    runs-on: ubuntu-latest
+    # The first real attempt here hung silently for the full default 6h
+    # job timeout (a wedged Gradle daemon, see the gradlew step) before
+    # anyone found out. A tight bound so any future stall fails fast and
+    # visibly instead of burning hours of runner time unnoticed again.
+    # 25m was too tight: the autolinking-property fix (below) got the
+    # build genuinely working — hundreds of real module tasks ran steadily
+    # for the full 25m with no sign of a hang, just legitimately slow on a
+    # cold 2-core runner. Raised with real evidence, not a guess.
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          # The action's default package list includes `tools`, a legacy
+          # SDK package Google stopped serving years ago — its own
+          # sdkmanager install step fails immediately on it ("Failed to
+          # find package 'tools'"). Skip the default list; the Android
+          # Gradle Plugin auto-downloads whatever platform/build-tools the
+          # project actually needs during the build itself.
+          packages: ''
+      - run: npm ci
+      # google-services.json is .gitignore'd (not committed — its presence
+      # was wrongly assumed in an earlier commit here) and is needed by
+      # `expo prebuild` to wire the native Firebase/Google Sign-In config.
+      # Not meaningfully secret (its API key is the same kind of client
+      # identifier already public in the deployed web bundle), but kept
+      # out of git history via a repo secret rather than overriding the
+      # existing .gitignore policy unilaterally.
+      - run: echo "$GOOGLE_SERVICES_JSON" > google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      - run: npx expo prebuild -p android --no-install
+      - run: cp android-ci-debug.keystore android/app/debug.keystore
+      # The first real attempt here hung for the full 6h job timeout: the
+      # Gradle daemon hit `OutOfMemoryError: Metaspace` in a background RMI
+      # thread (visible in the actual job log) and wedged instead of
+      # failing cleanly — default JVM memory is too small for this
+      # project's dependency graph on a GitHub-hosted runner. Raise the
+      # ceiling and skip the persistent daemon entirely for a one-shot CI
+      # build (removes the exact RMI-daemon path that OOM'd).
+      - run: echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> android/gradle.properties
+      # Still failing after the memory fix, at ExpoAutolinkingPlugin.kt:69
+      # (a `mirror-kotlin-inline-modules` call, projectsEvaluated).
+      # --debug tracing found the real --watched-directories-serialized
+      # value Gradle passes: `[org.gradle.jvmargs=-Xmx4096m
+      # -XX:MaxMetaspaceSize=1024m]` — not `[]`. The Kotlin side reads
+      # `project.findProperty("expo.inlineModules.watchedDirectories")`;
+      # something is resolving that Gradle property to the *jvmargs line
+      # just appended to gradle.properties* rather than null/empty, and
+      # the JS side's `JSON.parse()` of that non-JSON string is almost
+      # certainly what throws. Force the property explicitly to a valid
+      # empty JSON array rather than chase why the implicit default
+      # resolves wrong.
+      # -x lintVitalAnalyzeRelease: the previous attempt got hundreds of
+      # tasks deep (confirming the autolinking fix above actually worked)
+      # before hitting the timeout, with 2 of those tasks FAILED —
+      # Android's release-lint gate, tripping on upstream library code
+      # (react-native-firebase_app, expo-modules-core) this check has no
+      # business enforcing. All this needs is an APK that installs and
+      # launches, not a lint-clean release build. -x matches the task
+      # name across every module in the build, not just one.
+      # The full chain actually ran end to end for the first time here —
+      # Maestro launched the app, tapped the button, and failed on a real
+      # app error, not infra: "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is not
+      # set" (getWebClientId()'s own thrown error, googleAuthProvider.ts),
+      # confirmed from the screenshot artifact. Unlike the web e2e build
+      # (which sources .env.test explicitly), nothing here ever supplied
+      # this var — the real .env is gitignored, local-machine-only. Not
+      # sensitive (the same public web client ID already sits in
+      # google-services.json, client_type 3) — no new secret needed.
+      - run: cd android && ./gradlew assembleRelease --no-daemon --max-workers=2 --stacktrace -Pexpo.inlineModules.watchedDirectories='[]' -x lintVitalAnalyzeRelease
+        env:
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: '256625123188-jhd19h67tt5644hg31mfd2fg84pbp8gt.apps.googleusercontent.com'
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 6
+          # Each line of this `script` block runs as its own separate
+          # `sh -c` invocation (confirmed from the real log: "maestro:
+          # not found" even though the install step just before reported
+          # success) — `export PATH` on its own line has no effect on the
+          # next one. Chained into a single `&&` command so the exported
+          # PATH actually persists for maestro's invocation.
+          # Logcat capture happens regardless of maestro's own exit code
+          # (not chained with the same &&) — a real Maestro test failure
+          # (the actual finding this check exists to catch) shouldn't also
+          # cost the diagnostic log; maestro's exit code is still what the
+          # overall command — and so the CI check — reports.
+          script: |
+            adb install -r android/app/build/outputs/apk/release/app-release.apk && curl -Ls "https://get.maestro.mobile.dev" | bash && export PATH="$PATH:$HOME/.maestro/bin" && adb logcat -c && maestro test maestro/android/googleSignInConfig.yaml; code=$?; adb logcat -d > logcat.txt; exit $code
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-config-check
+          path: |
+            logcat.txt
+            ~/.maestro/tests/
+          retention-days: 7
