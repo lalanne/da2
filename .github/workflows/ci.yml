@@ -202,13 +202,19 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
+          # Each line of this `script` block runs as its own separate
+          # `sh -c` invocation (confirmed from the real log: "maestro:
+          # not found" even though the install step just before reported
+          # success) — `export PATH` on its own line has no effect on the
+          # next one. Chained into a single `&&` command so the exported
+          # PATH actually persists for maestro's invocation.
+          # Logcat capture happens regardless of maestro's own exit code
+          # (not chained with the same &&) — a real Maestro test failure
+          # (the actual finding this check exists to catch) shouldn't also
+          # cost the diagnostic log; maestro's exit code is still what the
+          # overall command — and so the CI check — reports.
           script: |
-            adb install -r android/app/build/outputs/apk/release/app-release.apk
-            curl -Ls "https://get.maestro.mobile.dev" | bash
-            export PATH="$PATH:$HOME/.maestro/bin"
-            adb logcat -c
-            maestro test maestro/android/googleSignInConfig.yaml
-            adb logcat -d > logcat.txt
+            adb install -r android/app/build/outputs/apk/release/app-release.apk && curl -Ls "https://get.maestro.mobile.dev" | bash && export PATH="$PATH:$HOME/.maestro/bin" && adb logcat -c && maestro test maestro/android/googleSignInConfig.yaml; code=$?; adb logcat -d > logcat.txt; exit $code
       - if: always()
         uses: actions/upload-artifact@v4
         with:
