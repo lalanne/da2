@@ -13,10 +13,13 @@ their own Google account.
 
 This repo is wired to the private `eng-standards` marketplace's
 `core-practices` plugin (`.claude/settings.json`, pinned to
-`core-practices--v0.3.0`): skills `spec-first`, `tdd-change`, `open-pr`, plus
-a branch-guard hook that blocks commits/pushes to `main` regardless of what
-the skills decide. Those skills carry the generic discipline; the sections
-below are what's specific to da2 on top of them.
+`core-practices--v0.4.0`): skills `spec-first`, `tdd-change`, `open-pr`, the
+`coder` agent, plus a branch-guard hook that blocks commits/pushes to `main`
+regardless of what the skills decide. Those skills carry the generic
+discipline; the sections below are what's specific to da2 on top of them.
+
+Once a spec is approved, delegate the implementation and PR to the
+`core-practices:coder` agent instead of implementing it in the main session.
 
 ## Spec-Driven Development — the core rule
 
