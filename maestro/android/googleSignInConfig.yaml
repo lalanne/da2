@@ -23,4 +23,3 @@ appId: com.lalanne.da2
 - takeScreenshot: after-tap
 - assertNotVisible:
     id: "sign-in-error"
-    timeout: 8000
