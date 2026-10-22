@@ -157,6 +157,19 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
       - run: npx expo prebuild -p android --no-install
+      # Diagnostic: Gradle's own invocation of this exact command
+      # (ExpoAutolinkingPlugin.kt:69, projectsEvaluated) fails here with
+      # only a bare "non-zero exit value 1" — Gradle doesn't surface the
+      # process's own stdout/stderr on failure. Reproduced successfully
+      # locally (macOS) with these same real paths, so something is
+      # CI/Linux-specific; running it directly to see its actual output.
+      - run: |
+          cd android
+          node --no-warnings --eval "require('expo/bin/autolinking')" \
+            expo-modules-autolinking mirror-kotlin-inline-modules \
+            --kotlin-files-mirror-directory "$(pwd)/src/main/java/inline/modules" \
+            --inline-modules-list-directory "$(pwd)/build/inline/modules" \
+            --watched-directories-serialized "[]"
       - run: cp android-ci-debug.keystore android/app/debug.keystore
       # The first real attempt here hung for the full 6h job timeout: the
       # Gradle daemon hit `OutOfMemoryError: Metaspace` in a background RMI
