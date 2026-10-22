@@ -166,7 +166,13 @@ jobs:
       # ceiling and skip the persistent daemon entirely for a one-shot CI
       # build (removes the exact RMI-daemon path that OOM'd).
       - run: echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> android/gradle.properties
-      - run: cd android && ./gradlew assembleRelease --no-daemon --max-workers=2
+      # --stacktrace: the previous attempt failed with Gradle's generic
+      # "Process 'command node' finished with non-zero exit value 1" —
+      # only configuration-phase tasks had run (no :app:* module task
+      # started), so this is an autolinking/config-resolution script
+      # Gradle shells out to, not Metro bundling. Its own stderr wasn't
+      # forwarded; need the stacktrace to see which script and why.
+      - run: cd android && ./gradlew assembleRelease --no-daemon --max-workers=2 --stacktrace
       - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
