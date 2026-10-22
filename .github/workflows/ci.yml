@@ -157,19 +157,6 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
       - run: npx expo prebuild -p android --no-install
-      # Diagnostic: Gradle's own invocation of this exact command
-      # (ExpoAutolinkingPlugin.kt:69, projectsEvaluated) fails here with
-      # only a bare "non-zero exit value 1" — Gradle doesn't surface the
-      # process's own stdout/stderr on failure. Reproduced successfully
-      # locally (macOS) with these same real paths, so something is
-      # CI/Linux-specific; running it directly to see its actual output.
-      - run: |
-          cd android
-          node --no-warnings --eval "require('expo/bin/autolinking')" \
-            expo-modules-autolinking mirror-kotlin-inline-modules \
-            --kotlin-files-mirror-directory "$(pwd)/src/main/java/inline/modules" \
-            --inline-modules-list-directory "$(pwd)/build/inline/modules" \
-            --watched-directories-serialized "[]"
       - run: cp android-ci-debug.keystore android/app/debug.keystore
       # The first real attempt here hung for the full 6h job timeout: the
       # Gradle daemon hit `OutOfMemoryError: Metaspace` in a background RMI
@@ -179,13 +166,28 @@ jobs:
       # ceiling and skip the persistent daemon entirely for a one-shot CI
       # build (removes the exact RMI-daemon path that OOM'd).
       - run: echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> android/gradle.properties
-      # --stacktrace: the previous attempt failed with Gradle's generic
-      # "Process 'command node' finished with non-zero exit value 1" —
-      # only configuration-phase tasks had run (no :app:* module task
-      # started), so this is an autolinking/config-resolution script
-      # Gradle shells out to, not Metro bundling. Its own stderr wasn't
-      # forwarded; need the stacktrace to see which script and why.
-      - run: cd android && ./gradlew assembleRelease --no-daemon --max-workers=2 --stacktrace
+      # Still failing after the memory fix, at ExpoAutolinkingPlugin.kt:69
+      # — a `node --eval "require('expo/bin/autolinking')" ...
+      # mirror-kotlin-inline-modules` call made via Gradle's Provider API
+      # (projectsEvaluated), "non-zero exit value 1" with no stderr
+      # forwarded. Running the identical command directly (outside
+      # Gradle) and running it twice in a row both succeeded locally and
+      # in CI — so it's specifically Gradle's own invocation that differs,
+      # not the command or a double-run/idempotency issue. --debug to get
+      # Gradle's own trace of that exact process execution, piped to a
+      # file and filtered so the log stays readable (a full --debug Android
+      # build log can be huge; this fails at the configuration phase,
+      # before any :app:* task, so the truncated log should still be
+      # small).
+      - run: |
+          cd android
+          set +e
+          ./gradlew assembleRelease --no-daemon --max-workers=2 --stacktrace --debug > /tmp/gradle-debug.log 2>&1
+          code=$?
+          echo "--- filtered debug log (autolinking/node-related) ---"
+          grep -n -i "autolink\|mirror-kotlin\|node_modules/expo/bin\|Starting process\|ExecHandle\|standardOutput\|standard output\|errorOutput\|standard error" /tmp/gradle-debug.log | tail -200
+          echo "--- end filtered log ---"
+          exit $code
       - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -211,4 +213,5 @@ jobs:
           path: |
             logcat.txt
             ~/.maestro/tests/
+            /tmp/gradle-debug.log
           retention-days: 7
