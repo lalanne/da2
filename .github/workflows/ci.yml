@@ -167,27 +167,18 @@ jobs:
       # build (removes the exact RMI-daemon path that OOM'd).
       - run: echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m" >> android/gradle.properties
       # Still failing after the memory fix, at ExpoAutolinkingPlugin.kt:69
-      # — a `node --eval "require('expo/bin/autolinking')" ...
-      # mirror-kotlin-inline-modules` call made via Gradle's Provider API
-      # (projectsEvaluated), "non-zero exit value 1" with no stderr
-      # forwarded. Running the identical command directly (outside
-      # Gradle) and running it twice in a row both succeeded locally and
-      # in CI — so it's specifically Gradle's own invocation that differs,
-      # not the command or a double-run/idempotency issue. --debug to get
-      # Gradle's own trace of that exact process execution, piped to a
-      # file and filtered so the log stays readable (a full --debug Android
-      # build log can be huge; this fails at the configuration phase,
-      # before any :app:* task, so the truncated log should still be
-      # small).
-      - run: |
-          cd android
-          set +e
-          ./gradlew assembleRelease --no-daemon --max-workers=2 --stacktrace --debug > /tmp/gradle-debug.log 2>&1
-          code=$?
-          echo "--- filtered debug log (autolinking/node-related) ---"
-          grep -n -i "autolink\|mirror-kotlin\|node_modules/expo/bin\|Starting process\|ExecHandle\|standardOutput\|standard output\|errorOutput\|standard error" /tmp/gradle-debug.log | tail -200
-          echo "--- end filtered log ---"
-          exit $code
+      # (a `mirror-kotlin-inline-modules` call, projectsEvaluated).
+      # --debug tracing found the real --watched-directories-serialized
+      # value Gradle passes: `[org.gradle.jvmargs=-Xmx4096m
+      # -XX:MaxMetaspaceSize=1024m]` — not `[]`. The Kotlin side reads
+      # `project.findProperty("expo.inlineModules.watchedDirectories")`;
+      # something is resolving that Gradle property to the *jvmargs line
+      # just appended to gradle.properties* rather than null/empty, and
+      # the JS side's `JSON.parse()` of that non-JSON string is almost
+      # certainly what throws. Force the property explicitly to a valid
+      # empty JSON array rather than chase why the implicit default
+      # resolves wrong.
+      - run: cd android && ./gradlew assembleRelease --no-daemon --max-workers=2 --stacktrace -Pexpo.inlineModules.watchedDirectories='[]'
       - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -213,5 +204,4 @@ jobs:
           path: |
             logcat.txt
             ~/.maestro/tests/
-            /tmp/gradle-debug.log
           retention-days: 7
