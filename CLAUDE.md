@@ -12,9 +12,9 @@ their own Google account.
 ## Shared engineering practices
 
 This repo is wired to the private `eng-standards` marketplace's
-`core-practices` plugin (`.claude/settings.json`, pinned to
-`core-practices--v0.4.0`): skills `spec-first`, `tdd-change`, `open-pr`, the
-`coder` agent, plus a branch-guard hook that blocks commits/pushes to `main`
+`core-practices` plugin (`.claude/settings.json`, following the marketplace's
+`main`, so each new release arrives automatically): skills `start-work`,
+`spec-first`, `tdd-change`, `open-pr`, `land-pr`, the `coder` agent, plus a branch-guard hook that blocks commits/pushes to `main`
 regardless of what the skills decide. Those skills carry the generic
 discipline; the sections below are what's specific to da2 on top of them.
 
